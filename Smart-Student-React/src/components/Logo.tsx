@@ -32,12 +32,12 @@ export const Logo = ({ showLabel = true }: Props) => {
 
   const demoUser = {
     UserName: "AdminUser",
-    Password: "TuPasswordSeguro!123", // Asumiendo el pass del .env
-    FirstName: "Alexander",
-    LastName: "Polanco Moreno",
-    Email: "adminuser@gmail.com",
-    PhoneNumber: "809-778-7886",
-    Address: "Monte Plata",
+    Password: "123Pass$$word!",
+    FirstName: "Juan",
+    LastName: "Pérez Gómez",
+    Email: "admin@democampus.com",
+    PhoneNumber: "809-555-0100",
+    Address: "Santo Domingo",
     IdentificationId: "000-000000-0",
   };
 
@@ -81,7 +81,7 @@ export const Logo = ({ showLabel = true }: Props) => {
             >
               <div className="mb-3 border-b border-gray-700 pb-2">
                 <h3 className="font-bold text-blue-400">Acceso de Prueba</h3>
-                <p className="text-[10px] text-gray-400">Alexander Polanco Moreno</p>
+                <p className="text-[10px] text-gray-400">{demoUser.FirstName} {demoUser.LastName}</p>
               </div>
               
               <div className="space-y-3">
@@ -101,10 +101,10 @@ export const Logo = ({ showLabel = true }: Props) => {
                 <div className="flex justify-between items-center group">
                   <div>
                     <label className="text-[10px] text-gray-500 uppercase font-bold block">Contraseña</label>
-                    <span className="font-mono text-xs">TuPasswordSeguro!123</span>
+                    <span className="font-mono text-xs">{demoUser.Password}</span>
                   </div>
                   <button 
-                    onClick={() => copyToClipboard('TuPasswordSeguro!123', 'pass')}
+                    onClick={() => copyToClipboard(demoUser.Password, 'pass')}
                     className="p-1.5 hover:bg-gray-700 rounded transition-colors"
                   >
                     {copied === 'pass' ? <FaCheck className="text-green-500" /> : <FaCopy className="text-gray-500" />}
