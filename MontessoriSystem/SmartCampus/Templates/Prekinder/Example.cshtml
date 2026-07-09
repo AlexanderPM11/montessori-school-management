@@ -1,0 +1,34 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.AchievementIndicators;
+@model AchievementIndicatorStatusViewModelResponse
+
+@using MontessoriSystem.Core.Domain.Settings;
+@using MontessoriSystem.Core.Domain.Settings.Grades;
+
+@inject Microsoft.Extensions.Options.IOptions<EducationalPeriod> EducationalPeriodOptions
+@inject Microsoft.Extensions.Options.IOptions<IMG_ParvuloIII> IMG_ParvuloIII
+
+@{
+    string Agosto_Diciembre = EducationalPeriodOptions.Value.Agosto_Diciembre;
+    string Enero_Marzo = EducationalPeriodOptions.Value.Enero_Marzo;
+    string Abril_Junio = EducationalPeriodOptions.Value.Abril_Junio;
+
+    string imgHead1 = IMG_ParvuloIII.Value.Head1;
+    string imgHead2 = IMG_ParvuloIII.Value.Head2;
+    string imgFooter2 = IMG_ParvuloIII.Value.Footer2;
+    // Construir el estilo del fondo para evitar problemas de sintaxis
+
+}
+
+<style>
+    .container-final-img {
+        margin-top: 15px;
+        width: 100%;
+        height: 646px;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+    }
+</style>
+
+<div class="container-final-img" style="@($"background-image: url('{imgFooter2}');")">
+</div>

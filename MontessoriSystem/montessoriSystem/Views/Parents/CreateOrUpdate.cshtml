@@ -1,0 +1,826 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.User;
+@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model SaveUserViewModel
+
+
+@{
+    ViewData["Title"] = "Create user";
+    bool isEditin = (Model.Id != null);
+}
+ <!-- Load Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="~/js/filter_multi_select.css" />
+    <script src="~/js/filter-multi-select-bundle.min.js"></script>
+
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+<div class="container">
+   
+    <div id="tabs" class="tab-custom">
+
+        <ul class="tabs">
+            <li><a href="#tabs-01">Padre</a></li>
+            <li><a href="#tabs-02">Hijos</a></li>
+        </ul>
+
+        <div class="container-form" id="tabs-01">
+            <form id="formCreateUpdateUser">
+                <input asp-for="Id" type="hidden" />
+
+                <!-- Información Personal -->
+                <div class="mb-4">
+                    <p class="custom-subtitle-form">Información Personal</p>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="FirstName" class="form-label">Nombre(s):</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" id="inputName" asp-for="FirstName" placeholder="Ingrese el nombre">
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastName" class="form-label">Apellidos:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" id="inputLastname" asp-for="LastName" placeholder="Ingrese los apellidos">
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="UserName" class="form-label">Nombre de Usuario:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" id="inputUserName" asp-for="UserName" placeholder="Ingrese el nombre de usuario">
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Gender" class="form-label">Género:</label><span style="color:red"> *</span>
+                            <select class="form-select col" asp-for="Gender" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                <option value="1">Masculino</option>
+                                <option value="0">Femenino</option>
+                                <span asp-validation-for="Gender" class="text-danger"></span>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="DateBirth" class="form-label">Fecha de Nacimiento:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" id="inputDateBirth" asp-for="DateBirth" placeholder="Fecha de nacimiento">
+                            <span asp-validation-for="DateBirth" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="IdentificationId" class="form-label">Cédula de identidad:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" asp-for="IdentificationId" placeholder="Ingrese la cédula de identidad">
+                            <span asp-validation-for="IdentificationId" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="NoBook" class="form-label">No. Libro:</label>
+                            <input type="text" class="form-control" id="inputNoBook" asp-for="NoBook" placeholder="No. Libro">
+                            <span asp-validation-for="NoBook" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NoFolio" class="form-label">No. Folio:</label>
+                            <input type="text" class="form-control" asp-for="NoFolio" placeholder="No. Folio">
+                            <span asp-validation-for="NoFolio" class="text-danger"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="CivilStatus" class="form-label">Estado Civil:</label><span style="color:red"> *</span>
+                            <select class="form-select col" asp-for="CivilStatus" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                @{
+                                    foreach (var item in ViewBag.MaritalStatus as List<ClassSelected<int>>)
+                                    {
+                                            <option value=@item.Id>@item.text</option>
+                                    }
+                                }
+                                <span asp-validation-for="CivilStatus" class="text-danger"></span>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Nationality" class="form-label">Nacionalidad:</label>  @* <span style="color:red"> *</span> *@
+                            <select class="form-select col" asp-for="Nationality" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                @{
+                                    foreach (var item in ViewBag.Nacionaties as List<ClassSelected<int>>)
+                                    {
+                                            <option value=@item.Id>@item.text</option>
+                                    }
+                                }
+                                <span asp-validation-for="Nationality" class="text-danger"></span>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+                            <label asp-for="IdNivelEducativo" class="form-label">Nivel educativo:</label><span style="color:red"> *</span>
+                            <select class="form-select col" asp-for="IdNivelEducativo" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                @{
+                                    foreach (var item in ViewBag.EducatLevel as List<ClassSelected<int>>)
+                                    {
+                                            <option value=@item.Id>@item.text</option>
+                                    }
+                                }
+                                <span asp-validation-for="IdNivelEducativo" class="text-danger"></span>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="RelationshipId" class="form-label">Parentesco:</label> @* <span style="color:red"> *</span> *@
+                            <select class="form-select col" asp-for="RelationshipId" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                @{
+                                    foreach (var item in ViewBag.RelationshipPerson as List<ClassSelected<int>>)
+                                    {
+                                            <option value=@item.Id>@item.text</option>
+                                    }
+                                }
+                                <span asp-validation-for="RelationshipId" class="text-danger"></span>
+                            </select>
+                        </div>
+                    </div>
+
+                    @if (!isEditin)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Password" class="form-label">Contraseña:</label><span style="color:red"> *</span>
+                                <input type="text" class="form-control" id="password" asp-for="Password" placeholder="Ingrese la contraseña">
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmPassword" class="form-label">Confirmar Contraseña:</label><span style="color:red"> *</span>
+                                <input type="text" class="form-control" id="confirmPassword" asp-for="ConfirmPassword" placeholder="Confirme la contraseña">
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+                    }
+
+
+
+                </div>
+
+                <!-- Contacto -->
+                <div class="mb-4">
+                    <p class="custom-subtitle-form">Contacto</p>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label">Correo:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" asp-for="Email" placeholder="Ingrese el correo">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Tel" class="form-label">Número de Teléfono:</label>
+                            <input type="text" class="form-control" asp-for="Tel" placeholder="Ingrese el número de Teléfono">
+                            <span asp-validation-for="Tel" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label">Celular:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" id="PhoneNumber" asp-for="PhoneNumber" placeholder="Ingrese el numero de celular">
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Addres" class="form-label">Dirección:</label>@* <span style="color:red"> *</span> *@
+                            <input type="text" class="form-control" id="addres" asp-for="Addres" placeholder="Ingrese la dirección">
+                            <span asp-validation-for="Addres" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ocupación y Trabajo -->
+                <div class="mb-4">
+                    <p class="custom-subtitle-form">Ocupación y Trabajo</p>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label asp-for="Profession" class="form-label">Profesión:</label>
+
+                            <select class="form-select col" asp-for="Profession" aria-label="Default select example">
+                                <option value="">Sin Profesión</option>
+                                @{
+                                    foreach (var item in ViewBag.Professions as List<ClassSelected<int>>)
+                                    {
+                                            <option value=@item.Id>@item.text</option>
+                                    }
+                                }
+                                <span asp-validation-for="Profession" class="text-danger"></span>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="Job" class="form-label">Trabajo:</label>
+
+                            <select class="form-select col" asp-for="Job" aria-label="Default select example">
+                                <option value="">Sin Trabajo</option>
+                                @{
+                                    foreach (var item in ViewBag.Professions as List<ClassSelected<int>>)
+                                    {
+                                            <option value=@item.Id>@item.text</option>
+                                    }
+                                }
+                                <span asp-validation-for="Job" class="text-danger"></span>
+                            </select>
+
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PlaceWork" class="form-label">Lugar de trabajo:</label>
+                            <input type="text" class="form-control" asp-for="PlaceWork" placeholder="Ingrese el lugar de trabajo">
+                            <span asp-validation-for="PlaceWork" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Imagen de Perfil -->
+                @* <div class="row mb-3 container-img">
+
+                <div class="container-lable-image">
+                <label class="form-label fw-bold" id="imageTitle">Perfil</label>
+                <span class="text-danger"></span>
+                </div>
+
+                <div class="file-drop-area-institu" id="fileDropArea-institu">
+                @if (string.IsNullOrEmpty(Model.UrlImage))
+                {
+                <span class="file-message" id="fileMessage-institu">Arrastra aquí o haz click para seleccionar</span>
+                }
+
+                <input asp-for="UrlImage" id="file-input" class="file-input" type="file" accept="image/*" multiple>
+
+                @if (!string.IsNullOrEmpty(Model.UrlImage))
+                {
+                <img id="image-preview" src="~/FileUser/User/@Model.UrlImage" alt="Vista previa" class="rounded-image">
+                }
+                else
+                {
+                <img id="image-preview" src="#" alt="Vista previa" class="rounded-image" style="display: none;">
+                }
+                </div>
+
+                </div> *@
+
+                <div class="container-btn">
+                    <button type="button" class="btn btn-primary" id="btn-save-user"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btn-cancel"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="container-form" id="tabs-02">
+            <div id="gridDatosHijos"></div>
+        </div>
+
+    </div>
+
+   
+
+</div>
+
+
+<script>
+
+    var IdParent = "@Model.Id";
+
+    $(document).ready(function () {
+
+        $(function () {
+            $("#tabs").tabs();
+        });
+        GetDatosHijos()
+        validateInputs();
+    });
+
+    //Cargar table listado estudiantes
+    function GetDatosHijos() {
+
+        $('#gridDatosHijos').dxDataGrid({
+
+            dataSource: {
+                load: function () {
+
+                    return $.ajax({
+                        url: '@Url.Action("GetDatosEstudianteByParents", "Student")',
+                        data: { IdInstitu: idInstituMain, IdParent },
+                        dataType: "json"
+                    });
+                }
+            },
+            paging: {
+                pageSize: 10,
+            },
+            columnMinWidth: 160,
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard',
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'name',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'lastname',
+                    caption: "Apellidos"
+                },
+                {
+                    dataField: 'sexDes',
+                    caption: "Sexo"
+                },
+                {
+                    dataField: 'relationPersonLiveWithDesc',
+                    caption: "Parentesco"
+                },
+                {
+                    dataField: 'book',
+                    caption: "No. Libro"
+                },
+                {
+                    dataField: 'folio',
+                    caption: "No. Folio"
+                },
+                {
+                    dataField: 'nacionality',
+                    caption: "Nacionalidad"
+                },
+
+                {
+                    dataField: 'bornDate',
+                    caption: "Fecha Nac"
+                },
+                {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var dateCurrent = convertirFecha(options.data.bornDate);
+                        var formattedDate = GetCurrentAge(dateCurrent);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+
+                {
+                    dataField: 'direction',
+                    caption: "Dirección"
+                },
+                {
+                    dataField: 'level',
+                    caption: "Nivel"
+                },
+                {
+                    dataField: 'carriedPreprimary',
+                    caption: "¿Real. el Preprimario?"
+                },
+                {
+                    dataField: 'numberSiblings',
+                    caption: "No. Hermanos"
+                },
+                {
+                    dataField: 'placeBetweenSiblings',
+                    caption: "Lugar entre hermanos"
+                },
+                {
+                    dataField: 'agesSiblings',
+                    caption: "Edades de los hermanos"
+                },
+
+                {
+                    dataField: 'neae',
+                    caption: "Necesi. Esp. (NEAE)"
+                },
+                {
+                    dataField: 'diseasesAllergic',
+                    caption: "Alergias o enfermedades"
+                },
+                {
+                    dataField: 'medicinesUse',
+                    caption: "Medicamentos que utiliza"
+                },
+                {
+                    dataField: 'doctorPediatrician',
+                    caption: "Médico o Pediatra"
+                },
+                {
+                    dataField: 'idFatherDesc',
+                    caption: "Padre/Tutor"
+                },
+                {
+                    dataField: 'idMotherDesc',
+                    caption: "Madre/Tutor"
+                },
+                {
+                    dataField: 'telFather',
+                    caption: "Tel de Padre/Tutor"
+                },
+                {
+                    dataField: 'telMother',
+                    caption: "Tel de Madre/Tutor"
+                },
+                {
+                    dataField: 'emergencyPerson',
+                    caption: "Persona a llamar de emergencia"
+                },
+                {
+                    dataField: 'emergencyTel',
+                    caption: "Tel de emergencia"
+                },
+                {
+                    dataField: 'estado',
+                    caption: "Estado"
+                }
+
+            ],
+            onRowDblClick: function (e) {
+                editStudentParent()
+            }, onRowClick: function (e) {
+                idStudent = e.data.id;
+                activeBtn()
+            },
+            onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    id = selectedRowKeys[0].id;
+                    idStudent = selectedRowKeys[0].id;
+                    activeBtn()
+                } else {
+                    disableBtn();
+                }
+            },
+            onContentReady: function (e) {
+
+            }, export: {
+                enabled: true,
+                formats: ['pdf'],
+                allowExportSelectedData: true,
+            },
+            onExporting(e) {
+                const doc = new jsPDF();
+
+                DevExpress.pdfExporter.exportDataGrid({
+                    jsPDFDocument: doc,
+                    component: e.component,
+                    indent: 5,
+                }).then(() => {
+                    doc.save('Students.pdf');
+                });
+            },
+        });
+
+    }
+
+
+    function editStudentParent() {
+        $('#tabs').removeAttr('id');
+        isPrincipalMain = false;
+        $.ajax({
+            url: '@Url.Action("CreateUpdate", "Student")',
+            method: 'GET',
+            data: { idStudent, IdInstitu: idInstituMain, isPrincipalMain },
+            success: function (data) {
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Editar Estudiante',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+
+    }
+   
+    function refresshStudentParent() {
+        var dataGrid = $("#gridDatosHijos").dxDataGrid("instance");
+        dataGrid.refresh();
+        
+    }
+
+    function validateInputs() {
+
+        $('#formCreateUpdateUser').validate({});
+
+       
+        $("#PhoneNumber").rules("add", {
+            required: true,
+            // phoneFormat: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+
+        $("#inputName").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $("#CivilStatus").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        // $("#Nationality").rules("add", {
+        //     required: true,
+        //     messages: {
+        //         required: "El campo es obligatorio."
+        //     }
+        // });
+
+        $("#inputGender").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+
+        $("#inputDateBirth").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        // $("#RelationshipId").rules("add", {
+        //     required: true,
+        //     messages: {
+        //         required: "El campo es obligatorio."
+        //     }
+        // });
+
+        var maxDate = new Date();
+        maxDate.setFullYear(maxDate.getFullYear() - 18);
+        $('#inputDateBirth').datepicker({
+            format: 'dd MM yyyy',
+            language: 'es',
+            startDate: '01/01/1940', 
+            endDate: maxDate
+        });
+
+        var inputDateBirth = $('#inputDateBirth').val()
+        $('#inputDateBirth').datepicker('update', parseDateLongToShort(inputDateBirth));
+
+        $("#password").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $("#confirmPassword").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $('#inputLastname').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#inputUserName').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+
+        $('#Email').rules('add', {
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+            emailFormat: true,
+        });
+
+        // $('#addres').rules('add', {
+        //     messages: {
+        //         required: 'El campo es obligatorio.'
+        //     },
+        //     required: true,
+        // });
+        $('#Gender').rules('add', {
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+        });
+        $('#IdNivelEducativo').rules('add', {
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+        });
+        $('#IdentificationId').rules('add', {
+            identificationId: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+        });
+
+
+        formatterTel("Tel");
+        formatterTel("PhoneNumber");
+        formatterIdenticationId("IdentificationId");
+
+        $('#Tel').on('input', function () {
+            let value = $(this).val().replace(/\D/g, ''); 
+            if (value.length > 0) {
+                $("#Tel").rules("add", {
+                    required: true,
+                    // phoneFormat: true
+                });
+            }else{
+                $("#Tel").rules("add", {
+                    required: false,
+                    // phoneFormat: false
+                });
+            }
+        });
+
+
+        // Configurations Place Job
+        if ($('#Job').val().length > 0) {
+            $("#PlaceWork").rules("add", {
+                messages: {
+                    required: 'El campo es obligatorio.'
+                },
+                required: true
+            });
+        } 
+
+        $('#Job').on('input', function () {
+            let value = $(this).val();
+            if (value.length > 0) {
+                $("#PlaceWork").rules("add", {
+                    messages: {
+                        required: 'El campo es obligatorio.'
+                    },
+                    required: true
+                });
+            } else {
+                $("#PlaceWork").rules("add", {
+                    required: false
+                });
+            }
+        });
+       
+
+        // Custom valiator
+        $.validator.addMethod("phoneFormat", function (value, element) {
+            // Validar que el valor tenga el formato esperado
+            return /^\d{3}-\d{3}-\d{4}$/.test(value);
+        }, "El formato del teléfono debe ser 999-999-9999.");
+
+        $.validator.addMethod("identificationId", function (value, element) {
+            // Validar que el valor tenga el formato esperado
+            return /^\d{3}-\d{7}-\d{1}$/.test(value);
+        }, "El formato de la cédula debe ser 000-0000000-0.");
+
+        $.validator.addMethod("emailFormat", function(value, element) {
+            // Validar que el valor tenga el formato esperado de correo electrónico
+            return /^(([^<>()[\]\\.,;:\s@@"]+(\.[^<>()[\]\\.,;:\s@@"]+)*)|.(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value);
+        }, "El formato del correo electrónico no es válido.");
+    }
+
+    function guardarDatosParentForm() {
+
+
+        var form = document.getElementById('formCreateUpdateUser');
+
+        var formData = new FormData(form);
+
+        formData.append('idInstitu', IdInstituParents);
+        formData.append('institutionIdPrincipal', idInstituMain);
+        $.ajax({
+            url: '@Url.Action("CreateOrUpdate", "Parents")',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                hideGlobalLoadingIndicator()
+                if (data.result) {
+                    toastr.success(data.data, 'Correcto!');
+                    refresshGridUsers();
+                    disableBtn();
+                    confirmDailog.close();
+                } else {
+                    toastr.error(data.data, 'Error!');
+                }
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator()
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!')
+            }
+        });
+
+
+    }
+
+    $("#btn-save-user").click(function () {
+        if ($('#formCreateUpdateUser').valid()) {
+            showGlobalLoadingIndicator()
+            guardarDatosParentForm();
+        } else {
+            return false;
+        }
+       
+    });
+
+
+    $("#btn-cancel").click(function () {
+        confirmDailog.close();
+    });
+
+</script>
+
+
+<style>
+   
+    .rounded-image {
+        width: 100%;
+        height: 100% !important;
+        border-radius: 50%;
+        object-fit: cover; /* Asegura que la imagen se ajuste dentro del contenedor circular */
+    }
+
+    .container-img {
+        /* justify-content:start !important;  */
+    }
+
+    .container-lable-image {
+        text-align: center;
+    }
+
+    .container-img {
+        justify-content: center;
+        display: flex;
+        min-width: 250px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        margin-right: 30px;
+        margin-bottom: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+
+    #btn-save-user {
+        margin-right: 10px;
+    }
+
+    .jconfirm-box {
+        max-width: 1000px !important; /* Establecer ancho máximo */
+    }
+</style>
+
+

@@ -1,0 +1,43 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.User
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Inicio de sesión";
+    Layout = "_LayoutLogin";
+
+}
+
+
+    <div class="login-content">
+                            <div class="container-login card">
+                                
+                                <div class="container-form-login">
+                                    <h1 class="title-login">Login</h1>
+            @if (Model.HasError ?? false)
+            {
+                                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                            <p class="">@Model.Error</p>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                        </div>
+            }
+                                    <form class="form-login"  method="post" asp-action="Login" asp-controller="User">
+                                        <div class="mb-3">
+                                            <label asp-for="Email" class="form-label lable-style">Correo Electrónico</label>
+                                            <input type="email"  asp-for="Email" class="form-control" placeholder="Correo Electrónico">
+                                            <span asp-validation-for="Email" class="text-danger fw-bold"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label asp-for="Password"  class="form-label lable-style">Contraseña</label>
+                                            <input asp-for="Password" type="password" class="form-control" placeholder="Contraseña" >
+                                           <span asp-validation-for="Password" class="text-danger fw-bold"></span>
+                                        </div>
+
+                                        <a asp-controller="User" asp-action="ForgotPassword" class="lable-style">¿Olvido la contraseña?</a>
+
+                                        <div class="container-btn-login">
+                                            <button type="submit" class="btn btn-primary btn-login">Login</button>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+    </div>

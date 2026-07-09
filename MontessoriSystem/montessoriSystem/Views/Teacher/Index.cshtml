@@ -1,0 +1,339 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.User;
+@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model SaveUserViewModel
+
+
+@{
+    ViewData["Title"] = "Teachers";
+}
+
+<div class="container mb-1 ">
+
+    <div class="container-principal">
+
+        <div class="btn-container">
+
+            @* <button type="button" id="loadExcelTeacher" class="btn btn-info"><i class="fa-solid fa-file-excel"></i>  Cargar Excel</button> *@
+            <button type="button" id="newTeacher" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nuevo</button>
+            <button type="button" disabled id="editParent" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+
+        </div>
+        <div id="gridContainerTeachers"></div>
+    </div>
+    
+
+</div>
+
+
+<script>
+
+    var IdInstituTeachers = '@ViewBag.IdInstitu';
+    var idUser='';
+
+    $(document).ready(function () {
+        GetDatosTeachersJson();
+    });
+
+    //Cargar table listado estudiantes
+    function GetDatosTeachersJson() {
+
+        $('#gridContainerTeachers').dxDataGrid({
+            dataSource: {
+                load: function () {
+                    return $.ajax({
+                        url: '@Url.Action("GetDatosUserJson", "Teacher")',
+                        data: { idInstitu: IdInstituTeachers },
+                        dataType: "json"
+                    });
+                }
+            },
+             columnMinWidth: 160,
+            paging: {
+                pageSize: 10,
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard'
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'UrlImg',
+                    caption: 'Imagen',
+                    cellTemplate: function (container, options) {
+                        
+                        // Estilos para centrar la imagen en el contenedor
+                        container.css({
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        });
+
+                        // Construye la URL completa para la imagen
+                        var imageUrl = options.data.urlImage ? '/FileUser/User/' + options.data.urlImage : '/FileUser/User/defaultuser.png';
+
+
+                        // Crea un elemento de imagen y configúralo con la URL construida
+                        $('<img>')
+                            .attr('src', imageUrl)
+                            .attr('alt', 'Imagen del Estudiante')
+                            .css({ width: '50px', height: '50px', borderRadius: '50%' }) // Ajusta el tamaño y el estilo de la imagen
+                            .appendTo(container);
+                    },
+                },
+                {
+                    dataField: 'firstName',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'lastName',
+                    caption: "Apellidos"
+                },
+                {
+                    dataField: 'userName',
+                    caption: "Nombre de Usuario"
+                }, 
+                {
+                    dataField: 'sex',
+                    caption: "Sexo"
+                },
+                {
+                    dataField: 'dateBirth',
+                    caption: "Fecha de nacimiento",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = formatDateString(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+                {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = GetCurrentAge(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+                {
+                    dataField: 'identificationId',
+                    caption: "Cédula de identidad"
+                },
+                {
+                    dataField: 'civilStatusDesc',
+                    caption: "Estado Civil"
+                },
+                {
+                    dataField: 'nationalityDesc',
+                    caption: "Nacionalidad"
+                },
+                {
+                    dataField: 'email',
+                    caption: "Correo Eléctronico"
+                },
+                {
+                    dataField: 'tel',
+                    caption: "Número de Teléfono"
+                },
+                {
+                    dataField: 'phoneNumber',
+                    caption: "Número de Celular"
+                },
+                {
+                    dataField: 'addres',
+                    caption: "Dirección"
+                },
+                , {
+                    dataField: 'yearsServiceEducationalSystem',
+                    caption: "Años en serv. en el Sist. Educ"
+                }, 
+                {
+                    dataField: 'areaSpecializationDesc',
+                    caption: "Área de Especialización"
+                }, {
+                    dataField: 'titleAchievedDesc',
+                    caption: "Título alcanzado"
+                },
+                {
+                    dataField: 'studiesCurrentlyPursuingDesc',
+                    caption: "Estudios actuales"
+                }
+
+            ],
+            onRowDblClick: function (e) {
+                CreateUpdate();
+            }, onRowClick: function (e) {
+                idUser =e.data.id
+                //activeBtn()
+            },
+            onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    idUser = selectedRowKeys[0].id;
+                    activeBtn()
+                } else {
+                    disableBtn();
+                }
+            },
+            onContentReady: function (e) {
+
+            }
+        });
+
+    }
+
+    //Functions    
+
+    //Create
+
+    $('#newTeacher').on('click', function () {
+        deselectAllRows();
+        disableBtn();
+        idUser = '';        
+        CreateUpdate('green', 'Crear Profesor');
+    })
+    $('#editParent').on('click', function () {
+        deselectAllRows();
+        disableBtn();
+        CreateUpdate();
+    })
+
+    $('#loadExcelTeacher').on('click', function () {
+        loadExcelTeacher();
+    });
+
+    function CreateUpdate(type = 'green', title = 'Actualizar Profesor') {
+
+        $.ajax({
+            url: '@Url.Action("CreateOrUpdate", "Teacher")',
+            method: 'GET',
+            data: { idUser },
+            success: function (data) {
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: title,
+                    content: data,
+                    type: type,
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+
+    // btns Enable disable
+    function activeBtn() {
+        $('#editParent').prop("disabled", false);
+        $('#deleteUser').prop("disabled", false);
+    }
+
+    function disableBtn() {
+        $('#editParent').prop("disabled", true);
+        $('#deleteUser').prop("disabled", true);
+    }
+
+    function refresshGridUsers() {
+        
+        $("#loadPanelContainer").dxLoadPanel("show");
+
+        var dataGrid = $("#gridContainerTeachers").dxDataGrid("instance");
+        dataGrid.refresh().done(function () {
+            $("#loadPanelContainer").dxLoadPanel("hide");            
+        });
+    }
+
+    function deselectAllRows() {
+        var dataGrid = $('#gridContainerTeachers').dxDataGrid('instance');
+        dataGrid.clearSelection();
+    }
+
+    if (IdInstituTeachers) {       
+        var element = document.querySelector('.container-principal');
+        element.style.boxShadow = 'initial';
+        element.style.webkitBoxShadow = 'initial';
+        element.style.border = 'initial';
+    }
+    function loadExcelTeacher() {
+
+        $.ajax({
+            url: '@Url.Action("ViewExcel", "Teacher")',
+            method: 'GET',
+            data: {},
+            success: function (data) {
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Cargar Profesores',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+
+    }
+
+</script>
+
+<style>
+
+    
+    .btn-container {
+        display: flex;
+        justify-content: end;
+        padding-bottom: 10px;
+        min-width: 200px;
+    }
+
+    .container-principal {
+        background-color: white;
+        border-radius: 5px;
+        padding: 30px;
+        margin-bottom: 30px;
+        -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #ccd2d5;
+    }
+
+    #loadExcelTeacher {
+        margin-right: 10px;
+    }
+    #editParent {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #deleteUser {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    
+</style>
+

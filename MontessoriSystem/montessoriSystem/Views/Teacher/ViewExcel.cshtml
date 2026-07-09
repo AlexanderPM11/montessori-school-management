@@ -1,0 +1,102 @@
+﻿
+@{
+    Layout = null;
+}
+
+<div class="container mt-5">
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Subir Archivo Excel</h5>
+        </div>
+        <div class="card-body">
+            <form id="uploadFormTeacher" enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label for="excelFileTeacher" class="btn btn-outline-primary">Seleccionar Archivo</label>
+                    <input type="file" class="form-control-file d-none" id="excelFileTeacher" name="excelFileTeacher" accept=".xlsx, .xls" />
+
+                    <!-- Campo para mostrar el nombre del archivo seleccionado -->
+                    <input type="text" class="form-control mt-2" id="fileNameDisplayTeacher" placeholder="No hay archivo seleccionado" readonly />
+                </div>
+
+                <button type="button" id="downloadTemplateExcel" class="btn btn-info mt-3">Descargar Plantilla</button>
+                <button type="button" id="uploadBtnExcel" class="btn btn-success mt-3">Subir Archivo</button>
+                <button type="button" id="resetBtn" class="btn btn-danger mt-3">Resetear</button>
+                <button type="button" id="cancelBtn" class="btn btn-warning mt-3">Cancelar</button>
+
+            </form>
+            <div id="resultTeacher" class="mt-3"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+
+        // Cuando se selecciona un archivo, se muestra su nombre
+        $('#excelFileTeacher').change(function () {
+            var fileName = $('#excelFileTeacher')[0].files[0].name;
+            $('#fileNameDisplayTeacher').val(fileName);
+        });
+
+        $('#uploadBtnExcel').click(function () {
+
+            var formData = new FormData();
+            var fileInput = $('#excelFileTeacher')[0].files[0];
+
+            if (!fileInput) {
+                toastr.error('Por favor, seleccione un archivo.');
+                return;
+            }
+
+            showGlobalLoadingIndicator();
+
+            formData.append('excelFile', fileInput);
+            formData.append('IdInstitu', idInstituMain);
+
+            $.ajax({
+                url: '@Url.Action("CreateTeacherExcel", "Teacher")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+
+                    hideGlobalLoadingIndicator();
+                    if (response.result) {
+                        refresshGridUsers();
+                        confirmDailog.close();                        
+                        toastr.success(response.data, 'Correcto!');
+                    }else{
+                        confirmDailog.close();
+                        toastr.error(response.data, 'Error!');
+                    }
+                    
+                },
+                error: function (xhr, status, error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        });
+
+        $('#resetBtn').click(function () {
+            $('#uploadFormTeacher')[0].reset();
+            $('#fileNameDisplayTeacher').val('No hay archivo seleccionado');
+            $('#resultTeacher').html('');
+        });
+
+        $('#cancelBtn').click(function () {
+            $('#excelFileTeacher').val('');
+            $('#fileNameDisplayTeacher').val('No hay archivo seleccionado');
+            $('#resultTeacher').html('<div class="alert alert-info">Carga cancelada.</div>');
+        });
+
+        $('#downloadTemplateExcel').click(function () {
+            window.location.href = '@Url.Action("DownloadTemplateExcel", "Teacher")';
+        });
+
+    });
+</script>

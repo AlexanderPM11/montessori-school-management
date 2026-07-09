@@ -1,0 +1,509 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.EducationalInstitution
+@using MontessoriSystem.Core.Application.ViewModels.Student;
+@using MontessoriSystem.Core.Application.DTOS.Account
+@using MontessoriSystem.Core.Application.Enums;
+@using MontessoriSystem.Infrastructure.Identity.Entities
+@using RealtyApp.Core.Application.Helpers;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http;
+@using MontessoriSystem.Core.Application.Common
+@model List<StudentViewModel>
+@inject UserManager<ApplicationUser> userManager
+@inject IHttpContextAccessor httpContextAccessor
+
+@{
+    var UserLogued = User.Identity.Name;
+   
+    ApplicationUser? UserLogin = null;
+    IList<string> roles = new List<string>();
+
+    if (UserLogued != null)
+    {
+        UserLogin = await userManager.FindByNameAsync(UserLogued);
+
+
+        if (userManager != null)
+        {
+            roles = await userManager.GetRolesAsync(UserLogin);
+        }
+
+    }
+}
+
+@{
+    ViewData["Title"] = "Student";
+
+}
+
+<div class="container mb-1">
+    @*<h1 class="display-4">Estudiantes</h1>*@
+
+
+    @*Test*@
+    @*Fin *@
+
+    @if (roles.Contains(Roles.Admin.ToString()))
+    {
+        <div class="btn-container">
+            @* <button type="button" id="loadExcelStudent" class="btn btn-info"><i class="fa-solid fa-file-excel"></i>  Cargar Excel</button> *@
+            <button type="button" id="nuevoStudent" class="btn btn-primary"><i class="fa-solid fa-plus"></i>  Nuevo</button>
+            <button type="button" disabled id="editStudent" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+            <button type="button" disabled id="deleteStudent" class="btn btn-danger"><i class="fa-solid fa-trash"></i>  Eliminar</button>
+            @* <button type="button" id="filtroStudent" class="btn btn-info"><i class="fa-solid fa-filter"></i> Filtros</button> *@
+        </div>
+    }
+    
+    <div id="gridContainerStudents"></div>
+
+   
+</div>
+
+<script>
+  var idStudent=0;
+  var confirmDailog=null;
+
+//$.ajax({
+//    url: 'Student/GetDatosJson',
+//    method: 'GET',
+//    dataType: 'json',
+//    success: function (data) {
+//        console.log('Datos recibidos:', data);
+
+//        // Aquí puedes realizar cualquier lógica adicional con los datos
+//    },
+//    error: function (error) {
+//        console.error('Error al obtener datos:', error);
+//    }
+//});
+
+$(document).ready(function() {    
+    GetDatosEstudiante();
+});
+
+var IdInstituStudent = '@ViewBag.IdInstitu';
+
+function activeBtn(){
+        $('#editStudent').prop("disabled", false);
+        $('#deleteStudent').prop("disabled", false);
+    }
+
+function disableBtn(){
+        $('#editStudent').prop("disabled", true);
+        $('#deleteStudent').prop("disabled", true);
+ }
+
+//Cargar table listado estudiantes
+function GetDatosEstudiante(){  
+
+        $('#gridContainerStudents').dxDataGrid({
+        
+            dataSource: {
+                load: function () {
+
+                    return $.ajax({
+                        url: '@Url.Action("GetDatosEstudianteJson", "Student")',
+                        data: { IdInstitu: IdInstituStudent },
+                        dataType: "json"
+                    });
+                }
+            },
+        paging: {
+            pageSize: 10,
+        },
+            columnMinWidth: 160,
+        pager: {
+            showPageSizeSelector: true,
+            allowedPageSizes: [10, 25, 50, 100],
+        },
+        searchPanel: {
+            visible: true,
+            highlightCaseSensitive: true,
+        },scrolling: {
+        mode: 'standard',
+    },
+        groupPanel: { visible: true },
+        grouping: {
+            autoExpandAll: false,
+        },
+        allowColumnReordering: true,
+        keyExpr: 'ID',
+    showColumnLines: true,
+    showRowLines: true,
+    rowAlternationEnabled: false,
+        showBorders: true,
+        hoverStateEnabled: true,
+        selection: {
+      mode: 'multiple',
+    },
+        width: '100%',
+           columns: [
+                {
+                    dataField: 'UrlImg',
+                    caption: 'Imagen',
+                    cellTemplate: function (container, options) {
+                        
+                        // Estilos para centrar la imagen en el contenedor
+                        container.css({
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        });
+
+                        // Construye la URL completa para la imagen
+                        var imageUrl = options.data.urlImg ? '/FileUser/Students/' + options.data.urlImg : '/FileUser/User/defaultuser.png';
+
+
+                        // Crea un elemento de imagen y configúralo con la URL construida
+                        $('<img>')
+                            .attr('src', imageUrl)
+                            .attr('alt', 'Imagen del Estudiante')
+                            .css({ width: '50px', height: '50px', borderRadius: '50%' }) // Ajusta el tamaño y el estilo de la imagen
+                            .appendTo(container);
+                    },
+                },
+           {dataField: 'name',
+           caption: "Nombre"},
+           {dataField: 'lastname',
+           caption: "Apellidos"},
+                {
+                    dataField: 'sexDes',
+           caption: "Sexo"},
+                {
+                    dataField: 'relationPersonLiveWithDesc',
+                    caption: "Parentesco"
+           },
+                {
+                    dataField: 'book',
+                    caption: "No. Libro"
+           },
+           {
+                    dataField: 'folio',
+                    caption: "No. Folio"
+           },
+           {
+                    dataField: 'gradeDes',
+                    caption: "Grado"
+           },
+           {
+                    dataField: 'nacionality',
+                    caption: "Nacionalidad"
+           },
+
+           {dataField: 'bornDate',
+           caption: "Fecha Nac"},
+                {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var dateCurrent = convertirFecha(options.data.bornDate);
+                        var formattedDate = GetCurrentAge(dateCurrent);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+               
+           {dataField: 'direction',
+           caption: "Dirección"},
+           {dataField: 'level',
+           caption: "Nivel"},
+                {
+                    dataField: 'carriedPreprimary',
+                    caption: "¿Real. el Preprimario?"
+                },
+                {
+                    dataField: 'numberSiblings',
+                    caption: "No. Hermanos"
+                },
+                {
+                    dataField: 'placeBetweenSiblings',
+                    caption: "Lugar entre hermanos"
+                },
+                {
+                    dataField: 'agesSiblings',
+                    caption: "Edades de los hermanos"
+                },
+
+                {
+                    dataField: 'neae',
+                    caption: "Necesi. Esp. (NEAE)"
+                },
+                 {
+                    dataField: 'diseasesAllergic',
+                    caption: "Alergias o enfermedades"
+                },
+                {
+                    dataField: 'medicinesUse',
+                    caption: "Medicamentos que utiliza"
+                },
+                {
+                    dataField: 'doctorPediatrician',
+                    caption: "Médico o Pediatra"
+                },
+                {
+                    dataField: 'idFatherDesc',
+                    caption: "Padre/Tutor"
+                },
+                {
+                    dataField: 'idMotherDesc',
+                    caption: "Madre/Tutor"
+                },
+                 {
+                    dataField: 'telFather',
+                    caption: "Tel de Padre/Tutor"
+                },
+                {
+                    dataField: 'telMother',
+                    caption: "Tel de Madre/Tutor"
+                },
+                {
+                    dataField: 'emergencyPerson',
+                    caption: "Persona a llamar de emergencia"
+                },
+                {
+                    dataField: 'emergencyTel',
+                    caption: "Tel de emergencia"
+                },
+               {dataField: 'estado',
+               caption: "Estado" }  
+
+           ],
+           onRowDblClick: function (e) {
+               editStudent()
+        },onRowClick: function (e) {
+              idStudent=e.data.id;
+              activeBtn()
+        },
+        onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    id = selectedRowKeys[0].id;
+                    idStudent = selectedRowKeys[0].id;
+                    activeBtn()
+                } else {
+                    disableBtn();
+                }
+            },
+        onContentReady: function (e) {        
+
+        },export: {
+          enabled: true,
+          formats: ['pdf'],
+          allowExportSelectedData: true,
+        },
+        onExporting(e) {
+          const doc = new jsPDF();
+
+          DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: e.component,
+            indent: 5,
+          }).then(() => {
+            doc.save('Students.pdf');
+          });
+        },
+        });
+
+    }
+
+function cambiarColorFila(rowElement) {
+        // Restaurar el color de las filas previamente modificadas
+        $('#gridContainerStudents').dxDataGrid('getVisibleRows').forEach(function (row) {
+            console.log(row)
+            var rowElement = $('#gridContainerStudents').dxDataGrid('getRowElement', row.rowIndex);
+        $(rowElement).css('background-color', '');
+        });
+
+        // Cambiar el color de la fila actual
+        $(rowElement).css('background-color', 'lightblue');
+}
+      
+//Create
+
+$('#nuevoStudent').on('click',function(){
+         deselectAllStudent();
+          $.ajax({
+
+            url: '@Url.Action("CreateUpdate", "Student")',
+          method: 'GET',
+            data: { IdInstitu: IdInstituStudent },
+          success: function (data) {        
+              confirmDailog=  $.confirm({
+                buttons: false,
+                boxWidth: '70%',
+                useBootstrap: false,
+                closeIcon: true,
+                title: 'Crear Estudiante',
+                content: data,
+                type: 'green',
+                typeAnimated: true
+                });
+          }
+          });
+})
+
+$('#editStudent').on('click', function () {
+        deselectAllStudent();
+        editStudent();
+    });
+
+    $('#loadExcelStudent').on('click', function () {
+        loadExcelStudentAction();
+    });
+
+$('#deleteStudent').on('click', function () {
+        deleteStudent()
+    });
+
+$('#filtroStudent').on('click', function () {
+
+        $.ajax({
+            url: 'Student/Filtro',
+            method: 'GET',
+            success: function (data) {
+                $.dialog({
+                    useBootstrap: false,
+                    boxWidth: '50%',
+                    title: 'Filtros por Seccion',
+                    content: data,
+                    typeAnimated: true,
+                });
+            }
+        });
+    })
+
+
+function editStudent() {
+
+        $.ajax({
+            url: '@Url.Action("CreateUpdate", "Student")',
+            method: 'GET',
+            data: { idStudent, IdInstitu:IdInstituStudent },
+            success: function (data) {
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Editar Estudiante',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+
+    }
+
+function deleteStudent() {
+
+        $.confirm({
+            typeAnimated: true,
+            typeAnimated: true,
+            type: 'red',
+            icon: 'fa fa-exclamation-circle',
+            title: 'Confirmar',
+            content: 'Se va a Inactivar o Activar el Estudiante. Desea continuar?',
+            buttons: {
+                Continuar: function () {
+                    showGlobalLoadingIndicator()
+                    $.ajax({
+                        url: 'Student/ActiveInactiveStudent',
+                        method: 'POST',
+                        data: { idStudent },
+                        success: function (data) {
+                            toastr.success('Proceso realizado con exito!', 'Correcto!')
+                            hideGlobalLoadingIndicator();
+                            refresshGrid();
+                        }
+                    });
+                },
+                Cancelar: function () {
+
+                }
+            }
+        });
+    }
+
+function refresshGrid(){
+         idStudent=0; 
+         disableBtn()
+         var dataGrid = $("#gridContainerStudents").dxDataGrid("instance");
+        dataGrid.refresh();
+        
+     }
+
+function deselectAllStudent() {
+        var dataGrid = $('#gridContainerStudents').dxDataGrid('instance');
+        dataGrid.clearSelection();
+    }
+
+
+function loadExcelStudentAction() {
+
+        $.ajax({
+            url: '@Url.Action("ViewExcel", "Student")',
+            method: 'GET',
+            data: { },
+            success: function (data) {
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Cargar Estudiantes y Padres',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+
+}
+
+
+
+</script>
+
+<style>  
+
+    #employeeInfo .employeePhoto {
+  height: 100px;
+  float: left;
+  padding: 20px;
+}
+
+#employeeInfo .employeeNotes {
+  padding-top: 20px;
+  text-align: justify;
+}
+
+.dark #employeeInfo .employeeNotes {
+  color: rgb(181, 181, 181);
+}
+
+    #paginationTblStudnet {
+    display: flex;
+    justify-content: end;
+}
+.btn-container {
+    display: flex;
+    justify-content: end;
+    padding-right:0px;
+    padding-bottom:10px;
+}
+#btnActiveStudent{
+    width:100px !important;
+}
+#filtroStudent{
+     margin-left:15px;
+}
+#editStudent{
+     margin-right:15px;
+}
+#nuevoStudent{
+     margin-right:15px;
+     margin-left:15px;
+}
+</style>

@@ -1,0 +1,247 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Student;
+@model List<dynamic>
+
+
+<div class="container-charts">
+    <!-- Gráfico para la distribución de edades -->
+    <canvas id="chartEdad"></canvas>
+    <!-- Gráfico para la distribución de sexo -->
+    <canvas id="chartSexo"></canvas>
+    <!-- Gráfico para la distribución de ESTADO -->
+    <canvas id="chartEstado"></canvas>
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+        // Llamada AJAX para obtener los datos
+        $.ajax({
+            url: '@Url.Action("StudentCharts", "Dashboard")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (estudiantes) {
+
+                chartStudentAge(estudiantes)
+                chartStudentSex(estudiantes)
+               
+            },
+            error: function (error) {
+                console.log("Error al obtener los datos: ", error);
+            }
+        });
+    });
+
+    function chartStudentAge(estudiantes) {
+
+        const conteoEdades = {};
+        estudiantes.forEach(estudiante => {
+            if (!conteoEdades[estudiante.edad]) {
+                conteoEdades[estudiante.edad] = 0;
+            }
+            conteoEdades[estudiante.edad]++;
+        });
+
+        const edades = Object.keys(conteoEdades);
+        const dataEdades = edades.map(edad => conteoEdades[edad]);
+
+        var ctxEdad = document.getElementById('chartEdad').getContext('2d');
+        var chartEdad = new Chart(ctxEdad, {
+            type: 'bar',
+            data: {
+                labels: edades,
+                datasets: [{
+                    label: 'Edades',
+                    data: dataEdades,
+                    backgroundColor: '#7cb5ed',
+                    borderColor: '#7cb5ed',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    datalabels: {
+                        color: 'black',
+                        font: {
+                            weight: 'bold'
+                        },
+                        formatter: function (value) {
+                            return value;
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+
+    function chartStudentSex(estudiantes) {
+
+        // Gráfico para la distribución de sexo
+        var sexos = ['Masculino', 'Femenino'];
+
+        var countSex = {
+            Masculino: estudiantes.filter(est => est.sexo === '1').length,
+            Femenino: estudiantes.filter(est => est.sexo === '0').length
+        };
+
+        var ctxSexo = document.getElementById('chartSexo').getContext('2d');
+        var chartSexo = new Chart(ctxSexo, {
+            type: 'pie', // Tipo de gráfico: Pie
+            data: {
+                labels: ['Masculino', 'Femenino'],
+                datasets: [{
+                    label: 'Número de Estudiantes',
+                    data: [countSex.Masculino, countSex.Femenino],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 99, 132, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    datalabels: {
+                        color: '#000',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: (value) => {
+                            return value;
+                        },
+                        anchor: 'center',
+                        align: 'center'
+                    }
+                }
+            },
+            plugins: [ChartDataLabels] // Activar el plugin de etiquetas
+        });
+    }
+
+
+    // Gráfico para la distribución de Asistencia Diarias
+
+    var presentes = 30;
+    var ausentes = 5;
+    var excusa = 3;
+    var tardanzas = 2;
+
+    var ctxEstado = document.getElementById('chartEstado').getContext('2d');
+    var chartEstado = new Chart(ctxEstado, {
+        type: 'doughnut', // Tipo de gráfico: Donut
+        data: {
+            labels: ['Presentes', 'Ausentes', 'Excusa', 'Tardanzas'],
+            datasets: [{
+                label: 'Estado de Asistencia',
+                data: [presentes, ausentes, excusa, tardanzas], // Valores de las categorías
+                backgroundColor: [
+                    '#4caf50', // Verde para Presentes
+                    '#f44336', // Rojo para Ausentes
+                    '#ffeb3b', // Amarillo para Excusa
+                    '#03a9f4'  // Azul para Tardanzas
+                ],
+                borderColor: '#ffffff', // Borde blanco para destacar las secciones
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true, // Muestra la leyenda
+                    position: 'top'
+                },
+                // Configuración del plugin de etiquetas
+                datalabels: {
+                    color: '#000', // Color del texto
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    },
+                    formatter: (value, ctx) => {
+                        return value; // Muestra el valor sobre cada sección
+                    },
+                    anchor: 'end',
+                    align: 'start'
+                }
+            },
+            cutout: '50%' // Tamaño del espacio en blanco en el centro (ajustable)
+        },
+        plugins: [ChartDataLabels] // Activar el plugin de etiquetas
+    });
+
+</script>
+
+
+
+<style>
+
+    .container-charts {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap; 
+        gap:10px;
+        align-items:center;
+        margin-top:20px;
+    }
+
+    #chartSexo {
+        max-width: 300px;
+        max-height: 300px;
+        margin-top:50px;
+    }
+
+    #chartEdad {
+        width:100% !important;
+        max-width:800px;
+        max-height: 400px;
+    }
+
+    #chartEstado {
+        margin-top:50px;
+        width:100% !important;
+        max-width:300px;
+        max-height: 300px;
+    }
+
+    @@media (min-width: 600px) {
+        
+        #chartEdad{
+            width: 100% !important;            
+        }
+
+        #chartSexo {
+            max-width: 300px;
+            max-height: 300px;
+            width: 40% !important;
+            margin-top: 20px;
+        }
+
+        #chartEstado {
+            max-width: 300px;
+            max-height: 300px;
+            width: 50% !important;
+            margin-top: 20px;
+        }       
+    }
+
+</style>

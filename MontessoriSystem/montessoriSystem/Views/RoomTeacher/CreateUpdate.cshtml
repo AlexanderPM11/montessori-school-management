@@ -1,0 +1,202 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.RoomTeacher;
+@model RoomTeacherSaveViewModel
+
+@{
+
+}
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            @if (Model.Id > 0)
+            {
+                <text>Editar Asignatura</text>
+            }
+            else
+            {
+                <text>Nuevo Asignatura</text>
+            }
+        </label>
+
+        <form class="" id="formdescription-roomTeacher" runat="server" method="post" asp-controller="TeachingPeriod" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="IdTeacher" class="form-label">Profesor<span style="color:red"> *</span></label>
+                    <select class="form-select col" asp-for="IdTeacher" aria-label="Default select example">
+                        @{
+                            foreach (var item in ViewBag.Teachers as List<ClassSelected<string>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="IdGrado" class="form-label">Asignatura<span style="color:red"> *</span></label>
+                    <select class="form-select col" asp-for="IdSuject" aria-label="Default select example">
+                        @{
+                            foreach (var item in ViewBag.Sujects as List<ClassSelected<int>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            
+
+            <div class="container-btn">
+                <button type="button" id="btn-savede-roomTeacher" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+    $(document).ready(function () {
+
+       
+        validateInputs();
+
+        // Funtions
+
+         $("#btn-savede-roomTeacher").click(function (event) {            
+            event.preventDefault()
+            if ($('#formdescription-roomTeacher').valid()) {
+                guardarDatos();
+            } else {
+                return false;
+            }
+        });
+
+        function guardarDatos() {
+
+            showGlobalLoadingIndicator();
+
+            var formData = new FormData($('#formdescription-roomTeacher')[0]);
+
+            // Agregar idInstitu al objeto FormData
+            formData.append('idRoom', IdRoom);
+            
+            $.ajax({
+                url: '@Url.Action("CreateUpdatePost", "RoomTeacher")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    idRoomteacher = 0;
+                    disableBtnRoomTeacher();
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        toastr.success(data.data, 'Correcto!');
+                        refresshGridRoomTeachers();
+                        confirmDailog.close();
+                    } else {
+                        toastr.error(data.data, 'Error!');
+                    }                   
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+
+            $('#formdescription-roomTeacher').validate({});
+
+            $('#IdTeacher').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#IdGrado').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+          
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });    
+
+
+
+
+    });
+
+
+</script>
+
+
+
+
+<style>
+
+
+    .container-form {
+        border-radius: 5px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 10px;
+         -webkit-box-shadow:none ; 
+        box-shadow: none ;
+    }
+
+    .title-institu-form  {
+        margin-bottom:40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    @@media (max-width:1200px) {
+       
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content:end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+
+</style>

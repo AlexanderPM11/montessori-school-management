@@ -1,0 +1,294 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Adjunto;
+@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model SaveAdjuntoViewModel
+
+@{
+    ViewData["Title"] = "Create Adjunto";
+}
+    <!-- jQuery File Upload -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.7.0/js/jquery.fileupload.min.js"></script>
+<div class="container mt-5">
+    <form id="formCreateUpdateAdjunto" runat="server"  method="post" enctype="multipart/form-data">
+        <input asp-for="Id"  type="hidden" />
+        <input asp-for="IdTipoAdjunto"  type="hidden" />
+        <input asp-for="Path"  type="hidden" />
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label">Nombre del archivo:</label><span style="color:red"> *</span>
+                <input type="text"  maxlength="200" class="form-control" id="inputNameAdjunto" asp-for="Name" placeholder="Ingrese el nombre del archivo">
+                 <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+             <div class="col-md-6">
+                <label asp-for="Description" class="form-label">Descripcion:</label><span style="color:red"> *</span>
+                <textarea rows="1" type="text"  maxlength="1000" class="form-control" id="inputDescriptionAdjunto" asp-for="Description" placeholder="Ingrese la descripcion"></textarea>
+                 <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3"> 
+            <label  asp-for="Archivo" class="form-label">Archivo: <span style="color:red"> *</span></label>
+            <span asp-validation-for="Archivo" class="text-danger"></span>
+             <div class="file-drop-area" id="fileDropArea">
+                    <span class="file-message">Arrastra y suelta archivos aquí o haz click para seleccionar</span>
+                    <input asp-for="Archivo" id="file-input"  accept="image/*,application/pdf" multiple class="file-input" type="file" accept="image/*">
+             </div>
+            @if (Model.Archivo != null)
+            {
+                if (Model.Path.EndsWith(".pdf"))
+                {
+                     <div class="container-img-pdf-preview">
+                         <div id="image-preview">
+                            <embed class="pdf-loaded" src="~/FileUser/@Model.Path" type="application/pdf" width="100%" height="600px" />
+                         </div>
+                     </div>  
+                }
+                else
+                {
+                    <div class="container-img-pdf-preview">
+                         <div id="image-preview">
+                             <img class="img-loaded" src="~/FileUser/@Model.Path" />
+                         </div>
+                    </div>
+                }
+            }
+            else
+            {
+                    <div class="container-img-pdf-preview">
+                             <div id="image-preview"></div>
+                        </div> 
+            }           
+            
+        </div>
+
+        <div class="container-btn">
+            <button type="button" id="btn-save-adjunto" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+            <button type="button" id="btn-cancel-adjunto" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+        </div>
+
+    </form>
+</div>
+
+
+
+<script>
+
+
+   $(document).on('change', '.file-input', function() {
+    var files = $(this)[0].files;
+    var fileTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']; // Tipos de archivo permitidos
+    var imagePreview = $('#image-preview');
+
+    imagePreview.empty(); // Limpiar cualquier vista previa existente
+
+    for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+
+        if (fileTypes.includes(file.type)) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                if (file.type.startsWith('image/')) {
+                    imagePreview.empty();
+
+                    var img = $('<img class=" img-loaded">');
+                    img.attr('src', e.target.result);
+                    imagePreview.append(img);
+                } else if (file.type === 'application/pdf') {
+                    imagePreview.empty();
+
+                    // Mostrar una vista previa del archivo PDF utilizando la etiqueta <embed>
+                    var pdfEmbed = $('<embed class="pdf-loaded" src="' + URL.createObjectURL(file) + '">');
+                    imagePreview.append(pdfEmbed);
+                }
+            }
+
+            reader.readAsDataURL(file);
+        }
+    }
+});
+
+
+
+    $('#formCreateUpdateAdjunto').validate({});  
+
+    $('#inputDescriptionAdjunto').rules('add', {
+            required: true,
+            messages: {
+                required: 'el campo es obligatorio.'
+            }
+    }); 
+    
+    $('#inputNameAdjunto').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+    });    
+
+     
+
+    // Configura el método de validación personalizado para verificar si se seleccionó un archivo
+    $.validator.addMethod('checkFile', function(value, element) {
+        return this.optional(element) || $(element).data('checkFile')(element);
+    }, 'Por favor selecciona un archivo.');   
+
+
+    function guardarDatos(){        
+            showGlobalLoadingIndicator()
+            var formData = new FormData($('#formCreateUpdateAdjunto')[0]);
+            var fileInput = $('#file-input')[0].files[0];
+            formData.append('file', fileInput);
+            formData.append('IdStudent', idStudent);
+
+             $.ajax({
+             url: 'Adjunto/CreateUpdateAdjunto',
+             method: 'POST',
+             data:formData,
+             contentType: false,
+             processData: false, 
+             success: function (data) {      
+                
+                  hideGlobalLoadingIndicator()
+                  if(data.result){
+                      toastr.success(data.data, 'Correcto!')
+                      confirmDailogAdjunto.close();    
+                       getDataAdjunto();
+                  }else{
+                      toastr.error(data.data, 'Error!')
+                  }
+                  
+             },
+             error: function (error) {
+                  hideGlobalLoadingIndicator()
+                  toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!')
+                    }
+             }); 
+    }
+
+    $("#btn-save-adjunto").click(function(){
+        if ($('#formCreateUpdateAdjunto').valid()) {            
+            guardarDatos();
+        } else{
+          return false;
+        }
+    }); 
+
+    
+     $("#btn-cancel-adjunto").click(function(){
+        confirmDailogAdjunto.close();
+    });
+
+    function validarFileSelect(){
+        var fileInput = $('#file-input')[0].files[0];
+        if (fileInput == null) {
+            toastr.error('Por favor selecciona un archivo.', 'Error');
+            return false 
+        }
+        return true; 
+    }
+
+</script>
+
+
+<style>
+
+
+        /* Estilos para el área de arrastrar y soltar */
+.file-drop-area {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    margin-left: 13px;
+    width: 46%;
+}
+
+/* Estilos para el mensaje dentro del área de arrastrar y soltar */
+.file-message {
+    font-size: 18px;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+/* Estilos para el input dentro del área de arrastrar y soltar */
+.file-drop-area input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Estilos para el mensaje de arrastrar archivos dentro del área de arrastrar y soltar */
+.drag-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: #555;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Estilos para resaltar el área cuando se está arrastrando un archivo */
+.file-drop-area.drag-over {
+    background-color: #f7f7f7;
+}
+
+.file-drop-area.drag-over .drag-message {
+    opacity: 1;
+}
+    .container-btn{
+        margin-top:30px;
+        margin-bottom:20px;
+        width:100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+    #btn-save-adjunto{
+        margin-right:10px;
+    }
+    .container-img-pdf-preview{
+        width:100%;
+    }
+
+    #image-preview {
+    margin-bottom: 20px;
+    max-height: 500px;
+    width: 400px;
+    cursor: pointer;
+    margin-top: 30px;
+}
+        .is-dragover {
+            background-color: #f5f5f5;
+        }
+        #file-upload-preview {
+            min-height: 200px;
+            border: 2px dashed #ccc;
+            margin-top: 20px;
+            padding: 10px;
+        }
+        #file-upload-preview img,
+        #file-upload-preview embed {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            margin: auto;
+        }
+
+        .img-loaded{
+            height: 500px;
+            width: 400px;
+        }
+        .pdf-loaded{
+            height: 200px;
+            width: 350px;
+        }
+       
+</style>
+

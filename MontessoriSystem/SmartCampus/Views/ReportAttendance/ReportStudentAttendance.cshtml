@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte de Asistencia Individual</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .student-info {
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .info-item {
+            margin-bottom: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: normal;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table, th, td {
+            border: 1px solid #bdc3c7;
+        }
+
+        .status-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .status-cards {
+            display: inline-block; /* Para que el contenedor tome solo el espacio de las tarjetas */
+            max-width: 600px;
+        }
+
+        .status-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px;
+            width: 250px;
+            text-align: center;
+            box-sizing: border-box;
+            display: inline-block; /* Hacer las tarjetas inline-block para que se alineen horizontalmente */
+            vertical-align: top; /* Alinear en la parte superior */
+        }
+
+
+        .signature-area {
+            margin-top: 30px;
+            
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            width: 400px;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #999;
+            margin: 15px 0;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">REPORTE DE ASISTENCIA INDIVIDUAL</div>
+    </div>
+
+    <div class="student-info">
+        <div class="info-item"><strong>Estudiante:</strong> @Model.StudentName</div>
+        <div class="info-item"><strong>Salón:</strong> @Model.RoomName</div>
+        <div class="info-item"><strong>Periodo:</strong> @Model.Month de @Model.Year</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2">Semana</th>
+                <th colspan="5">Días de la semana</th>
+            </tr>
+            <tr>
+                <th>Lunes</th>
+                <th>Martes</th>
+                <th>Miércoles</th>
+                <th>Jueves</th>
+                <th>Viernes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Weeks.Count; i++)
+            {
+                var week = Model.Weeks[i];
+                <tr>
+                    <td>Semana @(i + 1)</td>
+                    @foreach (var day in week.Days)
+                    {
+                        <td>
+                            @if (!string.IsNullOrEmpty(day.Status))
+                            {
+                                <span>@day.Status</span>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h3>Resumen de Asistencia - @Model.Month @Model.Year</h3>
+    </div>
+
+    <div class="status-container">
+        <div class="status-cards">
+            <!-- Fila 1 -->
+            <div class="status-card" style="border-top: 3px solid #3498db;">
+                <div style="font-weight: bold; color: #34495e;">Días trabajados</div>
+                <div style="font-size: 18px; font-weight: bold; color: #3498db;">@Model.DayWorked</div>
+                <div style="font-size: 12px; color: #7f8c8d;">Total lectivos</div>
+            </div>
+
+            <div class="status-card" style="border-top: 3px solid #2ecc71;">
+                <div style="font-weight: bold; color: #34495e;">Días presentes</div>
+                <div style="font-size: 18px; font-weight: bold; color: #2ecc71;">@Model.TotalPresent</div>
+                <div style="font-size: 12px; color: #7f8c8d;">Asistencias</div>
+            </div>
+
+            <!-- Fila 2 -->
+            <div class="status-card" style="border-top: 3px solid #e74c3c;">
+                <div style="font-weight: bold; color: #34495e;">Ausencias</div>
+                <div style="font-size: 18px; font-weight: bold; color: #e74c3c;">@Model.TotalAbsent</div>
+                <div style="font-size: 12px; color: #7f8c8d;">Días ausentes</div>
+            </div>
+
+            <div class="status-card" style="border-top: 3px solid #f39c12;">
+                <div style="font-weight: bold; color: #34495e;">Justificados</div>
+                <div style="font-size: 18px; font-weight: bold; color: #f39c12;">@Model.TotalExcused</div>
+                <div style="font-size: 12px; color: #7f8c8d;">Ausencias justificadas</div>
+            </div>
+
+            <!-- Fila 3 -->
+            <div class="status-card" style="border-top: 3px solid #9b59b6;">
+                <div style="font-weight: bold; color: #34495e;">Tardanzas</div>
+                <div style="font-size: 18px; font-weight: bold; color: #9b59b6;">@Model.TotalDelayed</div>
+                <div style="font-size: 12px; color: #7f8c8d;">Llegadas tarde</div>
+            </div>
+
+            <div class="status-card" style="border-top: 3px solid #1abc9c;">
+                <div style="font-weight: bold; color: #34495e;">Porcentaje</div>
+                <div style="font-size: 18px; font-weight: bold; color: #1abc9c;">@Model.Percentage.ToString("F0")%</div>
+                <div style="font-size: 12px; color: #7f8c8d;">Porcentaje total</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="signature-area">
+        <div class="signature-box">
+            <div style="font-weight: bold;">Firma del docente</div>
+            <div class="signature-line"></div>
+        </div>
+        <div class="signature-box">
+            <div style="font-weight: bold;">Firma del encargado</div>
+            <div class="signature-line"></div>
+        </div>
+    </div>
+</body>
+</html>

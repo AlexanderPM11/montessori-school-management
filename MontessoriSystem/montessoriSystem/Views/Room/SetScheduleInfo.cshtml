@@ -1,0 +1,344 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.Enums
+@using MontessoriSystem.Core.Application.ViewModels.RoomSchedule;
+@model SaveViewModelRoomSchedule
+
+@{
+
+}
+
+
+@* <link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+ *@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.14.1/jquery.timepicker.min.js"></script>
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            Establecer Información
+        </label>
+
+        <form class="" id="form-room-Schedule" method="post" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+
+            <div class="row mb-3">
+                <div class="col">
+                    <label  asp-for="InitDate" class="form-label">Inicio<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="InitDate" class="form-control timePicker"  size="10" autocomplete="off">
+                </div>
+
+                <div class="col">
+                    <label asp-for="FinishDate" class="form-label">Finalización<span style="color:red"> *</span></label>
+                    <input asp-for="FinishDate" type="text" class="form-control timePicker"  size="10" autocomplete="off">
+                </div>
+               
+
+            </div>
+
+            <div class="row mb-3">
+
+               @*   *@
+               
+                @if (ViewBag.TypeRegisterSelect != TypeRegisterEnum.Inicial.ToString())
+                {
+                    <div class="col">
+                        <label asp-for="IdSubject" class="form-label">Asignatura<span style="color:red"> *</span></label>
+                        <select asp-for="IdSubject" class="form-select col" aria-label="Default select example">
+                            @{
+                                foreach (var item in ViewBag.Sujects as List<ClassSelected<int>>)
+                                {
+                                    <option value=@item.Id>@item.text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <div class="col">
+                        <label asp-for="IdTeacher" class="form-label"> Profesor <span style="color:red"> *</span></label>
+                        <select asp-for="IdTeacher" class="form-select col" aria-label="Default select example">
+                            @{
+                                foreach (var item in ViewBag.TeacherUsers as List<ClassSelected<string>>)
+                                {
+                                    <option value=@item.Id>@item.text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                }
+
+
+            </div>
+
+            
+
+            <div class="container-btn">
+                <button type="button" id="btn-save-room-schedule" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+    var isUpdating = @Model.Id;
+
+    $('#InitDate').datetimepicker({
+        useCurrent: false,
+        format: "hh:mm A",
+        minDate: moment().startOf('day').hour(6), // 6:00 AM
+        maxDate: moment().startOf('day').hour(23).minute(59)
+    }) 
+
+    $('#FinishDate').datetimepicker({
+        useCurrent: false,
+        format: "hh:mm A",
+        minDate: moment().startOf('day').hour(6), // 6:00 AM
+        maxDate: moment().startOf('day').hour(23).minute(59)
+    })
+
+    validateInputsSchedule()
+
+    // Funtions
+
+    $("#btn-save-room-schedule").click(function (event) {
+        event.preventDefault()
+        if ($('#form-room-Schedule').valid()) {
+            SaveInfo();
+        } else {
+            return false;
+        }
+    });
+
+
+    
+
+    function SaveInfo() {
+        obtenerDatosFormulario();
+    }
+
+    function validateInputsSchedule() {
+
+        $('#form-room-Schedule').validate({});
+
+
+        $('#InitDate').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+       
+
+        $('#FinishDate').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+
+        $('#IdTeacher').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+
+        $('#IdSubject').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });      
+
+    }
+
+    async function obtenerDatosFormulario() {       
+
+        if (!selectedInfo) {
+            console.log('No se ha seleccionado una fecha en el calendario.');
+            return;
+        }
+        var startTime = $('#InitDate').val(); // Hora de inicio en formato 'HH:mm'
+        var endTime = $('#FinishDate').val(); // Hora de fin en formato 'HH:mm'
+
+        if (!validateTimeRange(startTime, endTime)) {
+            toastr.error('La hora de inicio debe ser menor a la hora de fin.', 'Error!');
+            return;
+        }
+
+
+        var teacherName = $('#IdTeacher option:selected').text();        
+        var subjectName = $('#IdSubject option:selected').text();
+
+        startTime = convertTo24HourFormat(startTime);
+        endTime = convertTo24HourFormat(endTime)
+
+
+        var title = `${subjectName} -- \n ${teacherName}`;
+        // Ajustar la hora de la fecha de inicio
+        var startHour = startTime.split(':')[0];
+        var startMinute = startTime.split(':')[1];
+
+        startMinute = startMinute.replace(/\s*PM/i, '');
+        var newDate = `${startHour}:${startMinute}`
+        startTime = cambiarHora(selectedInfo.start, newDate);
+
+        // Ajustar la hora de la fecha de finalización
+        var endHour = endTime.split(':')[0];
+        var endMinute = endTime.split(':')[1];
+
+        endMinute = endMinute.replace(/\s*PM/i, '');       
+        var newDateEnd = `${endHour}:${endMinute}`
+        endTime = cambiarHora(selectedInfo.end, newDateEnd);
+        
+
+        // Agregar el evento al calendario
+       
+        var isEditin = false;
+        if (idScheduleSelect > 0) {
+            isEditin = true;
+            var eventSetPorp = calendar.getEventById(idScheduleSelect);
+
+            eventSetPorp.setProp('title', title);
+            eventSetPorp.setStart(startTime);
+            eventSetPorp.setEnd(endTime);
+
+        } else {
+            isEditin = false;
+            calendar.addEvent({
+                title: title,
+                start: startTime,
+                end: endTime,
+                id: 'idExample234',
+                allDay: selectedInfo.allDay
+            });
+        }
+        
+        $('#InitDate').val(startTime); 
+        $('#FinishDate').val(endTime);
+
+        calendar.unselect();
+
+        await SaveInfoScheduleRoom();
+
+        if (!isEditin) {
+            var eventIsEditin = calendar.getEventById('idExample234');
+            eventIsEditin.setProp('id', idScheduleSelect);
+        }
+        
+    }
+
+    function validateTimeRange(startTime, endTime) {
+        var momentHora1 = moment(startTime, 'hh:mm A');
+        var momentHora2 = moment(endTime, 'hh:mm A');
+
+        // Comparar las horas sin tener en cuenta AM o PM
+        if (momentHora1.isSameOrAfter(momentHora2)) {
+            return false; // Si la primera hora es igual o después de la segunda, devuelve falso
+        }
+
+        return true; // Si
+    }
+
+    function cambiarHora(fecha, nuevaHora) {
+
+        var fechaModificada = new Date(fecha);
+        var nuevaHoraInt = parseInt(nuevaHora.split(':')[0], 10);
+        var nuevosMinutosInt = parseInt(nuevaHora.split(':')[1], 10);
+        fechaModificada.setHours(nuevaHoraInt, nuevosMinutosInt);
+
+        return fechaModificada;
+    }
+
+    async function SaveInfoScheduleRoom() {        
+        showGlobalLoadingIndicator();
+
+        var formData = new FormData($('#form-room-Schedule')[0]);
+        formData.append('id', idScheduleSelect);
+        formData.append('idRoomSelect', idRoomSelect);
+        formData.append('level', TypeRegisterSelect);
+
+       await $.ajax({
+            url: '@Url.Action("SaveScheduleInfo", "Room")',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                idScheduleSelect = data.id;
+                hideGlobalLoadingIndicator();
+                if (data.result) {
+                   
+                    toastr.success(data.data, 'Correcto!');
+                    confirmDailog.close();
+                } else {
+                    var eventError = calendar.getEventById('idExample234');
+                    eventError.remove();
+                    $('#InitDate').val('');
+                    $('#FinishDate').val('');
+                    toastr.error(data.data, 'Error!');
+                }
+            },
+            error: function (error) {
+                var eventErrorr = calendar.getEventById('idExample234');
+                eventErrorr.remove();
+                $('#InitDate').val('');
+                $('#FinishDate').val('');
+                hideGlobalLoadingIndicator();
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+            }
+        });
+    }
+
+
+    $("#btn-cancel").click(function () {
+        confirmDailog.close();
+    });
+
+    
+</script>
+
+
+
+
+<style>
+    
+
+    .title-institu-form  {
+        margin-bottom:40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content:end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+
+</style>

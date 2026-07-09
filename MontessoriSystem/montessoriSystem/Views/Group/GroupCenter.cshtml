@@ -1,0 +1,298 @@
+﻿
+
+
+<div class="text-center">
+    @*<h1 class="display-4">Estudiantes</h1>*@
+
+
+    @*Test*@
+    @*Fin *@
+
+
+    <div class="btn-container">
+        <button type="button" id="btnNewsGroup" class="btn btn-success"><i class="fa-solid fa-plus"></i>  Nuevo</button>
+        <button type="button" disabled id="btnEditGroup" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+        <button type="button" disabled id="btnSeeGroupInstituPrin" class="btn btn-primary"><i class="fa-solid fa-eye"></i> Ver</button>
+        <button type="button" disabled id="btnDeleteGroup" class="btn btn-danger"><i class="fa-solid fa-trash"></i>  Eliminar</button>
+    </div>
+
+    <div id="gridContainerGroups"></div>
+
+
+</div>
+
+<script>
+
+
+$(document).ready(function() { 
+    
+    GetGroupsJson();  
+    
+});
+    var IdRoomGroup = @ViewBag.IdRoom;
+    var idGroupselect =  0;
+
+
+
+    function GetGroupsJson() {
+        
+        $('#gridContainerGroups').dxDataGrid({
+            dataSource: {
+                load: function () {
+                    return $.ajax({
+                        url: '@Url.Action("GetGroupsJson", "Group")',
+                        data: { idInstitu: idInstituSendRoom, IdRoom: IdRoomGroup },
+                        dataType: "json"
+                    });
+                }
+            },
+            paging: {
+                pageSize: 10,
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard', // 'virtual' o 'standard'
+                // Otros ajustes de desplazamiento si es necesario
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'name',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'description',
+                    caption: "Descripción"
+                },
+                {
+                    dataField: 'grades',
+                    caption: "Grados"
+                }
+                
+
+            ],
+            onRowDblClick: function (e) {
+                CreateUpdatenGroup()
+            }, 
+            onRowClick: function (e) {
+                idGroupselect = e.data.id;
+            },
+            onSelectionChanged(selectedItems) {
+               
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    id = selectedRowKeys[0].id;
+                    idGroupselect = selectedRowKeys[0].id;
+                    activeBtnGroup();
+                } else {
+                    disableBtnGroup();
+                }
+            }
+        });
+
+    }
+
+    function CreateUpdatenGroup(type = 'orange') {
+        
+        $.ajax({
+            url: '@Url.Action("CreateUpdate", "Group")',
+            method: 'GET',
+            data: { id: idGroupselect, idInstitu: idInstituSendRoom, IdRoom: IdRoomGroup },
+            success: function (data) {
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: '',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }    
+   
+   function SeeGroup() {
+        
+        $.ajax({
+            url: '@Url.Action("SeeGroup", "Group")',
+            method: 'GET',
+            data: { idInstitu: idInstituSendRoom, idGroup: idGroupselect, IdRoom: IdRoomGroup },
+            success: function (data) {
+               
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Grupos de clases',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }    
+   
+   
+    
+    
+    function activeBtnGroup() {
+        $('#btnEditGroup').prop("disabled", false);
+        $('#btnDeleteGroup').prop("disabled", false);
+        $('#btnTeachers').prop("disabled", false);
+        $('#btnSeeGroupInstituPrin').prop("disabled", false);
+    }
+
+    function disableBtnGroup() {
+        $('#btnEditGroup').prop("disabled", true);
+        $('#btnDeleteGroup').prop("disabled", true);
+        $('#btnTeachers').prop("disabled", true);
+        $('#btnSeeGroupInstituPrin').prop("disabled", true);
+    }
+   
+    function deleteGroup() {
+
+        $.confirm({
+            typeAnimated: true,
+            type: 'red',
+            title: 'Confirmar',
+            content: 'Se va a eliminar este Salón. Desea continuar?',
+            buttons: {
+                Continuar: {
+                    text: 'Continuar',
+                    btnClass: 'btn-red',  // Clase de Bootstrap para el botón "Continuar"
+                    action: function () {
+                        showGlobalLoadingIndicator();
+                       
+                        $.ajax({
+                            url: '@Url.Action("Delete", "Group")',
+                            method: 'Post',
+                            data: { id: idGroupselect },
+                            success: function (data) {
+                                
+                                hideGlobalLoadingIndicator();
+                                if (data.result) {
+                                    idGroupselect = 0;
+                                    disableBtnGroup();
+
+                                    toastr.success(data.data, 'Correcto!');
+                                    refresshGridGroups();
+                                } else {
+                                    toastr.error(data.data, 'Error!');
+                                }
+                            }
+                        });
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-default',  // Clase de Bootstrap para el botón "Cancelar"
+                    action: function () {
+                        // Lógica para cancelar
+                    }
+                }
+            }
+        });
+
+    }
+
+    // Grid functions
+    function refresshGridGroups() {
+        var dataGrid = $("#gridContainerGroups").dxDataGrid("instance");
+        dataGrid.refresh();
+    }
+
+    function deselectAllRowsGroup() {
+        
+        var dataGrid = $('#gridContainerGroups').dxDataGrid('instance');
+        if (dataGrid) {
+            dataGrid.clearSelection();
+        }
+        
+    }
+
+
+    // Btns actions
+    $("#btnNewsGroup").click(function (event) {
+        event.preventDefault();
+        disableBtnGroup();
+        deselectAllRowsGroup();
+        idGroupselect = 0;
+        CreateUpdatenGroup('green');
+    });
+
+    $("#btnEditGroup").click(function (event) {
+        event.preventDefault();
+        CreateUpdatenGroup();
+        disableBtnGroup();
+        deselectAllRowsGroup();
+        
+    });
+   
+    $("#btnDeleteGroup").click(function (event) {
+        event.preventDefault();
+        disableBtnGroup();
+        deselectAllRowsGroup();
+        deleteGroup();       
+    });
+
+    $("#btnSeeGroupInstituPrin").click(function (event) {
+        event.preventDefault();
+        disableBtnGroup();
+        deselectAllRowsGroup();
+        SeeGroup();
+    });
+
+
+
+
+</script>
+
+
+<style>
+    .btn-container {
+        display:flex;
+        justify-content:end;
+        padding-bottom: 10px;
+        min-width: 200px;
+        margin-top:10px;
+        margin-right:10px;
+    }
+
+    #btnNewsGroup{
+    }
+
+    #btnSeeGroupInstituPrin {
+        margin-right: 10px;
+    }
+
+    #btnEditGroup {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+</style>

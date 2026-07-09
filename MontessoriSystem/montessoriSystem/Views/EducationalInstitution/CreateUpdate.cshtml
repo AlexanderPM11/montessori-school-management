@@ -1,0 +1,461 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.EducationalInstitution;
+@using MontessoriSystem.Core.Application.Common;
+@model SaveEducationalInstitutionViewModel
+
+
+@{
+
+}
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <div class="container-top">
+            <label for="name" class="form-label title-institu-form fw-bold">Centro Educativo: @Model.Name</label>
+        </div>
+
+        <div class="line-divisor"></div>
+
+        <form class="" id="formCreateUpdate-institu" runat="server" method="post" asp-controller="EducationalInstitution" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <div class="container-inputs-img">
+
+                <div class="container-inputs">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="name" class="form-label">Nombre<span style="color:red"> *</span></label>
+                            <input type="text" asp-for="Name" class="form-control" id="name">
+                        </div>
+                        <div class="col">
+                            <label for="address" class="form-label">Dirección<span style="color:red"> *</span></label>
+                            <input type="text" asp-for="Address" class="form-control" id="address">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label asp-for="IdProvinceDom" class="form-label">Ciudad<span style="color:red"> *</span></label>
+                            <select class="form-select col" asp-for="IdProvinceDom" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                @{
+                                    if (ViewBag.Provinces != null)
+                                    {
+                                        foreach (var item in ViewBag.Provinces as List<ClassSelected<int>>)
+                                        {
+                                            <option value=@item.Id>@item.text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="department" class="form-label">Departamento</label>
+                            <select class="form-select col" asp-for="IdDepartment" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                @{
+                                    if (ViewBag.Departments != null)
+                                    {
+                                        foreach (var item in ViewBag.Departments as List<ClassSelected<int>>)
+                                        {
+                                            <option value=@item.Id>@item.text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                       
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="tel" class="form-label">Teléfono<span style="color:red"> *</span></label>
+                            <input type="text" asp-for="Phone" class="form-control" id="tel">
+                        </div>
+                        <div class="col">
+                            <label for="movil" class="form-label">Móvil<span style="color:red"> *</span></label>
+                            <input type="text" asp-for="Mobile" class="form-control" id="movil">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            
+                            <label asp-for="IdRector" class="form-label">Seleccionar Rector</label>
+                            <select class="form-select col" asp-for="IdRector" aria-label="Default select example">
+                                @{
+                                    if (ViewBag.Rector!= null && ViewBag.Rector.Count > 0)
+                                    {
+                                        foreach (var item in ViewBag.Rector as List<ClassSelected<string>>)
+                                        {
+                                                <option value=@item.Id>@item.text</option>
+                                        }
+                                    }
+                                    
+                                }
+                            </select>
+                        </div>
+                       
+                        <div class="col">
+                            <label for="registerEdu" class="form-label">Encargado del centro</label>
+                            <select class="form-select col" asp-for="UserAssignmentId" aria-label="Default select example">
+                                @{
+                                    if (ViewBag.AdminUssers != null && ViewBag.AdminUssers.Count > 0)
+                                    {
+                                        foreach (var item in ViewBag.AdminUssers as List<ClassSelected<string>>)
+                                        {
+                                                <option value=@item.Id>@item.text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>  
+                        
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label asp-for="IdCordinator" class="form-label">Seleccionar Cordinador
+                            </label>
+                            <select class="form-select col" asp-for="IdCordinator" aria-label="Default select example">
+                                @{
+
+                                    if (ViewBag.Cordinator != null && ViewBag.Cordinator.Count > 0)
+                                    {
+                                        foreach (var item in ViewBag.Cordinator as List<ClassSelected<string>>)
+                                        {
+                                                <option value=@item.Id>@item.text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label asp-for="IdSecretary" class="form-label">Seleccionar Secretario/a</label>
+                            <select class="form-select col" asp-for="IdSecretary" aria-label="Default select example">
+                                <option value="">Sin seleccionar</option>
+                                @{
+
+                                    if (ViewBag.Secretary != null && ViewBag.Secretary.Count > 0)
+                                    {
+                                        foreach (var item in ViewBag.Secretary as List<ClassSelected<string>>)
+                                        {
+                                                <option value=@item.Id>@item.text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="registerEdu" class="form-label">Registro Educativo<span style="color:red"> *</span></label>
+                            <input type="text" asp-for="EducationalRegistry" class="form-control" id="registerEdu">
+                        </div>
+                        <div class="col">
+                            <label for="website" class="form-label">Sitio Web</label>
+                            <input type="text" asp-for="Website" class="form-control" id="website">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">                       
+                        <div class="col">
+                            <label for="resolutionAca" class="form-label">Resolución Académica</label>
+                            <input type="text" asp-for="AcademicResolution" class="form-control" id="resolutionAca">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row mb-3 container-img">
+                    <label class="form-label fw-bold">Logo del centro</label>
+                    <span class="text-danger"></span>
+
+                    <div class="file-drop-area-institu" id="fileDropArea-institu">
+
+                        @if (string.IsNullOrEmpty(Model.UrlLogo))
+                        {
+                            <span class="file-message" id="fileMessage-institu">Arrastra aquí o haz click para seleccionar</span>
+                        }
+
+                        <input asp-for="UrlLogo" id="file-input" class="file-input" type="file" accept="image/*" multiple>
+
+                        @if (!string.IsNullOrEmpty(Model.UrlLogo))
+                        {
+                            <img id="image-preview" src="~/FileUser/EducantionalInstitution/@Model.UrlLogo" alt="Vista previa" style="width: 100%; height: auto; margin-top: 10px;">
+                        }
+                        else
+                        {
+                            <img id="image-preview" src="#" alt="Vista previa" style="display: none; width: 100%; height: auto; margin-top: 10px;">
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="container-btn">
+                <button type="button" id="btn-save-institu" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    var institudIdExtention = @Model.Id;
+
+$(document).ready(function() {
+
+    
+    deleteSelectOptionMenu()
+    let page = "General / Estudiante";
+    setPageCurretn(page);
+
+    validateInputs();
+
+        // Funtions
+
+        $(document).on('change', '#file-input', function (event) {
+
+            const fileInput = document.getElementById('file-input');
+            const fileDropAreainstitu = document.getElementById('fileDropArea-institu');
+            const fileMessageinstitu = document.getElementById('fileMessage-institu');
+            const imagePreview = document.getElementById('image-preview');
+
+            const files = event.target.files;
+            if (files && files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    if (fileMessageinstitu) {
+                        fileMessageinstitu.style.display = 'none';
+                    }
+
+                };
+                reader.readAsDataURL(files[0]);
+            }
+
+            
+        });
+
+        $("#btn-save-institu").click(function (event) {
+            event.preventDefault()
+            if ($('#formCreateUpdate-institu').valid()) {
+                guardarDatos();
+            } else {
+                return false;
+            }
+        });
+
+        function guardarDatos() {
+            showGlobalLoadingIndicator();
+
+            var form = document.getElementById('formCreateUpdate-institu');
+
+            var formData = new FormData(form);
+            var fileInput = $('#file-input')[0].files[0];
+            formData.append('File', fileInput);
+            // Log formData to see the data being sent
+            
+            $.ajax({
+                url: '@Url.Action("CreateUpdateHeadquarters", "EducationalInstitution")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    idInstitu = 0;
+                    disableBtnExten();
+                    refresshGridInstituPrincipal();
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        toastr.success(data.data, 'Correcto!');
+                        confirmDailog.close();
+                    } else {
+                        toastr.error(data.data, 'Error!');
+                    }
+                   
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+            $('#formCreateUpdate-institu').validate({});
+
+            $.validator.addMethod("phoneFormat", function (value, element) {
+                // Validar que el valor tenga el formato esperado
+                return /^\d{3}-\d{3}-\d{4}$/.test(value);
+            }, "El formato del teléfono debe ser 999-999-9999.");
+
+            $('#name').rules('add', {
+                required: true,
+                messages: {
+                    required: 'el campo es obligatorio.'
+                }
+            });
+
+            $('#address').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+            $('#IdProvinceDom').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+            formatterTel("tel");
+            formatterTel("movil");
+
+            $('#tel').rules('add', {
+                phoneFormat: true,
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+            $('#movil').rules('add', {
+                phoneFormat: true,
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+            $('#registerEdu').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            if (institudIdExtention > 0) {
+            }
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });
+
+       
+});  
+
+    
+</script>
+
+
+
+
+<style>
+
+    
+    .container-form{
+        border-radius:5px;
+        padding:20px;
+        width:100%;
+        background-color:white;
+        margin-top:10px;
+        margin-bottom:10px;
+    }
+    .container-inputs-img{        
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        align-content:center;
+        flex-wrap: wrap;
+    }
+    .container-img{
+        justify-content:center;
+        display:flex;
+        min-width:250px;
+        width:30%;
+    }
+    .container-inputs {
+        width:65%;
+    }
+
+    @@media (max-width:1200px) {
+        .container-img {
+            width: 100%;
+        }
+
+        .container-inputs {
+            width: 100%;
+        }
+    }
+    /* BTN Select file*/
+    
+    /* Hide the file input */
+    .file-input {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        cursor: pointer;
+    }
+    /* Style the file-drop-area-institu to look like a button */
+    .file-drop-area-institu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 20px;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        background-color: #f9f9f9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .file-drop-area-institu:hover {
+        background-color: #f1f1f1;
+    }
+
+    .file-message {
+        font-size: 16px;
+        color: #555;
+    }
+
+    #image-preview {
+        width: 200px; 
+        max-height: 400px; 
+        object-fit: cover; 
+        margin-top: 10px;
+        border-radius: 4px;
+    }
+
+    .line-divisor{
+        width:100%;
+        height:1px;
+        background-color:lightgray;
+        margin-bottom:40px;     
+    } 
+    
+    .container-btn{
+        margin-top:10px;
+        display:flex;
+        justify-content:end;
+    }
+    #btn-cancel{
+        margin-left:10px
+    
+    }
+
+</style>

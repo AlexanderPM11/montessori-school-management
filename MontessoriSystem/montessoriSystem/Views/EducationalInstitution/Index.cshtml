@@ -1,0 +1,1080 @@
+﻿@using MontessoriSystem.Core.Application.DTOS.Account
+@using MontessoriSystem.Core.Application.Enums;
+@using MontessoriSystem.Infrastructure.Identity.Entities
+@using RealtyApp.Core.Application.Helpers;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http;
+@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.EducationalInstitution;
+@model SaveEducationalInstitutionViewModel
+@inject UserManager<ApplicationUser> userManager
+@inject IHttpContextAccessor httpContextAccessor
+
+@{
+    var UserLogued = User.Identity.Name;
+    bool isAdmin = true;
+    string pathImg = "";
+
+    ApplicationUser? UserLogin = null;
+    IList<string> roles = new List<string>();
+
+    if (UserLogued != null)
+    {
+        UserLogin = await userManager.FindByNameAsync(UserLogued);
+
+
+        if (userManager != null)
+        {
+            roles = await userManager.GetRolesAsync(UserLogin);
+        }
+
+    }
+}
+
+@{
+    ViewData["Title"] = "Institución";
+}
+
+<div class="container mb-1">
+
+    <div id="tabs" class="tab-custom" >
+        
+        <div class="container-tabs">
+
+            <ul class="tabs">
+                <li><a href="#tabs-1">Principal</a></li>
+                @if (Model.Id > 0 && roles.Contains(Roles.SuperAdmin.ToString()))
+                {
+                    <li><a href="#tabs-2">Extensiones</a></li>
+                }
+            </ul>
+
+            <div class="container-form" id="tabs-1">
+                @if (Model.Id >0)
+                {
+                    <div class="container-top">
+                        <label for="name" class="form-label title-institu-form fw-bold"></label>
+                       
+                        <!-- Botones para vista de escritorio -->
+                        <div class="btn-container d-none d-md-block">
+                            <button type="button" id="btnTeachersInstituPrin" class="btn btn-aqua-green"><i class="fa-solid fa-person-chalkboard"></i> Profesores</button>
+                            <button type="button" id="btnParentsInstituPrin" class="btn btn-custom-Blue-Steel"><i class="fa-solid fa-person-breastfeeding"></i> Padres</button>
+                            <button type="button" id="btnStdentInstituPrin" class="btn btn-info"><i class="fa-solid fa-user-graduate"></i> Estudiantes</button>
+                            <button type="button" id="btnRoomInstituPrin" class="btn btn-primary"><i class="fa-solid fa-house-user"></i> Salones</button>
+                            <button type="button" id="btnGradeInstituPrin" class="btn btn-light"><i class="fa-solid fa-person-chalkboard"></i> Grados</button>
+                            <button type="button" id="btnSujectInstituPrin" class="btn btn-success"><i class="fa-solid fa-book-open-reader"></i> Asignatura</button>
+                            <button type="button" id="btnPeriodInstituPrin" class="btn btn-secondary"><i class="fa-regular fa-calendar-days"></i> Periodos Lectivos</button>
+                        </div>
+
+                        <!-- Dropdown para vista móvil -->
+                        <div class="dropdown d-md-none">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton">
+                                Menú
+                            </button>
+                           
+                            <div class="dropdown-menu" id="dropdownMenuContent">
+                                <button type="button" id="btnTeachersInstituPrinDropdown" class="dropdown-item"><i class="fa-solid fa-person-chalkboard"></i> Profesores</button>
+                                <button type="button" id="btnParentsInstituPrinDropdown" class="dropdown-item"><i class="fa-solid fa-person-breastfeeding"></i> Padres</button>
+                                <button type="button" id="btnStdentInstituPrinDropdown" class="dropdown-item"><i class="fa-solid fa-user-graduate"></i> Estudiantes</button>
+                                <button type="button" id="btnRoomInstituPrinDropdown" class="dropdown-item"><i class="fa-solid fa-house-user"></i> Salones</button>
+                                <button type="button" id="btnGradeInstituPrinDropdown" class="dropdown-item"><i class="fa-solid fa-person-chalkboard"></i> Grados</button>
+                                <button type="button" id="btnSujectInstituPrinDropdown" class="dropdown-item"><i class="fa-solid fa-book-open-reader"></i> Asignatura</button>
+                                <button type="button" id="btnPeriodInstituPrinDropdown" class="dropdown-item"><i class="fa-regular fa-calendar-days"></i> Periodos Lectivos</button>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+                
+
+                <div class="line-divisor"></div>
+
+                <form class="" id="formCreateUpdate" runat="server" method="post" asp-controller="EducationalInstitution" asp-action="CreateUpdate" enctype="multipart/form-data">
+                    
+                    <div class="container-inputs-img">
+                        <input asp-for="Id" type="hidden" /> 
+
+                        <div class="container-inputs">
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="nameInstitu" class="form-label">Nombre<span style="color:red"> *</span></label>
+                                    <input type="text" asp-for="Name" class="form-control" id="nameInstitu">
+                                </div>
+                                <div class="col">
+                                    <label for="addressInstitu" class="form-label">Dirección<span style="color:red"> *</span></label>
+                                    <input type="text" asp-for="Address" class="form-control" id="addressInstitu">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label asp-for="IdProvinceDom" class="form-label">Provincia<span style="color:red"> *</span></label>
+
+                                    <select class="form-select col" asp-for="IdProvinceDom" aria-label="Default select example">
+                                        <option value="">Sin seleccionar</option>
+                                        @{
+                                            if (ViewBag.Provinces != null)
+                                            {
+                                                foreach (var item in ViewBag.Provinces as List<ClassSelected<int>>)
+                                                {
+                                                        <option value=@item.Id>@item.text</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col">
+                                    <label asp-for="NameMunicipality" class="form-label">Municipio</label>
+                                    <input type="text" asp-for="NameMunicipality" class="form-control" id="nameMunicipality">
+                                </div>                                
+                               
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="telInstitu" class="form-label">Teléfono<span style="color:red"> *</span></label>
+                                    <input type="text" asp-for="Phone" class="form-control" id="telInstitu">
+                                </div>
+                                <div class="col">
+                                    <label for="movilInstitu" class="form-label">Móvil<span style="color:red"> *</span></label>
+                                    <input type="text" asp-for="Mobile" class="form-control" id="movilInstitu">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label asp-for="IdRector" class="form-label">Seleccionar Rector</label>
+                                    <select class="form-select col" asp-for="IdRector" aria-label="Default select example">
+                                        @{
+                                            if (ViewBag.Rector != null)
+                                            {
+                                                foreach (var item in ViewBag.Rector as List<ClassSelected<string>>)
+                                                {
+                                                       <option value=@item.Id>@item.text</option>
+                                                } 
+                                            }
+                                           
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label asp-for="IdCordinator" class="form-label">Seleccionar Cordinador</label>
+                                    <select class="form-select col" asp-for="IdCordinator" aria-label="Default select example">
+                                        @{
+                                            
+                                            if (ViewBag.Cordinator != null)
+                                            {
+                                                foreach (var item in ViewBag.Cordinator as List<ClassSelected<string>>)
+                                                {
+                                                        <option value=@item.Id>@item.text</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label asp-for="IdSecretary" class="form-label">Seleccionar Secretario/a</label>
+                                    <select class="form-select col" asp-for="IdSecretary" aria-label="Default select example">
+                                        <option value="">Sin seleccionar</option>
+                                        @{
+
+                                            if (ViewBag.Secretary != null)
+                                                                        {
+                                                foreach (var item in ViewBag.Secretary as List<ClassSelected<string>>)
+                                                {
+                                                        <option value=@item.Id>@item.text</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                
+                                <div class="col">
+                                    <label for="departmentInstitu" class="form-label">Departamento</label>
+                                    <select class="form-select col" asp-for="IdDepartment" aria-label="Default select example">
+                                        <option value="">Sin seleccionar</option>
+                                        @{
+                                            if (ViewBag.Departments != null)
+                                            {
+                                                foreach (var item in ViewBag.Departments as List<ClassSelected<int>>)
+                                                {
+                                                    <option value=@item.Id>@item.text</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label asp-for="Session" class="form-label">Tanda<span style="color:red"> *</span></label>
+                                    
+                                    <select class="form-select col" asp-for="Session" aria-label="Default select example">
+                                        <option value="Matutina">Matutina</option>
+                                    </select>
+                                </div>
+                                <div class="col">
+                                    <label asp-for="Regional" class="form-label">Regional</label>
+                                    <input type="text" asp-for="Regional" class="form-control" >
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label asp-for="EducationalRegistry" class="form-label">Código del Centro<span style="color:red"> *</span></label>
+                                    <input type="text" asp-for="EducationalRegistry" class="form-control" id="registerEduInstitu">
+                                </div>
+                                <div class="col">
+                                    <label asp-for="District" class="form-label">Distrito<span style="color:red"> *</span></label>
+                                    <input type="text" asp-for="District" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                               
+                                <div class="col">
+                                    <label for="websiteInstitu" class="form-label">Sitio Web</label>
+                                    <input type="text" asp-for="Website" class="form-control" id="websiteInstitu">
+                                </div>
+                                <div class="col">
+                                    <label for="resolutionAcaInstitu" class="form-label">Resolución Académica</label>
+                                    <input type="text" asp-for="AcademicResolution" class="form-control" id="resolutionAcaInstitu">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row mb-3 container-img">
+
+                            <div class="col">
+                                <label class="form-label" id="logoCent">Logo del centro</label>
+                                <span class="text-danger"></span>
+
+                                <div class="file-drop-area" id="fileDropArea">
+
+                                    @if (string.IsNullOrEmpty(Model.UrlLogo))
+                                    {
+                                        <span class="file-message" id="fileMessage">Arrastra aquí o haz click para seleccionar</span>
+                                    }
+
+                                    <input asp-for="UrlLogo" id="file-input-institu" class="file-input-institu" type="file" accept="image/*" multiple>
+
+                                    @if (!string.IsNullOrEmpty(Model.UrlLogo))
+                                    {
+                                        <img id="image-preview-institu" src="~/FileUser/EducantionalInstitution/@Model.UrlLogo" alt="Vista previa" style="width: 100%; height: auto; margin-top: 10px;">
+                                    }
+                                    else
+                                    {
+                                        <img id="image-preview-institu" src="#" alt="Vista previa" style="display: none; width: 100%; height: auto; margin-top: 10px;">
+                                    }
+                                </div>
+                            </div>                            
+
+                        </div>
+
+                    </div>
+
+                    <div class="container-btn-save">
+                        <button type="button" id="btn-save" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i>   Guardar</button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            @if (Model.Id > 0 && roles.Contains(Roles.SuperAdmin.ToString()))
+            {
+                <div class="container-form" id="tabs-2">
+                </div>
+            }
+           
+
+        </div>       
+
+        
+
+    </div>
+
+</div>
+
+<script>
+    var showExten = "@(Model.Id > 0 ? true : false)";
+    var rolesUser = '@Html.Raw(System.Text.Json.JsonSerializer.Serialize(roles))';
+
+$(document).ready(function() {
+
+    if (showExten === "True") {
+            const dropdownButton = document.getElementById('dropdownMenuButton');
+            const dropdownMenu = document.getElementById('dropdownMenuContent');
+
+            dropdownButton.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Close the dropdown menu if the user clicks outside of it
+            window.onclick = function (event) {
+                if (!event.target.matches('.dropdown-toggle')) {
+                    if (dropdownMenu.classList.contains('show')) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                }
+            };
+
+            // Handle button clicks
+            document.getElementById('btnTeachersInstituPrinDropdown').addEventListener('click', function () {
+                $("#btnTeachersInstituPrin").click();
+            });
+            document.getElementById('btnParentsInstituPrinDropdown').addEventListener('click', function () {
+                $("#btnParentsInstituPrin").click();
+            });
+            document.getElementById('btnStdentInstituPrinDropdown').addEventListener('click', function () {
+                $("#btnStdentInstituPrin").click();
+            });
+            document.getElementById('btnRoomInstituPrinDropdown').addEventListener('click', function () {
+                $("#btnRoomInstituPrin").click();
+            });
+            document.getElementById('btnGradeInstituPrinDropdown').addEventListener('click', function () {
+                $("#btnGradeInstituPrin").click();
+            });
+            document.getElementById('btnSujectInstituPrinDropdown').addEventListener('click', function () {
+                $("#btnSujectInstituPrin").click();
+            });
+            document.getElementById('btnPeriodInstituPrinDropdown').addEventListener('click', function () {
+                $("#btnPeriodInstituPrin").click();
+            });
+
+        }
+
+    if (rolesUser.includes("SuperAdmin") && showExten === "True" ) {
+       getHeadquarters();
+    }
+    validateInputs();
+
+    $(function () {
+        $("#tabs").tabs();
+    });
+       
+        setTimeout(function () {
+            $("#tabs").removeAttr('id');
+        }, 1000);
+    });
+
+
+    var idInstituMain = @Model.Id;
+    // Funtions
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileInput = document.getElementById('file-input-institu');
+        const fileDropArea = document.getElementById('fileDropArea');
+        const fileMessage = document.getElementById('fileMessage');
+        const imagePreview = document.getElementById('image-preview-institu');
+
+        fileInput.addEventListener('change', function (event) {
+            const files = event.target.files;
+            if (files && files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    if (fileMessage) {
+                        fileMessage.style.display = 'none';
+                    }
+                   
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+    });
+
+
+    $("#btnUsersInstituPrin").click(function (event) {
+        event.preventDefault()
+        getUsersMainInstitu();
+    });
+    
+    $("#btn-save").click(function (event) {
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            guardarDatos();
+        } else {
+            return false;
+        }
+    });
+
+    $("#btnPeriodInstituPrin").click(function (event) {
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            getTeachingPeriods();
+        } else {
+            return false;
+        }
+    });
+
+    $("#btnRoomInstituPrin").click(function (event) {
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            getRoomsMain();
+        } else {
+            return false;
+        }
+    });
+
+    $("#btnStdentInstituPrin").click(function (event) {
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            getStudentMain();
+        } else {
+            return false;
+        }
+    });
+
+    $("#btnParentsInstituPrin").click(function (event) {
+        $('#tabs').removeAttr('id');
+
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            getParentsMain();
+        } else {
+            return false;
+        }
+    });
+
+    $("#btnTeachersInstituPrin").click(function (event) {
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            getTeachersMain();
+        } else {
+            return false;
+        }
+    });
+
+    $("#btnSujectInstituPrin").click(function (event) {
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            getSujectsMain();
+        } else {
+            return false;
+        }
+    });
+    
+    $("#btnGradeInstituPrin").click(function (event) {
+        event.preventDefault()
+        if ($('#formCreateUpdate').valid()) {
+            getGradesMain();
+        } else {
+            return false;
+        }
+    });
+    
+    function guardarDatos() {
+
+        showGlobalLoadingIndicator();
+
+        var form = document.getElementById('formCreateUpdate');
+
+        var formData = new FormData(form);
+        var fileInput = $('#file-input-institu')[0].files[0];
+        formData.append('File', fileInput);
+
+        // Log formData to see the data being sent
+
+        $.ajax({
+            url: 'EducationalInstitution/CreateUpdate',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                hideGlobalLoadingIndicator();
+                if (data.result) {
+                    toastr.success(data.data, 'Correcto!');
+                    if (!idInstituMain > 0) {
+                        location.reload();
+                    }
+                } else {
+                    toastr.error(data.data, 'Error!');
+                }
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator();
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+            }
+
+        });
+    }
+
+    function validateInputs() {
+        $('#formCreateUpdate').validate({});
+
+        // Custom valiator
+        $.validator.addMethod("phoneFormat", function (value, element) {
+            // Validar que el valor tenga el formato esperado
+            return /^\d{3}-\d{3}-\d{4}$/.test(value);
+        }, "El formato del teléfono debe ser 999-999-9999.");
+
+        $('#nameInstitu').rules('add', {
+            required: true,
+            messages: {
+                required: 'el campo es obligatorio.'
+            }
+        });
+
+        $('#addressInstitu').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#IdProvinceDom').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#nameMunicipality').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+
+        $('#Session').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#Regional').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#District').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+
+        formatterTel("telInstitu");
+        formatterTel("movilInstitu");
+       
+        $('#telInstitu').rules('add', {
+            phoneFormat: true,
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#movilInstitu').rules('add', {
+            required: true,
+            phoneFormat: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#registerEduInstitu').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+       
+
+        if (!(idInstituMain > 0)) {
+            disableBtnExten();
+        }
+
+        $('#websiteInstitu').rules('add', {
+                url: true,
+                messages: {
+                    url: 'Por favor, ingrese una URL válida.'
+                }
+            });
+       
+    }
+
+    function refresshGridInstituPrincipal() {
+        var dataGrid = $("#gridContainerHeadquarters").dxDataGrid("instance");
+        dataGrid.refresh();
+    }
+
+    // GetExtentions
+    function getUsersMainInstitu() {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("PartialViewUsers", "User")',
+            method: 'GET',
+            data: { idInstitu: idInstituMain },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var confirmDailogTeaching = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Usuarios',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator();
+                console.error('Error al obtener datos:', error);
+            }
+        });
+    }
+
+    function getHeadquarters() {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("Headquarters", "EducationalInstitution")',
+            method: 'GET',
+            data: { idInstitu: idInstituMain },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                $("#tabs-2").html(data);
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator();
+                console.error('Error al obtener datos:', error);
+            }
+        });
+    }
+
+    function getTeachingPeriods() {
+        showGlobalLoadingIndicator();
+        var idInstitu = idInstituMain;
+        $.ajax({
+            url: '@Url.Action("TeachingPeriods", "TeachingPeriod")',
+            method: 'GET',
+            data: { idInstitu },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var divCont = '<div id="container-data">' + data + '</div>';
+
+                var confirmDailogTeaching = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Periodos Lectivos',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+    function getRoomsMain() {
+        showGlobalLoadingIndicator();
+        var idInstitu = idInstituMain;        
+        $.ajax({
+            url: '@Url.Action("Rooms", "Room")',
+            method: 'GET',
+            data: { idInstitu },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var divCont = '<div id="container-data">' + data + '</div>';
+                var confirmDailogTeaching = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Salones',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+   
+    function getStudentMain() {
+        showGlobalLoadingIndicator();
+        var IdInstitu = idInstituMain;
+        $.ajax({
+            url: '@Url.Action("GetStudent", "Student")',
+            method: 'GET',
+            data: { IdInstitu },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var divCont = '<div id="container-data">' + data + '</div>';
+
+                var confirmDailogTeaching = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Estudiantes',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+    
+    function getParentsMain() {
+        showGlobalLoadingIndicator();
+        var IdInstitu = idInstituMain;
+        $.ajax({
+            url: '@Url.Action("PartialViewUsers", "Parents")',
+            method: 'GET',
+            data: { IdInstitu },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var divCont = '<div id="container-data">' + data + '</div>';
+
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Padres o Tutores',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+    function getTeachersMain() {
+        showGlobalLoadingIndicator();
+        var IdInstitu = idInstituMain;
+        $.ajax({
+            url: '@Url.Action("PartialViewUsers", "Teacher")',
+            method: 'GET',
+            data: { IdInstitu },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var divCont = '<div id="container-data">' + data + '</div>';
+
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Profesores',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+    function getSujectsMain() {
+        showGlobalLoadingIndicator();
+        var idInstitu = idInstituMain;        
+        $.ajax({
+            url: '@Url.Action("Sujects", "Suject")',
+            method: 'GET',
+            data: { idInstitu },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var divCont = '<div id="container-data">' + data + '</div>';
+
+                var confirmDailogTeaching = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Asignaturas',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+    function getGradesMain() {
+        showGlobalLoadingIndicator();
+        var idInstitu = idInstituMain;        
+        $.ajax({
+            url: '@Url.Action("Grades", "Grade")',
+            method: 'GET',
+            data: { idInstitu },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                var divCont = '<div id="container-data">' + data + '</div>';
+
+                var confirmDailogTeaching = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Grados',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+    }
+   
+    function disableBtnExten() {
+        $('#btnUsersInstituPrin').prop("disabled", true);
+        $('#btnRoomInstituPrin').prop("disabled", true);
+        $('#btnGradeInstituPrin').prop("disabled", true);
+        $('#btnSujectInstituPrin').prop("disabled", true);
+        $('#btnPeriodInstituPrin').prop("disabled", true);
+    }
+    
+   
+
+</script>
+
+<style>
+    #dropdownMenuContent{
+        border-radius: 1px 1px 40px 1px;
+    }
+    #dropdownMenuButton{
+        color: white !important;
+        display: flex;
+        align-items: center;
+    } 
+    #dropdownMenuButton i{
+        margin-right:5px;
+        color:white !important;
+    }
+    .container-top {
+        margin: 20px auto;
+        max-width: 1200px;
+    }
+
+    .btn-container button {
+        margin-bottom: 10px;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+
+        .dropdown-menu button {
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            color: black;
+            display: block;
+        }
+
+            .dropdown-menu button:hover {
+                background-color: #ddd;
+            }
+
+    .dropdown.show .dropdown-menu {
+        display: block;
+    }
+
+    .container-top {
+        margin: 20px auto;
+        max-width: 1200px;
+    }
+
+    .btn-container button {
+        margin-bottom: 10px;
+    }
+
+    .dropdown-menu button {
+        width: 100%;
+        text-align: left;
+    }
+
+    
+    .container-form{
+        border-radius:5px;
+        padding:20px;
+        width:100%;
+        background-color:white;
+        margin-top:10px;
+        margin-bottom:10px;
+       /*  -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3); */
+    }
+    .container-btn-save{
+        width:100%;
+        display:flex;
+        justify-content:start;
+        margin-top:10px;
+    }
+    .container-btn-save button{
+        /* width:200px; */
+    }
+    .container-inputs-img{        
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        align-content:center;
+        flex-wrap: wrap;
+    }
+    .container-img{
+        justify-content:center;
+        display:flex;
+        min-width:250px;
+        width:30%;
+    }
+    .container-inputs {
+        width:65%;
+    }
+
+    @@media (max-width:1200px) {
+        .container-img {
+            width: 100%;
+        }
+
+        .container-inputs {
+            width: 100%;
+        }
+    }
+    /* BTN Select file*/
+    
+    /* Hide the file input */
+    .file-input-institu {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        cursor: pointer;
+    }
+    /* Style the file-drop-area to look like a button */
+    .file-drop-area {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 20px;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        background-color: #f9f9f9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .file-drop-area:hover {
+        background-color: #f1f1f1;
+    }
+
+    .file-message {
+        font-size: 16px;
+        color: #555;
+    }
+
+    #image-preview-institu {
+        width: 200px; /* Set the desired width */
+        max-height: 400px; /* Set the desired height */
+        object-fit: cover; /* Ensures the image covers the set dimensions */
+        margin-top: 10px;
+        border-radius: 4px;
+    }
+
+    label{
+        color: #466474;
+    }
+    .line-divisor{
+        width:100%;
+        height:1px;
+        background-color:lightgray;
+        margin-bottom:40px;     
+    }
+
+    .container-tabs{
+        background-color:white;
+        border-radius:5px;
+        padding:0px 10px 0px  10px;
+        margin-bottom: 20px;
+        -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #ccd2d5;
+    }
+
+    .tabs{
+        padding-top:20px !important;
+        
+    }
+
+    .icons{
+        margin-right:5px
+    }
+
+    .container-top{
+        display: flex;
+        flex-wrap:wrap;
+        justify-content:space-between;
+        align-items:center;       
+    }
+
+    .btn-container {
+        padding-bottom: 10px;
+        min-width:200px;
+        display:flex
+    }
+
+
+    #btnGradeInstituPrin {
+        margin-left: 10px;
+    }
+
+    #btnStdentInstituPrin {
+        margin-right: 10px;
+    }
+
+    #btnTeachersInstituPrin {
+        margin-right: 10px;
+    }
+
+    #btnParentsInstituPrin {
+        margin-right: 10px;
+    }
+
+    #btnUsersInstituPrin {
+        margin-right: 10px;
+    }
+
+    #btnSujectInstituPrin {
+        margin-left:10px;
+        margin-right:10px;
+
+    }
+
+    .btn {
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    #logoCent {
+        font-weight: 500 !important;
+    }
+
+       
+
+
+</style>

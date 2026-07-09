@@ -1,0 +1,251 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Attendance
+
+@model AttendanceViewModelResponse
+
+@{
+
+    Layout = null; // No se utiliza layout para esta vista Razor
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Asistencia Diaria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos CSS van aquí */
+
+
+        body {
+            /* font-size:8px !important; */
+            /* font-family: 'Times New Roman' !important; */
+            font-family: "Tinos", system-ui;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            font-size: 17px;
+            border: 1.5px solid #3d3d3d;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: center;
+        }
+
+        th {
+            font-weight: normal;
+        }
+
+        .no-column {
+            width: 100px;
+        }
+
+        .percentage-column,
+        .observations-column {
+            width: 130px;
+        }
+
+
+
+        /* footer table */
+
+
+        .footer-table {
+            margin-top: 20px;
+            width: 100%; /* Ajuste para que tenga el mismo ancho que la tabla principal */
+        }
+
+        .total-asist {
+            width: 35px; /* Ajusta según sea necesario */
+            font-size: 10px;
+            text-align: left;
+            padding-top: 5px;
+        }
+
+        .total-gender {
+            width: 15px; /* Ajusta según sea necesario */
+            padding-top: 5px;
+            font-size: 10px;
+        }
+
+        .footer-cell {
+            width: 31px !important; 
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .container-footer-table {
+            width: 1465px; /* Ajusta según sea necesario */
+        }
+
+        .footer-table {
+            table-layout: fixed;
+        }
+
+        .container-footer-table-principal {
+            width: 1700px; /* Ajusta según sea necesario */
+        }
+
+        .container-title {
+            width: 100%;
+            text-align: center;
+            color: #3d3d3d;
+        }
+
+        .day-week {
+            width: 50px !important;
+        }
+
+        .underline {
+            border-bottom: 1px solid #3d3d3d;
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <div class="container-title">
+            <h2>ASISTENCIA DIARIA</h2>
+        </div>
+
+        <p>Mes: &nbsp<span class="underline">&nbsp&nbsp&nbsp @Model.Month &nbsp&nbsp&nbsp</span> &nbsp&nbsp&nbsp Año:&nbsp <span class="underline">&nbsp&nbsp&nbsp @Model.Year &nbsp&nbsp&nbsp</span> &nbsp&nbsp&nbsp Días trabajados: &nbsp<span class="underline">&nbsp&nbsp&nbsp @Model.DayWorked &nbsp&nbsp&nbsp</span></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th class="no-column" rowspan="2">No.</th>
+                    @for (int week = 1; week <= 5; week++)
+                    {
+                        <th colspan="5">@($"{week}ra. semana")</th>
+                    }
+                    <th colspan="2">Total</th>
+                    <th rowspan="2" class="percentage-column">% de asistencia mensual</th>
+                    <th rowspan="2" class="observations-column">Observaciones</th>
+                </tr>
+                <tr>
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <th>Lun</th>
+                        <th>Mar</th>
+                        <th>Mie</th>
+                        <th>Jue</th>
+                        <th>Vie</th>
+                    }
+                    <th>Presentes</th>
+                    <th>Ausentes</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var studentList in Model.attendanceViews)
+                {
+                    <tr>
+                        <td class="no-column">@studentList.NumberListStudent</td>
+                        @foreach (var day in studentList.weekDaysReportAttendance.FirstWeekDetails)
+                        {
+                            <td class="day-week">@day</td>
+                        }
+                        @foreach (var day in studentList.weekDaysReportAttendance.SecondWeekDetails)
+                        {
+                            <td class="day-week">@day</td>
+                        }
+                        @foreach (var day in studentList.weekDaysReportAttendance.ThirdWeekDetails)
+                        {
+                            <td class="day-week">@day</td>
+                        }
+                        @foreach (var day in studentList.weekDaysReportAttendance.FourWeekDetails)
+                        {
+                            <td class="day-week">@day</td>
+                        }
+
+                        @foreach (var day in studentList.weekDaysReportAttendance.FiveWeekDetails)
+                        {
+                            <td class="day-week">@day</td>
+                        }
+
+                        <td>@studentList.TotalPresent</td> <!-- Presentes -->
+                        <td>@studentList.TotalAusent</td> <!-- Ausentes -->
+                        <td>@studentList.PercentAisstMonth.ToString("F2") %</td>
+                        <td></td> <!-- Observaciones -->
+                    </tr>
+
+
+
+                }
+
+
+            </tbody>
+        </table>
+
+        <div class="container-footer-table-principal">
+            <div class="container-footer-table">
+                <table class="footer-table">
+
+                    <tr>
+                        <td rowspan="2" class="total-asist">Asistencia diaria</td>
+                        <td class="total-gender"> M </td>
+
+                        @foreach (var item in Model.FirstWeekmale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.SecondWeekmale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.ThirdWeekmale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.FourWeekmale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.FiveWeekmale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+
+                    </tr>
+                    <tr>
+                        <td class="total-gender">F</td>
+
+                        @foreach (var item in Model.FirstWeekFemale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.SecondWeekFemale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.ThirdWeekFemale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.FourWeekFemale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+                        @foreach (var item in Model.FourWeekFemale)
+                        {
+                            <td class="footer-cell">@item</td>
+                        }
+
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Department;
+@model DepartmentSaveViewModel
+
+@{
+
+}
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            @if (Model.Id > 0)
+            {
+                <text>Editar Departamento</text>
+            }
+            else
+            {
+                <text>Nuevo Departamento</text>
+            }
+        </label>
+
+        <form class="" id="formdescription-department" runat="server" method="post" asp-controller="TeachingPeriod" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name-department" class="form-label">Nombre<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Name" class="form-control" id="name-department">
+                </div>
+                <div class="col">
+                    <label for="descriptiondescription-department" class="form-label">Descripción<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Description" class="form-control" id="descriptiondescription-department">
+                </div>
+            </div>
+            
+
+            <div class="container-btn">
+                <button type="button" id="btn-savedescription-department" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+    $(document).ready(function () {
+
+       
+        validateInputs();
+
+        // Funtions
+
+         $("#btn-savedescription-department").click(function (event) {            
+            event.preventDefault()
+            if ($('#formdescription-department').valid()) {
+                guardarDatos();
+            } else {
+                return false;
+            }
+        });
+
+        function guardarDatos() {
+
+            $('#codigo-department').prop("disabled", false);
+            showGlobalLoadingIndicator();
+
+            var formData = new FormData($('#formdescription-department')[0]);
+            
+            $.ajax({
+                url: '@Url.Action("CreateUpdatePost", "Department")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        toastr.success(data.data, 'Correcto!');
+                        refresshGridDepartments();
+                        disableBtn();
+                        confirmDailog.close();
+                    } else {
+                        $('#codigo-department').prop("disabled", true);
+                        toastr.error(data.data, 'Error!');
+                    }                   
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+
+            $('#formdescription-department').validate({});
+
+            $('#name-department').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#descriptiondescription-department').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+          
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });    
+
+
+
+
+    });
+
+
+</script>
+
+
+
+
+<style>
+
+
+    .container-form {
+        border-radius: 5px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 10px;
+         -webkit-box-shadow:none ; 
+        box-shadow: none ;
+    }
+
+    .title-institu-form  {
+        margin-bottom:40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    @@media (max-width:1200px) {
+       
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content:end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+
+</style>

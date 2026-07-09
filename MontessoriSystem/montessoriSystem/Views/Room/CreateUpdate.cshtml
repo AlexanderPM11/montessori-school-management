@@ -1,0 +1,444 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.Room;
+@model RoomSaveViewModel
+
+@{
+
+}
+
+<!-- Load Bootstrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="~/js/filter_multi_select.css" />
+<script src="~/js/filter-multi-select-bundle.min.js"></script>
+
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+
+
+
+
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            @if (Model.Id > 0)
+            {
+                <text>Editar Salón</text>
+            }
+            else
+            {
+                <text>Nuevo Salón</text>
+            }
+        </label>
+
+        <form class="" id="form-room" runat="server" method="post" asp-controller="TeachingPeriod" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name-room" class="form-label">Nombre<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Name" class="form-control" id="name-room">
+                </div>
+                <div class="col">
+                    <label for="description-room" class="form-label">Descripción<span style="color:red"> *</span></label>
+                    <textarea asp-for="Description" rows="20" class="form-control" id="description-room" maxlength="400"></textarea>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-3">
+                    <label for="capacity-room" asp-for="IdTeacherLead" class="form-label">Profesor Encargado<span style="color:red"> *</span></label>
+                    <select class="form-select col" asp-for="IdTeacherLead" aria-label="Default select example">
+                        @{
+                            foreach (var item in ViewBag.TeacherUsers as List<ClassSelected<string>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-3">
+                    <label for="location-room" class="form-label">Ubicación<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Location" class="form-control" id="location-room">
+                </div>
+
+                <div class="col-3">
+                    <label for="capacity-room" class="form-label">Capacidad<span style="color:red"> *</span></label>
+                    <input type="number" asp-for="Capacity" class="form-control" id="capacity-room">
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="SelectLevels" class="form-label">Niveles:</label><span style="color:red"> *</span>
+                    <select asp-for="SelectLevels" multiple id="levels" class="form-control">
+                        @{
+                            foreach (var item in ViewBag.Levels as List<ClassSelected<int>>)
+                            {
+                                <option value="@item.Id">@item.text</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+               
+
+            </div>
+
+
+            <div class="row mb-3 container-img">
+               
+                <div class="col">
+                    <label class="form-label fw-bold" id="imageTitle">Imagenes</label>
+
+                    <div class="file-drop-area-institu" id="fileDropArea-institu">
+
+                        @if (string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <span class="file-message" id="fileMessage-institu">Arrastra aquí o haz click para seleccionar</span>
+                        }
+
+                        <input asp-for="ImageUrl" id="file-input" class="file-input" type="file" accept="image/*" multiple>
+
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img id="image-preview" src="~/FileUser/Room/@Model.ImageUrl" alt="Vista previa" style="width: 100%; height: auto; margin-top: 10px;">
+                        }
+                        else
+                        {
+                            <img id="image-preview" src="#" alt="Vista previa" style="display: none; width: 100%; height: auto; margin-top: 10px;">
+                        }
+                    </div>
+                </div>
+                
+            </div>
+
+
+            <div class="container-btn">
+                <button type="button" id="btn-save-room" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    var levelsOptions
+    // Change Image
+    var modelId = "@Model.Id"
+    $(document).on('change', '#file-input', function (event) {
+
+        const fileInput = document.getElementById('file-input');
+        const fileDropAreainstitu = document.getElementById('fileDropArea-institu');
+        const fileMessageinstitu = document.getElementById('fileMessage-institu');
+        const imagePreview = document.getElementById('image-preview');
+
+        const files = event.target.files;
+        if (files && files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                if (fileMessageinstitu) {
+                    fileMessageinstitu.style.display = 'none';
+                }
+
+            };
+            reader.readAsDataURL(files[0]);
+        }
+
+
+    });
+
+
+    $(document).ready(function () {
+        
+       
+            // $('#IdTypeRegisters').change(function () {
+            //     if (modelId > 0) {
+            //         infoWarningChangeLevel();
+            //     }
+            // });
+       
+        
+        validateInputs();
+
+        // Funtions
+
+        $("#btn-save-room").click(function (event) {  
+            
+            
+            event.preventDefault()
+            if ($('#form-room').valid()) {
+
+                const levels = levelsOptions.getSelectedOptionsAsJson();
+                const selectedOptions = JSON.parse(levels);
+
+                if (selectedOptions.SelectLevels.length > 0) {
+                    guardarDatos();
+                }
+                else {
+                    toastr.error('Seleccione al menos un Nivel.', 'Error!');
+                    return false;
+                }
+
+                
+            } else {
+                return false;
+            }
+
+
+        });
+
+        function guardarDatos() {
+           
+          
+            showGlobalLoadingIndicator();
+
+            var formData = new FormData($('#form-room')[0]);
+
+            // Agregar idInstitu al objeto FormData
+            formData.append('idInstitu', idInstituSendRoom);
+
+            const levels = levelsOptions.getSelectedOptionsAsJson();
+            const selectedOptions = JSON.parse(levels);
+
+            // Recorre las opciones seleccionadas y agrégalas a formData
+            for (var i = 0; i < selectedOptions.SelectLevels.length; i++) {
+                formData.append('IdTypeRegisters', selectedOptions.SelectLevels[i]);
+            }
+
+            
+            var fileInput = $('#file-input')[0].files[0];
+            formData.append('File', fileInput);
+            
+            $.ajax({
+                url: '@Url.Action("CreateUpdatePost", "Room")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+
+                   
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        idRoomSelect = 0;
+                        disableBtnRoom();
+
+                        toastr.success(data.data, 'Correcto!');
+                        refresshGridRooms();
+                        confirmDailog.close();
+                    } else {
+                        toastr.error(data.data, 'Error!');
+                    }                   
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+
+            $('#form-room').validate({});
+
+            $('#name-room').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#description-room').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $.validator.addMethod("numeric", function (value, element) {
+                return this.optional(element) || /^[0-9]+$/.test(value);
+            }, "Por favor, ingrese solo números.");
+
+            $.validator.addMethod("greaterThanZero", function (value, element) {
+                return this.optional(element) || (Number(value) > 0);
+            }, "Por favor, ingrese un número mayor a 0.");
+
+            $('#capacity-room').rules('add', {
+                required: true,
+                numeric: true,
+                greaterThanZero: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#location-room').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#IdTypeRegister').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#IdTeacherLead').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+            $('#levels').rules('add', {
+                messages: {
+                    required: 'El campo es obligatorio.'
+                },
+                required: true,
+                atLeastOneRole: true
+            });
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        }); 
+
+        function infoWarningChangeLevel() {
+            $.confirm({
+                typeAnimated: true,
+                type: 'orange',
+                title: '<i class="fa fa-exclamation-triangle"></i> Advertencia',
+                content: 'Modificar el nivel del estudiante requiere varios ajustes internos y configuraciones en el aula. Por favor, asegúrese de confirmar con exactitud antes de continuar con este proceso.',
+                buttons: {
+                    close: {
+                        text: 'Cerrar',
+                        action: function () {
+                            // Cualquier acción adicional al cerrar, si es necesario
+                        }
+                    }
+                }
+            });
+        }
+
+        $.validator.addMethod("atLeastOneRole", function (value, element) {
+            // Validar que al menos una opción esté seleccionada en el campo de levels
+            return $('#levels option:selected').length > 0;
+        }, "Seleccione al menos un rol.");
+
+        levelsOptions = $('#levels').filterMultiSelect({
+            // displayed when no options are selected
+            placeholderText: "Sin seleccion",
+            // placeholder for search field
+            filterText: "Filtro",
+            // Select All text
+            selectAllText: "Seleccionar todos",
+            onOptionClick: function () {
+                showHiddenTeacherInfo();
+            }
+        });
+    });
+
+
+</script>
+
+
+<style>
+
+
+    .container-form {
+        border-radius: 5px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 10px;
+         -webkit-box-shadow:none ; 
+        box-shadow: none ;
+    }
+
+    .title-institu-form  {
+        margin-bottom:40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    @@media (max-width:1200px) {
+       
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content:end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+
+
+
+    /* Hide the file input */
+    .file-input {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        cursor: pointer;
+    }
+    /* Style the file-drop-area-institu to look like a button */
+    .file-drop-area-institu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 20px;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        background-color: #f9f9f9;
+        position: relative;
+        z-index: 1;
+    }
+
+        .file-drop-area-institu:hover {
+            background-color: #f1f1f1;
+        }
+
+    .file-message {
+        font-size: 16px;
+        color: #555;
+    }
+
+    #imageTitle {
+        font-weight: 500 !important;
+    }
+
+</style>

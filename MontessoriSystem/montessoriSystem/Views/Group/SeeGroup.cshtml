@@ -1,0 +1,120 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.Group;
+@model List<GroupSaveViewModel>
+
+@{
+    var groups = Model.FirstOrDefault().Grades;
+    var GradeViewModels = Model.FirstOrDefault().GradeViewModels;
+}
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="~/js/filter_multi_select.css" />
+<script src="~/js/filter-multi-select-bundle.min.js"></script>
+
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+<div class="container mb-1">
+    <div class="container-title-group">
+        <p class="text-center font-weight-bold grayColor">@Model.FirstOrDefault().Name</p>
+    </div>
+
+    <div class="container-group">
+        <div class="containeer-item-grade">
+            @{
+                foreach (var item in GradeViewModels)
+                {
+                    <div class="">
+                        <div class="group-box">
+                            <div class="inner-box">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="container-grade-name">
+                            <p class="text-center font-weight-bold grayColor">@item.Name</p>
+                        </div>                        
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });
+    });
+</script>
+
+<style>
+    .container-group {
+        display: flex;
+        justify-content: center;
+    }
+
+    #btn-cancel {
+        margin-left: 10px;
+    }
+
+    .group-box {
+        max-width: 300px;
+        width: 270px;
+        border: 1px solid #3d5361;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+        margin-left: 30px;
+    }
+
+    .container-grade-name{
+        max-width: 300px;
+        width: 270px;
+        margin-left: 30px;
+    }
+    .inner-box {
+        cursor: pointer;
+        background-color: #2ecc71;
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 150px;
+        transition: all 0.3s ease;
+    }
+
+        .inner-box:hover {
+            transform: scale(1.05);
+        }
+
+    .container-title-group {
+        margin-bottom: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+        .container-title-group p {
+            font-size: 18px;
+        }
+
+    .grayColor {
+        color: #3d5361;
+    }
+
+    .containeer-item-grade{
+        display:flex;
+        flex-wrap: wrap;
+        justify-content:center;
+    }
+</style>

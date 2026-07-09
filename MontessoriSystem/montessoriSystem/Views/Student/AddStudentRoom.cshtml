@@ -1,0 +1,345 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.Student;
+@model List<StudentViewModel>
+
+@{
+    ViewData["Title"] = "Agregar Estudiantes";
+}
+<div class="container mb-1">
+    @*<h1 class="display-4">Estudiantes</h1>*@
+
+
+    @*Test*@
+    @*Fin *@
+
+
+    <div class="btn-container">
+        <button type="button" disabled id="add-new-student-room" class="btn btn-primary"><i class="fa-solid fa-plus"></i>  Agregar</button>
+        @* <button type="button" id="filtroStudent" class="btn btn-info"><i class="fa-solid fa-filter"></i> Filtros</button> *@
+    </div>
+    <div id="gridContainerStudentsToAdd"></div>
+
+
+</div>
+
+<script>
+
+    var idStudentsToAddRoom = [];  
+
+    $(document).ready(function () {
+        GetDatosEstudianteToAdd();
+        listeneBtnAdd();
+    });
+
+    //Functions
+    function GetDatosEstudianteToAdd() {
+
+        $('#gridContainerStudentsToAdd').dxDataGrid({
+
+            dataSource: {
+                load: function () {
+
+                    return $.ajax({
+                        url: '@Url.Action("GetDatosEstudianteJsonToAddRoom", "Student")',
+                        data: { IdInstitu: IdInstituStudent, IdRoom: IdRoomStudent, IdTypeRegister: IdTypeRegisterSelect },
+                        dataType: "json"
+                    });
+                }
+            },
+            paging: {
+                pageSize: 10,
+            },
+            columnMinWidth: 160,
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard',
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'UrlImg',
+                    caption: 'Imagen',
+                    cellTemplate: function (container, options) {
+
+                        // Estilos para centrar la imagen en el contenedor
+                        container.css({
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        });
+
+                        // Construye la URL completa para la imagen
+                        var imageUrl = options.data.urlImg ? '/FileUser/Students/' + options.data.urlImg : '/FileUser/User/defaultuser.png';
+
+
+                        // Crea un elemento de imagen y configúralo con la URL construida
+                        $('<img>')
+                            .attr('src', imageUrl)
+                            .attr('alt', 'Imagen del Estudiante')
+                            .css({ width: '50px', height: '50px', borderRadius: '50%' }) // Ajusta el tamaño y el estilo de la imagen
+                            .appendTo(container);
+                    },
+                },
+                {
+                    dataField: 'name',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'lastname',
+                    caption: "Apellidos"
+                },
+                {
+                    dataField: 'sexDes',
+                    caption: "Sexo"
+                },
+                {
+                    dataField: 'relationPersonLiveWithDesc',
+                    caption: "Parentesco"
+                },
+                {
+                    dataField: 'book',
+                    caption: "No. Libro"
+                },
+                {
+                    dataField: 'folio',
+                    caption: "No. Folio"
+                },
+                {
+                    dataField: 'gradeDes',
+                    caption: "Grado"
+                },
+                {
+                    dataField: 'nacionality',
+                    caption: "Nacionalidad"
+                },
+
+                {
+                    dataField: 'bornDate',
+                    caption: "Fecha Nac"
+                },
+                {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var dateCurrent = convertirFecha(options.data.bornDate);
+                        var formattedDate = GetCurrentAge(dateCurrent);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+
+                {
+                    dataField: 'direction',
+                    caption: "Dirección"
+                },
+                {
+                    dataField: 'level',
+                    caption: "Nivel"
+                },
+                {
+                    dataField: 'carriedPreprimary',
+                    caption: "¿Real. el Preprimario?"
+                },
+                {
+                    dataField: 'numberSiblings',
+                    caption: "No. Hermanos"
+                },
+                {
+                    dataField: 'placeBetweenSiblings',
+                    caption: "Lugar entre hermanos"
+                },
+                {
+                    dataField: 'agesSiblings',
+                    caption: "Edades de los hermanos"
+                },
+
+                {
+                    dataField: 'neae',
+                    caption: "Necesi. Esp. (NEAE)"
+                },
+                {
+                    dataField: 'diseasesAllergic',
+                    caption: "Alergias o enfermedades"
+                },
+                {
+                    dataField: 'medicinesUse',
+                    caption: "Medicamentos que utiliza"
+                },
+                {
+                    dataField: 'doctorPediatrician',
+                    caption: "Médico o Pediatra"
+                },
+                {
+                    dataField: 'idFatherDesc',
+                    caption: "Padre/Tutor"
+                },
+                {
+                    dataField: 'idMotherDesc',
+                    caption: "Madre/Tutor"
+                },
+                {
+                    dataField: 'telFather',
+                    caption: "Tel de Padre/Tutor"
+                },
+                {
+                    dataField: 'telMother',
+                    caption: "Tel de Madre/Tutor"
+                },
+                {
+                    dataField: 'emergencyPerson',
+                    caption: "Persona a llamar de emergencia"
+                },
+                {
+                    dataField: 'emergencyTel',
+                    caption: "Tel de emergencia"
+                },
+                {
+                    dataField: 'estado',
+                    caption: "Estado"
+                }
+
+            ],
+            onRowClick: function (e) {
+                // idStudentToAddRoom = e.data.id;
+                // activeBtnToAddStuRoom()
+            },
+            onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+
+                idStudentsToAddRoom = selectedRowKeys.map(item => item.id);
+
+                if (idStudentsToAddRoom.length > 0) {
+                    activeBtnToAddStuRoom();
+                } else {
+                    disableBtnToAddStuRoom();
+                }
+            },
+            onContentReady: function (e) {
+
+            }, export: {
+                enabled: true,
+                formats: ['pdf'],
+                allowExportSelectedData: true,
+            },
+            onExporting(e) {
+                const doc = new jsPDF();
+
+                DevExpress.pdfExporter.exportDataGrid({
+                    jsPDFDocument: doc,
+                    component: e.component,
+                    indent: 5,
+                }).then(() => {
+                    doc.save('Students.pdf');
+                });
+            },
+        });
+
+    }
+
+    function AddStudentToRoom(idStudent) {
+        showGlobalLoadingIndicator();
+        
+        $.ajax({
+            url: '@Url.Action("AddStudentRoom", "Student")',
+            method: 'POST',
+            data: { idsStudent:idStudentsToAddRoom, IdRoom: IdRoomStudent },
+            success: function (data) {
+
+                refresshGridStudentRoomsToAdd();
+                deselectAllRowsStudentRoomsToAdd();
+
+                hideGlobalLoadingIndicator()
+                toastr.success('Agregado  exitosamente!', 'Correcto!')
+                refresshGrid();
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator()
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!')
+            }
+        });
+    }
+
+    function activeBtnToAddStuRoom() {
+        $('#add-new-student-room').prop("disabled", false);
+    }
+
+    function disableBtnToAddStuRoom() {
+        $('#add-new-student-room').prop("disabled", true);
+    }
+    function listeneBtnAdd() {
+        $('#add-new-student-room').click(function () {           
+            AddStudentToRoom();
+        });
+    }
+
+    // Grid functions
+    function refresshGridStudentRoomsToAdd() {
+        var dataGrid = $("#gridContainerStudentsToAdd").dxDataGrid("instance");
+        dataGrid.refresh();
+    }
+
+    function deselectAllRowsStudentRoomsToAdd() {
+        var dataGrid = $('#gridContainerStudentsToAdd').dxDataGrid('instance');
+        dataGrid.clearSelection();
+    }
+
+</script>
+
+
+<style>
+    #radio-no{
+        margin-left: 30px;
+    }
+    .form-check {
+        padding-left: 1.6rem !important;
+    }
+    .container-btn{
+        margin-top:30px;
+        width:100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+    #btn-save-student{
+        margin-right:10px;
+    }
+
+    #btn-add-seen-room {
+        margin-left:10px;
+    }
+
+    .container-btn-seacrh{
+
+        margin-left:10px
+    }
+
+    .container-filter{
+        display:flex;
+        justify-content:end;
+        padding-right: 33px;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    
+</style>
+

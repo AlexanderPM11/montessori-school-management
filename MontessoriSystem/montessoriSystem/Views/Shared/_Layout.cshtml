@@ -1,0 +1,644 @@
+﻿@using MontessoriSystem.Core.Application.DTOS.Account
+@using MontessoriSystem.Core.Application.Enums;
+@using MontessoriSystem.Core.Application.Interface.Services
+@using MontessoriSystem.Infrastructure.Identity.Entities
+@using RealtyApp.Core.Application.Helpers;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http;
+@inject UserManager<ApplicationUser> userManager
+@inject IHttpContextAccessor httpContextAccessor
+@inject IInitDataService _initDataService
+
+@{
+    var initData = await _initDataService.GetAllViewModel();
+    var unreadyScreens = initData.FirstOrDefault(x => x.Ready == false);
+
+    var UserLogued = User.Identity.Name;
+    bool isAdmin = true;
+    string pathImg = "";
+    var currentPage = httpContextAccessor?.HttpContext?.Session?.GetString("currentPage")?.ToString();
+    
+    currentPage = currentPage?.Replace("\"","");    
+    currentPage = currentPage?.Replace("/","");
+
+    ApplicationUser? UserLogin = null;
+    IList<string> roles = new List<string>();
+
+    if (UserLogued != null)
+    {
+        UserLogin = await userManager.FindByNameAsync(UserLogued);
+
+
+        if(userManager!= null)
+        {
+            pathImg = string.IsNullOrEmpty(UserLogin.UrlImage)
+
+            ? "defaultuser.png"
+            : $"{UserLogin.UrlImage}";
+            roles = await userManager.GetRolesAsync(UserLogin);
+        }
+        
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - montessoriSystem</title>
+    <script src="~/js/jquery.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.common.css">
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.light.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/general.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/montessoriSystem.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/jquery/dist/jquery-confirm/dist/jquery-confirm.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.2.4/css/dx.common.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    @*<link rel="stylesheet" href="~/js/filter_multi_select.css" />
+    <script src="~/js/filter-multi-select-bundle.min.js"></script>*@
+</head>
+<body>
+    <!-- Añade el div global para el indicador de carga -->
+    @if (unreadyScreens != null)
+    {
+        <main>
+            <div id="loading" class="loading">
+                <div class="loading-message">
+                    <img src="~/Img/loadingGif.gif" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index:1000000000;" alt="Loading..." />
+                </div>
+            </div>
+            <div class="container-init-data">
+                <div class="render-body">
+                    @RenderBody()
+
+                </div>
+            </div>
+        </main>
+        
+    }
+    else
+    {
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+                @if (UserLogued != null)
+                {
+
+                    <div class="container-fluid">
+
+                        <div class="container-select-menu">
+                            General / @currentPage
+                        </div>
+
+                        <div class="dropdown d-lg-none">
+                            <a class="navbar-brand nav-link dropdown-toggle" href="#" id="navbarDropdownMobile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="~/FileUser/User/@pathImg" class="img_user_Avantar">
+                                <span>@UserLogin.UserName</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMobile">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="User" asp-action="LogOut">Cerrar sesión</a></li>
+                                <li><a class="dropdown-item" id="editProfileNavbar">Editar Perfil</a></li>
+                            </ul>
+                        </div>
+
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavMobile" aria-controls="navbarNavMobile" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="fa-solid fa-bars-staggered"></i>
+                        </button>
+
+                        <div class="overlay d-none"></div>
+                        <div class="mobile-menu d-none">
+                            <div class="container-ul-list @( roles.Count == 1 ? roles.Contains(Roles.Profesor.ToString() ) ? "container-ul-list-small" : "" : "")">
+                                <div class="container-general">
+                                    <p class="container-general-p">General</p>
+                                </div>
+                                <div class="dashboard-ul-list">
+                                    @*  <div class="nav-item dashboard-cont-link">
+                            <a class="nav-link text-white" asp-area="" asp-controller="ReportAttendance" asp-action="Index"><i class="fa-solid fa-school icon-start"></i>Reportes</a>
+                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                            </div> *@
+                                    @if (roles.Contains(Roles.Admin.ToString()))
+                                    {
+                                        <div class="nav-item dashboard-cont-link">
+                                            <a class="nav-link text-white" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                                                <i class="fa-solid fa-chart-line icon-start"></i>Dashboard
+                                            </a>
+                                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                                        </div>
+
+                                        @*  <div class="nav-item dashboard-cont-link">
+                            <a class="nav-link text-white" asp-area="" asp-controller="EducationalInstitution" asp-action="Index"><i class="fa-solid fa-house icon-start"></i>Inicio</a>
+                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                            </div> *@
+                                        <div class="nav-item dashboard-cont-link">
+                                            <a class="nav-link text-white" asp-area="" asp-controller="EducationalInstitution" asp-action="Index"><i class="fa-solid fa-school icon-start"></i>Centro Educativo</a>
+                                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                                        </div>
+                                        <div class="nav-item dashboard-cont-link">
+                                            <a class="nav-link text-white" asp-area="" asp-controller="User" asp-action="Index"><i class="fa-solid fa-users icon-start"></i>Usuarios</a>
+                                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                                        </div>
+                                    }
+                                    @if (roles.Count == 1 && roles.Contains(Roles.Profesor.ToString()))
+                                    {
+                                       @*  <div class="nav-item dashboard-cont-link">
+                                            <a class="nav-link text-white" asp-area="" asp-controller="Student" asp-action="Index"><i class="fa-solid fa-graduation-cap icon-start"></i>Estudiantes</a>
+                                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                                        </div> *@
+                                        <div class="nav-item dashboard-cont-link">
+                                            <a class="nav-link text-white" asp-area="" asp-controller="Room" asp-action="Index"><i class="fa-solid fa-house-user icon-start"></i>Cursos</a>
+                                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                                        </div>
+                                    }
+                                </div>
+                                @if (roles.Any(role => role == Roles.Admin.ToString()))
+                                {
+                                    <div class="container-settings">
+                                        <p class="container-settings-p">Configuraciones</p>
+                                    </div>
+                                    <div class="dashboard-ul-list">
+                                        <div class="nav-item dashboard-cont-link">
+                                            <a class="nav-link text-white" asp-area="" asp-controller="Department" asp-action="Index"><i class="fa-solid fa-building icon-start"></i>Departamentos</a>
+                                            <i class="fa-solid fa-chevron-right icon-end"></i>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+
+                        <div class="collapse navbar-collapse d-none d-lg-block" id="navbarNav">
+                            <ul class="navbar-nav ms-auto">
+                                @if (UserLogin != null)
+                                {
+                                    <li class="nav-item">
+                                        <div class="dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <img src="~/FileUser/User/@pathImg" class="img_user_Avantar">
+                                                <span>@UserLogin.UserName</span>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                                <li><a class="dropdown-item" asp-area="" asp-controller="User" asp-action="LogOut">Cerrar sesión</a></li>
+                                                <li><a class="dropdown-item" id="editProfileNavbar">Editar Perfil</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
+
+                    </div>
+                }
+
+            </nav>
+        </header>
+
+        <div class="container-fluid">
+            <main role="main" class="container-main">
+                <div id="loading" class="loading">
+                    <div class="loading-message">
+                        <img src="~/Img/loadingGif.gif" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index:1000000000;" alt="Loading..." />
+                    </div>
+                </div>
+
+                @if (UserLogued != null)
+                {
+
+                    <div class="dashboard d-none d-lg-block">
+                        <div class="cont_NameApp">
+                            <a asp-area="" asp-controller="Dashboard" asp-action="Index">
+                                <p class="p_NameApp"><i class="fa-solid fa-house icon-start"></i> Student You</p>
+                            </a>
+                        </div>
+
+                        <div class="container-name-img">
+                            <div class="dropdown">
+                                <div class="container-name-img-display ">
+                                    <img src="~/FileUser/User/@pathImg" data-bs-toggle="dropdown" class="img_user_Avantar dropdown-toggle">
+                                    <p class="p_user" data-bs-toggle="dropdown">@UserLogin.UserName <span class="dropdown-toggle"></span></p>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="User" asp-action="LogOut">Cerrar sesión</a></li>
+                                        <li><a class="dropdown-item" id="editProfileSidebar">Editar Perfil</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="container-ul-list @( roles.Count == 1 ? roles.Contains(Roles.Profesor.ToString() ) ? "container-ul-list-small" : "" : "")">
+                            <div class="container-general">
+                                <p class="container-general-p">General</p>
+                            </div>
+                            <div class="dashboard-ul-list">
+                                @* <div class="nav-item dashboard-cont-link">
+                        <a class="nav-link text-white" asp-area="" asp-controller="ReportAttendance" asp-action="Index"><i class="fa-solid fa-school icon-start"></i>Reportes</a>
+                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                        </div> *@
+                                @if (roles.Contains(Roles.Admin.ToString()))
+                                {
+                                    <div class="nav-item dashboard-cont-link">
+                                        <a class="nav-link text-white" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                                            <i class="fa-solid fa-chart-line icon-start"></i>Dashboard
+                                        </a>
+                                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                                    </div>
+
+                                    <div class="nav-item dashboard-cont-link">
+                                        <a class="nav-link text-white" asp-area="" asp-controller="Reports" asp-action="Index">
+                                            <i class="fa-solid fa-chart-line icon-start"></i>Reports
+                                        </a>
+                                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                                    </div>
+                                    @* <div class="nav-item dashboard-cont-link">
+                        <a class="nav-link text-white" asp-area="" asp-controller="EducationalInstitution" asp-action="Index"><i class="fa-solid fa-house icon-start"></i>Inicio</a>
+                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                        </div> *@
+                                    <div class="nav-item dashboard-cont-link">
+                                        <a class="nav-link text-white" asp-area="" asp-controller="EducationalInstitution" asp-action="Index"><i class="fa-solid fa-school icon-start"></i>Centro Educativo</a>
+                                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                                    </div>
+                                    <div class="nav-item dashboard-cont-link">
+                                        <a class="nav-link text-white" asp-area="" asp-controller="User" asp-action="Index"><i class="fa-solid fa-users icon-start"></i>Usuarios</a>
+                                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                                    </div>
+                                }
+                                @if (roles.Count == 1 && roles.Contains(Roles.Profesor.ToString()))
+                                {
+                                   @*  <div class="nav-item dashboard-cont-link">
+                                        <a class="nav-link text-white" asp-area="" asp-controller="Student" asp-action="Index"><i class="fa-solid fa-graduation-cap icon-start"></i>Estudiantes</a>
+                                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                                    </div> *@
+                                    <div class="nav-item dashboard-cont-link">
+                                        <a class="nav-link text-white" asp-area="" asp-controller="Room" asp-action="Index"><i class="fa-solid fa-house-user icon-start"></i>Cursos</a>
+                                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                                    </div>
+                                }
+                            </div>
+                            @if (roles.Any(role => role == Roles.Admin.ToString()))
+                            {
+                                <div class="container-settings">
+                                    <p class="container-settings-p">Configuraciones</p>
+                                </div>
+                                <div class="dashboard-ul-list">
+                                    <div class="nav-item dashboard-cont-link">
+                                        <a class="nav-link text-white" asp-area="" asp-controller="Department" asp-action="Index"><i class="fa-solid fa-building icon-start"></i>Departamentos</a>
+                                        <i class="fa-solid fa-chevron-right icon-end"></i>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        @*  <div class="cont_Btn_bar">
+                <i class="fa-solid fa-xmark"></i>
+                </div> *@
+                    </div>
+
+
+                }
+                <div class="container-render-body">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+
+    }
+
+    
+
+    @*<footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - montessoriSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>*@
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery-confirm/dist/jquery-confirm.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery/jquery.mask.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- DevExtreme library -->
+    @*<script  src="js/dx.all.js"></script>*@
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/metodosGenericos.js" asp-append-version="true"></script>
+    <script src="https://cdn3.devexpress.com/jslib/21.2.4/js/dx.all.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.2.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js" integrity="sha512-8+n4PSpp8TLHbSf28qpjRfu51IuWuJZdemtTC1EKCHsZmWi2O821UEdt6S3l4+cHyUQhU8uiAAUeVI1MUiFATA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/localization/dx.messages.es.js"></script>
+
+    <script>
+        var idUserProfile = "@(UserLogin  != null ? UserLogin.Id : "")";
+
+
+        DevExpress.localization.locale("es");
+        hideGlobalLoadingIndicator();
+        //getSelectOptionMenu();
+        //deleteSelectOptionMenu();
+        window.jsPDF = window.jspdf.jsPDF;
+
+        
+        // Funtions to edit profile user       
+        
+
+
+        function editUser() {
+
+            $.ajax({
+                url: 'User/UpdateProfile',
+                method: 'GET',
+                data: { idUser: idUserProfile },
+                success: function (data) {
+                    confirmDailog = $.confirm({
+                        buttons: false,
+                        boxWidth: '70%',
+                        useBootstrap: false,
+                        closeIcon: true,
+                        title: 'Editar Perfil',
+                        content: data,
+                        type: 'green',
+                        typeAnimated: true
+                    });
+                }
+            });
+        }
+
+
+        // Btns actions
+        $("#editProfileNavbar, #editProfileSidebar").click(function (event) {
+            event.preventDefault();
+            editUser();
+        });
+
+        const navbarToggle = document.querySelector('.navbar-toggler');
+        const overlay = document.querySelector('.overlay');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        mobileMenu.style.display = 'block !important';
+
+        navbarToggle.addEventListener('click', function (event) {
+            mobileMenu.classList.toggle('open');
+            mobileMenu.classList.remove('d-none');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+        });
+
+        overlay.addEventListener('click', function () {
+            mobileMenu.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        document.addEventListener('click', function (event) {
+            const isClickInsideMenu = mobileMenu.contains(event.target);
+            const isClickInsideToggle = navbarToggle.contains(event.target);
+
+            if (!isClickInsideMenu && !isClickInsideToggle && mobileMenu.classList.contains('open')) {
+                mobileMenu.classList.remove('open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+    </script>
+
+    @* New *@
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
+    <style>
+        .render-body{
+            width:70%;
+            max-width:700px;
+            margin-bottom:100px;
+        }
+        .container-init-data {
+            display:flex;
+            justify-content:center;
+            align-content:center;
+            align-items:center;
+            height:100vh;
+        }
+        .navbar-toggler {
+            border: none;
+            background-color: transparent;
+            padding: 10px;
+        }
+
+        .fa-bars-staggered {
+            font-size: 1.5rem;
+            color: #0d313f;
+        }
+
+        .navbar-toggler:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        @@media (max-width: 600px) {
+            .container-render-body {
+                margin-left: 10px !important;
+                margin-left: 2px;
+            }
+        }
+
+        .navbar {
+            background-color: #f8f9fa !important;
+        }
+
+        .navbar-brand {
+            color: #333;
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            color: #333;
+        }
+
+            .navbar-nav .nav-item .nav-link:hover {
+                color: #007bff;
+            }
+
+        /* Overlay styles */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998; /* Z-index menor que el menú para que quede detrás */
+            display: none; /* Inicialmente oculto */
+            opacity: 0; /* Inicialmente transparente */
+            transition: opacity 0.5s ease; /* Animación de transición */
+        }
+
+            .overlay.active {
+                display: block;
+                opacity: 1; /* Mostrar overlay con opacidad completa */
+            }
+
+        /* Mobile menu styles */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 70%; /* Ancho del menú móvil */
+            max-width: 300px; /* Ancho máximo del menú móvil */
+            height: 100%;
+            background-color: #fff;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.5s ease; /* Animación de transición */
+            z-index: 999; /* Z-index mayor para que esté por encima del overlay */
+            overflow-y: auto;
+            display:block !important;
+        }
+
+            .mobile-menu.open {
+                transform: translateX(0);
+            }
+        
+
+
+
+        #editProfileNavbar {
+            cursor: pointer;
+        }
+
+        #editProfileSidebar {
+            cursor: pointer;
+        }
+
+       
+
+        /* General Styles */
+.container-navbar .nav-link {
+    color: white;
+}
+      
+/* Styles for mobile view */
+
+       
+        .img_user_Avantar {
+            margin-left:10px;
+            
+            margin-right: 0px;
+            margin-bottom: 0px;
+        }
+        .container-avatar {
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            margin-left: 10px
+        }
+
+        .navbar-brand {
+            padding-top: 0 !important; 
+             padding-bottom: 0 !important;
+            margin-right: 0 !important;
+            padding: 0 !important;
+        }
+
+        @@media (max-width: 990px) {
+            #navbarNavMobile {
+                display: flex !important;
+            }}
+        @@media (max-width: 768px) {
+            
+
+            .dropdown-menu-end[data-bs-popper] {
+                left: 5px !important;
+            }
+    .navbar-brand span {
+        display: none;
+    }
+
+           
+    .navbar-collapse {
+        background-color: #f8f9fa;
+    }
+
+    .navbar-nav {
+        text-align: center;
+        width: 100%;
+    }
+
+    .nav-item {
+        width: 100%;
+    }  
+    .dashboard {
+        display: none;
+    }
+
+    .navbar-nav .dropdown-menu {
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 10px;
+    }
+}
+@@media (max-width: 985px) {
+            .container-select-menu {
+                display: none;
+            }
+        }
+
+/* Styles for desktop view */
+@@media (min-width: 769px) {
+            #navbarNavMobile {
+                display: none !important;
+            }
+
+            .navbar-nav {
+        display: flex;
+        justify-content: center;
+    }
+
+    .navbar-nav .dropdown-menu {
+        right: 0;
+    }
+
+            .container-render-body {
+                margin-left: 320px;
+            }
+    
+}
+
+        @@media (max-width: 990px) {
+
+            .container-render-body {
+                margin-left: 0px;
+            }
+        }
+}
+
+       
+
+    </style>
+
+    
+</body>
+
+
+</html>
+
+
+

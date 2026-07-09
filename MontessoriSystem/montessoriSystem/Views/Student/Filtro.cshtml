@@ -1,0 +1,65 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Student;
+@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model StudentSaveViewModel
+
+
+@{
+    ViewData["Title"] = "Filtro";
+    var firtsSeccion = 0;
+}
+<div class="container mt-5">
+    <form id="formCreateUpdateStudent">  
+        <div class="row ">
+            @foreach (var seccion in (@ViewBag.ListSection as List<SectionViewModel>))
+            {
+               
+                if (firtsSeccion == 0)
+                {
+                            <div class="col-md-4 container-btnFiltro">
+                                <button type="button" name="@seccion.Name" class="btn btn-outline-primary btn-filtros-sseccion"><i class="fa-solid fa-check"></i> @seccion.Name </button>
+                            </div>
+                }
+                else
+                {
+                             <div class="col-md-4">
+                                <button type="button" class="btn btn-outline-secondary btn-filtros-sseccion">  Grandes</button>
+                            </div>
+                    
+                }
+                firtsSeccion = 1;   
+            }
+             <div class="col-md-4">
+                <button type="button" class="btn btn-outline-secondary btn-filtros-sseccion">  Todos</button>
+             </div>
+        </div>    
+
+    </form>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+       $('.btn-filtros-sseccion').on('click', function () {
+            // Eliminar la clase 'btn-outline-primary' y el icono de cheque de todos los botones
+            $('.btn-filtros-sseccion').removeClass('btn-outline-primary').find('i.fa-check').remove();
+            $('.btn-filtros-sseccion').addClass('btn-outline-secondary')
+
+            // Agregar la clase 'btn-primary' y el icono de cheque al botón clicado
+             $(this).prepend('<i class="fa-solid fa-check"></i>');
+             $(this).removeClass('btn-outline-secondary');
+            $(this).addClass('btn-outline-primary')
+        });
+
+    });  
+
+</script>
+
+<style>
+    .btn-filtros-sseccion{
+        width:169px;
+    }
+    .container-btnFiltro{
+        margin-bottom:15px;
+        /*margin-left:30px;*/
+    }
+</style>

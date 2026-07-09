@@ -1,0 +1,235 @@
+﻿
+<div class="text-center">
+    @*<h1 class="display-4">Estudiantes</h1>*@
+
+
+    @*Test*@
+    @*Fin *@
+
+
+    <div class="btn-container">
+        <button type="button" id="btnNewsRoomTeacher" class="btn btn-success"><i class="fa-solid fa-plus"></i> Nuevo</button>
+        <button type="button" disabled id="btnEditRoomTeacher" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+        @* <button type="button" disabled id="btnDeleteRoomTeacher" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Eliminar</button> *@
+    </div>
+
+    <div id="gridContainerRoomTeachers"></div>
+
+
+</div>
+
+<script>
+
+
+$(document).ready(function() { 
+    
+    GetRoomTeachersJson();  
+    
+});
+    var IdRoom = @ViewBag.IdRoom;
+    var idRoomteacher = 0;
+
+    function GetRoomTeachersJson() {
+        $('#gridContainerRoomTeachers').dxDataGrid({
+            dataSource: {
+                load: function () {
+                    
+                    return $.ajax({
+                        url: '@Url.Action("GetRoomTeachersJson", "RoomTeacher")',
+                        data: { idRoom: IdRoom, idInstitu: idInstituSendRoom },
+                        dataType: "json"
+                    });
+                }
+            },
+            paging: {
+                pageSize: 10,
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard', // 'virtual' o 'standard'
+                // Otros ajustes de desplazamiento si es necesario
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'nameTeacher',
+                    caption: "Profesor"
+                },
+                {
+                    dataField: 'nameGrade',
+                    caption: "Asignatura"
+                }               
+
+            ],
+            onRowDblClick: function (e) {
+                CreateUpdatenRoomSuject()
+            }, 
+            onRowClick: function (e) {
+                idRoomteacher = e.data.id
+            },
+            onSelectionChanged(selectedItems) {
+               
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    idRoomteacher = selectedRowKeys[0].id;
+                    activeBtnRoomTeacher();
+                } else {
+                    disableBtnRoomTeacher();
+                }
+            }
+        });
+    }
+
+    function CreateUpdatenRoomSuject() {
+        
+        $.ajax({
+            url: '@Url.Action("CreateUpdate", "RoomTeacher")',
+            method: 'GET',
+            data: { idRoomTeacher: idRoomteacher, idRoom: IdRoom, idInstitu: idInstituSendRoom },
+            success: function (data) {
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: '',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+    // Btns actions
+    $("#btnNewsRoomTeacher").click(function (event) {
+        event.preventDefault();       
+        CreateUpdatenRoomSuject();
+    });
+
+    $("#btnEditRoomTeacher").click(function (event) {
+        event.preventDefault();
+        CreateUpdatenRoomSuject();
+    });
+
+    $("#btnPeriodRoomTeacher").click(function (event) {
+        event.preventDefault();
+        getRoomTeacher();
+    });
+
+    $("#btnDeleteRoomTeacher").click(function (event) {
+        event.preventDefault();
+        deleteRoomTeacher();
+    });
+
+
+    function activeBtnRoomTeacher() {
+        $('#btnEditRoomTeacher').prop("disabled", false);
+        $('#BtnRoomTeacherRoomTeacher').prop("disabled", false);
+        $('#btnDeleteRoomTeacher').prop("disabled", false);
+    }
+
+    function disableBtnRoomTeacher() {
+        $('#btnEditRoomTeacher').prop("disabled", true);
+        $('#BtnRoomTeacherRoomTeacher').prop("disabled", true);
+        $('#btnDeleteRoomTeacher').prop("disabled", true);
+    }
+
+    function refresshGridRoomTeachers() {
+        var dataGrid = $("#gridContainerRoomTeachers").dxDataGrid("instance");
+        dataGrid.refresh();
+    }
+
+    function deleteRoomTeacher() {
+       
+        $.confirm({
+            typeAnimated: true,
+            type: 'red',
+            title: 'Confirmar',
+            content: 'Se va a eliminar esta Asignatura. Desea continuar?',
+            buttons: {
+                Continuar:{
+                    text: 'Continuar',
+                    btnClass: 'btn-red',
+                    action:function () {
+                        showGlobalLoadingIndicator()
+                        $.ajax({
+                            url: '@Url.Action("Delete", "RoomTeacher")',
+                            method: 'Post',
+                            data: { id: idRoomteacher },
+                            success: function (data) {
+                                idRoomteacher = 0;
+                                disableBtnRoomTeacher();
+                                hideGlobalLoadingIndicator();
+                                if (data.result) {
+                                    toastr.success(data.data, 'Correcto!');
+                                    refresshGridRoomTeachers();
+                                } else {
+                                    toastr.error(data.data, 'Error!');
+                                }
+
+                            }
+                        });
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-default',  // Clase de Bootstrap para el botón "Cancelar"
+                    action: function () {
+                        // Lógica para cancelar
+                    }
+                }
+            }
+        });
+    }
+
+
+
+</script>
+
+<style>
+    .btn-container {
+        display:flex;
+        justify-content:end;
+        padding-bottom: 10px;
+        min-width: 200px;
+        margin-right: 10px;
+        margin-top: 10px;
+    }
+
+    #btnNewsRoomTeacher{
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #BtnRoomTeacherRoomTeacher {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #btnEditRoomTeacher {
+        margin-right: 10px;
+    }
+
+</style>

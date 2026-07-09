@@ -1,0 +1,629 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Student;
+@using MontessoriSystem.Core.Application.Enums;
+@using MontessoriSystem.Infrastructure.Identity.Entities
+@using RealtyApp.Core.Application.Helpers;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http;
+@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.EducationalInstitution;
+@inject UserManager<ApplicationUser> userManager
+@inject IHttpContextAccessor httpContextAccessor
+@model List<StudentViewModel>
+
+
+@{
+    var UserLogued = User.Identity.Name;
+
+    ApplicationUser? UserLogin = null;
+    IList<string> roles = new List<string>();
+
+    if (UserLogued != null)
+    {
+        UserLogin = await userManager.FindByNameAsync(UserLogued);
+
+
+        if (userManager != null)
+        {
+            roles = await userManager.GetRolesAsync(UserLogin);
+        }
+
+    }
+    ViewData["Title"] = "Student";
+
+}
+
+<div class="container mb-1">
+    
+    <div class="btn-container">
+
+        <button type="button" id="evaluationtStudent" class="btn btn-warning"><i class="fa-solid fa-file"></i> Evaluación</button>
+        <button type="button" id="reportStudent" class="btn btn-info"><i class="fa-solid fa-print"></i>  Informe</button>
+
+        @if (roles.Contains(Roles.Admin.ToString()))
+        {       
+                
+                <button type="button" id="nuevoStudent" class="btn btn-primary"><i class="fa-solid fa-plus"></i>  Agregar</button>
+                <button type="button" disabled id="quitStudent" class="btn btn-danger"><i class="fa-solid fa-trash"></i>  Quitar</button>
+                @* <button type="button" id="filtroStudent" class="btn btn-info"><i class="fa-solid fa-filter"></i> Filtros</button> *@
+        
+        }
+
+    </div>
+
+    <div id="gridContainerStudents"></div>
+    <div id="container-report-pdf"></div>
+   
+</div>
+
+<script>
+
+    var idsStudent = [];
+    var studentsData = []; 
+    var idStudent;
+    var fullNameStudent;
+    var confirmDailog=null;
+
+    $(document).ready(function() {
+        $('#reportStudent').prop("disabled", true);
+        $('#evaluationtStudent').prop("disabled", true);
+    GetDatosEstudiante();
+    });
+
+    var IdInstituStudent = '@ViewBag.IdInstitu';
+    var IdRoomStudent = '@ViewBag.IdRoomStudent'
+         
+    // Actions
+
+    $('#nuevoStudent').on('click',function(){
+         deselectAllStudent();
+          $.ajax({
+
+            url: '@Url.Action("CreateStudentRoom", "Student")',
+          method: 'GET',
+            data: { IdInstitu: IdInstituStudent, IdRoom: IdRoomStudent, IdTypeRegister: IdTypeRegisterSelect },
+          success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+              confirmDailog=  $.confirm({
+                buttons: false,
+                boxWidth: '70%',
+                useBootstrap: false,
+                closeIcon: true,
+                title: 'Agregar Estudiantes',
+                    content: divCont,
+                type: 'green',
+                typeAnimated: true
+                });
+          }
+          });
+})
+
+    $('#quitStudent').on('click', function () {
+        quitStudent()
+    });
+    $('#evaluationtStudent').on('click', function () {
+        evaluationBtn()
+    });
+    $('#reportStudent').on('click', function () {
+        // reportsView()
+        downloadReports(idsStudent);
+    });
+
+    $('#filtroStudent').on('click', function () {
+
+        $.ajax({
+            url: 'Student/Filtro',
+            method: 'GET',
+            success: function (data) {
+                $.dialog({
+                    useBootstrap: false,
+                    boxWidth: '50%',
+                    title: 'Filtros por Seccion',
+                    content: data,
+                    typeAnimated: true,
+                });
+            }
+        });
+    })
+
+    // Functions
+
+    function activeBtn() {
+        $('#editStudent').prop("disabled", false);
+        $('#quitStudent').prop("disabled", false);
+
+    }
+
+    function disableBtn() {
+        $('#editStudent').prop("disabled", true);
+        $('#quitStudent').prop("disabled", true);
+
+    }
+
+    //Cargar table listado estudiantes
+    function GetDatosEstudiante() {
+
+        $('#gridContainerStudents').dxDataGrid({
+
+            dataSource: {
+                load: function () {
+
+                    return $.ajax({
+                        url: '@Url.Action("GetDatosEstudianteRoomJson", "Student")',
+                        data: { IdInstitu: IdInstituStudent, IdRoom: IdRoomStudent },
+                        success: function (data) {
+                            studentsData = data; // Almacena los datos en la variable global
+                            return data;
+                        },
+                        dataType: "json"
+                    });
+                }
+            },
+            paging: {
+                pageSize: 10,
+            },
+            columnMinWidth: 160,
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard',
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'UrlImg',
+                    caption: 'Imagen',
+                    cellTemplate: function (container, options) {
+
+                        // Estilos para centrar la imagen en el contenedor
+                        container.css({
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        });
+
+                        // Construye la URL completa para la imagen
+                        var imageUrl = options.data.urlImg ? '/FileUser/Students/' + options.data.urlImg : '/FileUser/User/defaultuser.png';
+
+
+                        // Crea un elemento de imagen y configúralo con la URL construida
+                        $('<img>')
+                            .attr('src', imageUrl)
+                            .attr('alt', 'Imagen del Estudiante')
+                            .css({ width: '50px', height: '50px', borderRadius: '50%' }) // Ajusta el tamaño y el estilo de la imagen
+                            .appendTo(container);
+                    },
+                },
+                {
+                    dataField: 'numberList',
+                    caption: "No."
+                },
+                {
+                    dataField: 'name',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'lastname',
+                    caption: "Apellidos"
+                },
+                {
+                    dataField: 'sexDes',
+                    caption: "Sexo"
+                },
+                {
+                    dataField: 'relationPersonLiveWithDesc',
+                    caption: "Parentesco"
+                },
+                {
+                    dataField: 'book',
+                    caption: "No. Libro"
+                },
+                {
+                    dataField: 'folio',
+                    caption: "No. Folio"
+                },
+                {
+                    dataField: 'gradeDes',
+                    caption: "Grado"
+                },
+                {
+                    dataField: 'nacionality',
+                    caption: "Nacionalidad"
+                },
+
+                {
+                    dataField: 'bornDate',
+                    caption: "Fecha Nac"
+                },
+                {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var dateCurrent = convertirFecha(options.data.bornDate);
+                        var formattedDate = GetCurrentAge(dateCurrent);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+
+                {
+                    dataField: 'direction',
+                    caption: "Dirección"
+                },
+                {
+                    dataField: 'level',
+                    caption: "Nivel"
+                },
+                {
+                    dataField: 'carriedPreprimary',
+                    caption: "¿Real. el Preprimario?"
+                },
+                {
+                    dataField: 'numberSiblings',
+                    caption: "No. Hermanos"
+                },
+                {
+                    dataField: 'placeBetweenSiblings',
+                    caption: "Lugar entre hermanos"
+                },
+                {
+                    dataField: 'agesSiblings',
+                    caption: "Edades de los hermanos"
+                },
+
+                {
+                    dataField: 'neae',
+                    caption: "Necesi. Esp. (NEAE)"
+                },
+                {
+                    dataField: 'diseasesAllergic',
+                    caption: "Alergias o enfermedades"
+                },
+                {
+                    dataField: 'medicinesUse',
+                    caption: "Medicamentos que utiliza"
+                },
+                {
+                    dataField: 'doctorPediatrician',
+                    caption: "Médico o Pediatra"
+                },
+                {
+                    dataField: 'idFatherDesc',
+                    caption: "Padre/Tutor"
+                },
+                {
+                    dataField: 'idMotherDesc',
+                    caption: "Madre/Tutor"
+                },
+                {
+                    dataField: 'telFather',
+                    caption: "Tel de Padre/Tutor"
+                },
+                {
+                    dataField: 'telMother',
+                    caption: "Tel de Madre/Tutor"
+                },
+                {
+                    dataField: 'emergencyPerson',
+                    caption: "Persona a llamar de emergencia"
+                },
+                {
+                    dataField: 'emergencyTel',
+                    caption: "Tel de emergencia"
+                },
+                {
+                    dataField: 'estado',
+                    caption: "Estado"
+                }
+
+            ],
+            onRowDblClick: function (e) {
+                evaluationBtn();
+            }, onRowClick: function (e) {
+                // idStudent=e.data.id;
+                // activeBtn()
+            },
+            onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+
+                idsStudent = selectedRowKeys.map(item => item.id);
+
+                if (idsStudent.length > 0) {
+                    activeBtn();
+                    $('#reportStudent').prop("disabled", false);
+                } else {
+                    disableBtn();
+                    $('#reportStudent').prop("disabled", true);
+                }
+                if (idsStudent.length == 1) {
+                   
+                    $('#evaluationtStudent').prop("disabled", false);
+                    idStudent = selectedRowKeys[0].id;
+                    fullNameStudent = selectedRowKeys[0].name + " " + selectedRowKeys[0].lastname;
+                }
+                else {
+                    idStudent = 0;
+                    fullNameStudent = "";
+                    
+                    $('#evaluationtStudent').prop("disabled", true);
+                }
+
+
+            },
+            onContentReady: function (e) {
+
+            }, export: {
+                enabled: true,
+                formats: ['pdf'],
+                allowExportSelectedData: true,
+            },
+            onExporting(e) {
+                const doc = new jsPDF();
+
+                DevExpress.pdfExporter.exportDataGrid({
+                    jsPDFDocument: doc,
+                    component: e.component,
+                    indent: 5,
+                }).then(() => {
+                    doc.save('Students.pdf');
+                });
+            },
+        });
+
+    }
+
+    function cambiarColorFila(rowElement) {
+        // Restaurar el color de las filas previamente modificadas
+        $('#gridContainerStudents').dxDataGrid('getVisibleRows').forEach(function (row) {
+            console.log(row)
+            var rowElement = $('#gridContainerStudents').dxDataGrid('getRowElement', row.rowIndex);
+            $(rowElement).css('background-color', '');
+        });
+
+        // Cambiar el color de la fila actual
+        $(rowElement).css('background-color', 'lightblue');
+    }
+
+    function editStudent() {
+
+        $.ajax({
+            url: '@Url.Action("CreateUpdate", "Student")',
+            method: 'GET',
+            data: { idStudent, IdInstitu:IdInstituStudent },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Editar Estudiante',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+
+    }
+
+    function quitStudent() {
+
+        $.confirm({
+            typeAnimated: true,
+            typeAnimated: true,
+            type: 'red',
+            icon: 'fa fa-exclamation-circle',
+            title: 'Confirmar',
+            content: 'Se va a quitar el estudiante de este salón. Desea continuar?',
+            buttons: {
+                Continuar: function () {
+                    showGlobalLoadingIndicator()
+                    $.ajax({
+                       
+                        url: '@Url.Action("QuitStudentRoom", "Student")',
+                        method: 'POST',
+                        data: { idsStudent: idsStudent },
+                        success: function (data) {
+                            toastr.success('Proceso realizado con exito!', 'Correcto!')
+                            hideGlobalLoadingIndicator();
+                            refresshGrid();
+                        }
+                    });
+                },
+                Cancelar: function () {
+
+                }
+            }
+        });
+    }
+
+    function refresshGrid(){
+         idStudent=0; 
+         disableBtn()
+         var dataGrid = $("#gridContainerStudents").dxDataGrid("instance");
+        dataGrid.refresh();
+        
+     }
+
+    function deselectAllStudent() {
+       var dataGrid = $('#gridContainerStudents').dxDataGrid('instance');
+       dataGrid.clearSelection();
+    }
+
+    function evaluationBtn() {
+
+        var student = getFullNameById(idStudent);
+        $.ajax({
+            url: '@Url.Action("Evaluation", "Reports")',
+            method: 'GET',
+            data: { IdStudent: idStudent, IdRoom: idRoomSelect },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: `Evaluación (${student})`,
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+    }   
+
+    function reportsView() {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("ReportsView", "Reports")',
+            method: 'GET',
+            data: { IdsStudent: idsStudent.join(",") },
+            xhrFields: {
+                responseType: 'arraybuffer'
+            },
+            success: function (data) {
+
+                hideGlobalLoadingIndicator();
+
+                var blob = new Blob([data], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+
+                // Crear un enlace temporal para descargar el archivo con el nombre del estudiante
+                var a = document.createElement("a");
+                a.href = url;
+                a.download = `Informe Estudiante ${fullNameStudent}.pdf`; // Nombre personalizado para el archivo
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Liberar el objeto URL después de descargar el archivo
+                URL.revokeObjectURL(url);
+                
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator();
+                toastr.warning('El informe para este grado está en proceso de construcción y estará disponible próximamente. ¡Gracias por su paciencia!', 'Warning!');
+            }
+        });
+    }
+
+    function getFullNameById(id) {
+        var student = studentsData.find(student => student.id === id);
+        return student ? `${student.name} ${student.lastname}` : null;
+    }
+    
+    async function downloadReport(id) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '@Url.Action("ReportsView", "Reports")',
+                method: 'GET',
+                data: { IdStudent: id },
+                xhrFields: {
+                    responseType: 'arraybuffer'
+                },
+                success: function (data) {
+                    var blob = new Blob([data], { type: 'application/pdf' });
+                    var url = URL.createObjectURL(blob);
+                    
+                    var fullNameStudent = getFullNameById(id);
+
+                    var a = document.createElement("a");
+                    a.href = url;
+                    a.download = `Informe Estudiante ${fullNameStudent}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+
+                    URL.revokeObjectURL(url);
+                    resolve(); // Resuelve la promesa cuando se descarga el PDF                   
+
+                },
+                error: function (error) {
+                    toastr.warning(`El informe para el estudiante ${id} está en proceso de construcción. ¡Gracias por su paciencia!`, 'Warning!');
+                    reject(); // Rechaza la promesa en caso de error
+                }
+            });
+        });
+    }
+
+    async function downloadReports(idsStudent) {
+        showGlobalLoadingIndicator();
+        for (let id of idsStudent) {
+            try {
+                await downloadReport(id); // Espera a que se descargue el PDF para el estudiante actual
+            } catch (error) {
+                console.error(`Error descargando el informe para el estudiante ${id}:`, error);
+            }
+        }
+        hideGlobalLoadingIndicator();
+    }
+
+</script>
+
+<style>
+    #employeeInfo .employeePhoto {
+  height: 100px;
+  float: left;
+  padding: 20px;
+}
+
+#employeeInfo .employeeNotes {
+  padding-top: 20px;
+  text-align: justify;
+}
+
+.dark #employeeInfo .employeeNotes {
+  color: rgb(181, 181, 181);
+}
+
+    #paginationTblStudnet {
+    display: flex;
+    justify-content: end;
+}
+.btn-container {
+    display: flex;
+    justify-content: end;
+    padding-right:0px;
+    padding-bottom:10px;
+}
+#btnActiveStudent{
+    width:100px !important;
+}
+#filtroStudent{
+     margin-left:15px;
+}
+#editStudent{
+     margin-right:10px;
+}#nuevoStudent{
+     margin-right:10px;
+}
+
+    #reportStudent{
+        margin-right: 10px;
+    }
+
+    #evaluationtStudent {
+        margin-right: 10px;
+    }
+</style>

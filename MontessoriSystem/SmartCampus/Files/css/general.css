@@ -1,0 +1,517 @@
+
+
+
+
+/*Btns: Diseno general de los botones utilizados en toda la web*/
+
+.btn {
+    font-family: 'Segoe UI' !important;
+}
+.btn-primary {
+    background-color: #1d9c53 !important;
+    border: #28A745 !important;
+}
+
+    .btn-primary:hover {
+        background-color: #218838 !important;
+    }
+.btn-primary:active {
+    background-color: #1d9c53 !important;
+    border-color: #1d9c53 !important;
+}
+.btn-primary:focus {
+    color: #fff;
+    background-color: #1d9c53 !important;
+    border-color: #1d9c53 !important;
+    box-shadow: 0 0 0 .25rem rgba(49, 132, 253, .5);
+}
+    .btn-primary.disabled, .btn-primary:disabled {
+        color: #fff;
+        background-color: #1d9c53 !important;
+        border-color: #1d9c53 !important;
+    }
+
+.btn-custom-Blue-Steel {
+    color:white !important;
+    background-color: #4682b4 !important;
+    border: #28A745 !important;
+}
+
+    .btn-custom-Blue-Steel:hover {
+        color: white !important;
+        background-color: #4682b4 !important;
+    }
+    .btn-custom-Blue-Steel:active {
+        color: white !important;
+        background-color: #4682b4 !important;
+        border-color: #4682b4 !important;
+    }
+    .btn-custom-Blue-Steel:focus {
+        color: white !important;
+        background-color: #4682b4 !important;
+        border-color: #4682b4 !important;
+        box-shadow: 0 0 0 .25rem rgba(49, 132, 253, .5);
+    }
+    .btn-custom-Blue-Steel.disabled, .btn-custom-Blue-Steel:disabled {
+        color: white !important;
+        background-color: #4682b4 !important;
+        border-color: #4682b4 !important;
+    }
+
+.btn-aqua-green {
+    color: white !important;
+    background-color: #006254 !important;
+    border: #006254 !important;
+}
+
+    .btn-aqua-green:hover {
+        color: white !important;
+        background-color: #006254 !important;
+    }
+    .btn-aqua-green:active {
+        color: white !important;
+        background-color: #006254 !important;
+        border-color: #006254 !important;
+    }
+    .btn-aqua-green:focus {
+        color: white !important;
+        background-color: #006254 !important;
+        border-color: #006254 !important;
+        box-shadow: 0 0 0 .25rem rgba(49, 132, 253, .5);
+    }
+    .btn-aqua-green.disabled, .btn-aqua-green:disabled {
+        color: white !important;
+        background-color: #006254 !important;
+        border-color: #006254 !important;
+    }
+
+
+.btn-info {
+    background-color: #007bff !important;
+    border: #28A745 !important;
+    color: white;
+}
+
+    .btn-info:hover {
+        background-color: #007bff !important;
+        color: white;
+    }
+    .btn-info:active {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+        color: white;
+    }
+    .btn-info:focus {
+        color: #fff;
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+        box-shadow: 0 0 0 .25rem rgba(49, 132, 253, .5);
+        color: white;
+    }
+    .btn-info.disabled, .btn-info:disabled {
+        color: #fff;
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+
+
+.btn-light {
+    background-color: #0d313f !important;
+    border: #28A745 !important;
+    color: white;
+}
+
+    .btn-light:hover {
+        background-color: #0d313f !important;
+        color: white;
+    }
+    .btn-light:active {
+        background-color: #0d313f !important;
+        border-color: #0d313f !important;
+        color: white;
+    }
+    .btn-light:focus {
+        color: #fff;
+        background-color: #0d313f !important;
+        border-color: #0d313f !important;
+        box-shadow: 0 0 0 .25rem rgba(49, 132, 253, .5);
+        color: white;
+    }
+    .btn-light.disabled, .btn-light:disabled {
+        color: #fff;
+        background-color: #0d313f !important;
+        border-color: #0d313f !important;
+    }
+
+
+
+
+.btn-success {
+    background-color: #17A2B8 !important;
+    border: #28A745 !important;
+}
+
+    .btn-success:hover {
+        background-color: #138496 !important;
+    }
+
+    .btn-success:active {
+        background-color: #138496 !important;
+        border-color: #138496 !important;
+    }
+
+    .btn-success:focus {
+        color: #fff;
+        background-color: #138496 !important;
+        border-color: #138496 !important;
+        box-shadow: 0 0 0 .25rem rgba(49, 132, 253, .5);
+    }
+    .btn-success.disabled, .btn-success:disabled {
+        color: #fff;
+        background-color: #138496 !important;
+        border-color: #138496 !important;
+    }
+
+
+.btn-secondary {
+    background-color: #466474 !important;
+    border: #28A745 !important;
+}
+    .btn-secondary:hover {
+        background-color: #3d5361 !important;
+    }
+
+    .btn-secondary:active {
+        background-color: #3d5361 !important;
+        border-color: #3d5361 !important;
+    }
+
+    .btn-secondary:focus {
+        color: #fff;
+        background-color: #3d5361 !important;
+        border-color: #3d5361 !important;
+        box-shadow: 0 0 0 .25rem rgba(49, 132, 253, .5);
+    }
+    .btn-secondary.disabled, .btn-secondary:disabled {
+        color: #fff;
+        background-color: #3d5361 !important;
+        border-color: #3d5361 !important;
+    }
+
+
+
+/*Btns: Diseno general de los inputs utilizados en toda la web*/
+
+input {
+    font-family: 'Segoe UI' !important;
+    color: #466474 !important;
+}
+textarea {
+    font-family: 'Segoe UI' !important;
+    color: #466474 !important;
+}
+
+select {
+    font-family: 'Segoe UI' !important;
+    color: #466474 !important;
+}
+
+/*jconfirm*/
+.jconfirm-title {
+    font-weight: bold;
+    color: #3d5361;
+    font-size: 20px !important;
+}
+.jconfirm-closeIcon {
+    font-weight: bold;
+    color: #3d5361 !important;
+}
+
+/*Multiselc t*/
+.filter-multi-select > .viewbar > .selected-items > .item {
+    background-color: #1d9c53 !important;
+}
+/*textarea*/
+textarea {
+    height: 37.8px;
+    max-height: 400px;
+    resize: vertical;
+    color: #466474 !important;
+}
+
+/*Table or grid */
+
+/* Cambia el color de fondo y el color del texto del encabezado */
+/*.dx-datagrid-headers .dx-header-row {
+    background-color: #4CAF50;*/ /* Cambia este color al que desees */
+    /*color: white;*/ /* Cambia este color al que desees */
+/*}*/
+
+    /* Opcional: Cambia el color del borde del encabezado si es necesario */
+    /*.dx-datagrid-headers .dx-header-row .dx-datagrid-action {
+        border-color: #4CAF50;*/ /* Cambia este color al que desees */
+    /*}*/
+
+
+/*calendar*/
+
+
+.fc-view-harness .fc-view-harness-active {
+    height: 617.037px;
+    width: 100%;
+    background-color:red !important
+}
+
+
+.fc .fc-timegrid-slot {
+    border-bottom: 0px;
+    height: 50px;
+   
+}
+
+.fc-scrollgrid-sync-table {
+    display: none;
+}
+.fc-timegrid-divider fc-cell-shaded {
+    display: none;
+}
+.fc-timegrid-divider{
+    display: none !important;
+}
+.fc-scrollgrid-sync-inner a {
+    color: #466474;
+    margin: 13px;
+    text-decoration: none;
+}
+
+
+.fc-timegrid-slot-label-frame {
+    color: #466474;
+    font-family: 'Segoe UI' !important;
+}
+
+/* timepicker */
+.bootstrap-datetimepicker-widget {
+    max-height:180px;
+    max-width: 200px; /* Define el ancho máximo */
+    font-size: 14px; /* Tamaño de fuente */
+    color: #333; /* Color del texto */
+}
+
+.bootstrap-datetimepicker-widget ul.list-unstyled {
+    margin: 0; /* Elimina el margen */
+    padding: 5px; /* Añade un relleno */
+}
+    /* Personaliza el estilo de los botones y las celdas de la tabla según sea necesario */
+    .bootstrap-datetimepicker-widget a.btn,
+    .bootstrap-datetimepicker-widget table td {
+        color: #466474; /* Color del texto */
+        border: none; /* Borde */
+    }
+    /* Ajusta el estilo del separador entre las horas y los minutos */
+.bootstrap-datetimepicker-widget .separator {
+        color: #333; /* Color del texto */
+}
+    .bootstrap-datetimepicker-widget .btn {
+        height:30px;
+        font-size: 0.8rem; /* Reduce el tamaño de la fuente */
+        border-radius: 0.2rem; /* Aplica un borde redondeado */
+        color: #fff; /* Cambia el color del texto de los botones */
+    }
+
+        .bootstrap-datetimepicker-widget .btn .glyphicon {
+            margin: 0; /* Elimina el margen del icono para mejor alineación */
+        }
+
+        .bootstrap-datetimepicker-widget .btn .glyphicon-chevron-up::before {
+            content: '\25B2'; /* Cambia el icono del botón de incremento */
+        }
+
+        .bootstrap-datetimepicker-widget .btn .glyphicon-chevron-down::before {
+            content: '\25BC'; /* Cambia el icono del botón de decremento */
+        }
+
+    .bootstrap-datetimepicker-widget .btn {
+        width: 30px; /* Ancho de 30px */
+        height: 30px; /* Alto de 30px */
+        padding: 0; /* Elimina el relleno para que el botón sea del tamaño exacto */
+        font-size: 14px; /* Tamaño de la fuente */
+        display: flex; /* Usa flexbox para centrar vertical y horizontalmente */
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center; /* Centra verticalmente */
+    }
+
+        .bootstrap-datetimepicker-widget .btn .glyphicon {
+            margin: 0; /* Elimina el margen del icono para mejor alineación */
+        }
+
+        .bootstrap-datetimepicker-widget .btn:hover,
+        .bootstrap-datetimepicker-widget .btn:focus,
+        .bootstrap-datetimepicker-widget .btn:active {
+            background-color: transparent !important; /* Elimina el color de fondo al hacer hover, focus y active */
+            color: inherit; /* Hereda el color de texto del contenedor */
+            border-color: transparent; /* Elimina el color del borde al hacer hover, focus y active */
+            box-shadow: none; /* Elimina cualquier sombra al hacer hover, focus y active */
+            outline: none; /* Elimina el contorno al hacer focus */
+        }
+
+        /* Agregar tu propio efecto hover */
+        .bootstrap-datetimepicker-widget .btn.custom-hover:hover {
+            background-color: #ccc; /* Cambia el color de fondo al hacer hover */
+            color: #333; /* Cambia el color del texto al hacer hover */
+        }
+
+.timepicker-hour {
+    /* padding: 0px !important;
+        margin: 0px !important;
+        height: 0px !important;
+        width: 0px !important;*/
+}
+
+    .timepicker-hour:hover,
+    .timepicker-hour:focus,
+    .timepicker-hour:active {
+        background-color: transparent !important;
+        color: inherit; /* Hereda el color de texto del contenedor */
+        border-color: transparent; /* Elimina el color del borde al hacer hover, focus y active */
+        box-shadow: none; /* Elimina cualquier sombra al hacer hover, focus y active */
+        outline: none; /* Elimina el contorno al hacer focus */
+    }
+    .timepicker-hour:hover,
+    .timepicker-hour:focus,
+    .timepicker-hour:active {
+        background-color: #466474 !important;
+        color: white;
+    }
+
+
+.timepicker-minute:hover,
+.timepicker-minute:focus,
+.timepicker-minute:active {
+    background-color: transparent !important;
+    color: inherit; /* Hereda el color de texto del contenedor */
+    border-color: transparent; /* Elimina el color del borde al hacer hover, focus y active */
+    box-shadow: none; /* Elimina cualquier sombra al hacer hover, focus y active */
+    outline: none; /* Elimina el contorno al hacer focus */
+}
+
+.timepicker-minute:hover,
+.timepicker-minute:focus,
+.timepicker-minute:active {
+    background-color: #466474 !important;
+    color: white;
+}
+
+
+.glyphicon:hover,
+.glyphicon:focus,
+.glyphicon:active {
+    background-color: transparent !important;
+    color: inherit; /* Hereda el color de texto del contenedor */
+    border-color: transparent; /* Elimina el color del borde al hacer hover, focus y active */
+    box-shadow: none; /* Elimina cualquier sombra al hacer hover, focus y active */
+    outline: none; /* Elimina el contorno al hacer focus */
+}
+
+.glyphicon:hover,
+.glyphicon:focus,
+.glyphicon:active {
+    /*background-color: red !important;*/
+    color: white;
+}
+
+.bootstrap-datetimepicker-widget .btn:hover {
+    background-color: #466474 !important; /* Color de fondo al hacer hover */
+    color: white !important; /* Color del texto al hacer hover */
+}
+
+td .btn-primary{
+    width:50px  !important;
+    /*background-color:red !important;*/
+    padding:10px !important;
+}
+
+
+/*Container*/
+.custom-container {
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+    box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+    border: 1px solid #ccd2d5;
+}
+.custom-subtitle-form {
+    margin-top: 0 !important;
+    margin-bottom: 1rem;
+    font-size: 16px;
+    font-weight: bold;
+    color: #3d5361;
+}
+
+.card-title {
+    font-size:15px !important;
+    color: #3d3d3d !important;
+}
+
+
+/*Confirm*//**/
+@media (max-width: 600px) {
+    .dx-group-panel-message{
+        display:none !important;
+    }
+    .jconfirm-title {
+        font-size: 16px !important;
+        margin-right: 20px;
+    }
+    #container-data {
+        padding: 10px;
+        width: 390px !important; /* Ajusta este valor según sea necesario */
+    }
+    .container-principal {
+        padding: 0px !important;
+        margin-bottom: 0px !important;  
+    }
+}
+@media (max-width: 950px) {
+
+    #container-data {
+        padding: 10px;
+        width: 800px; /* Ajusta este valor según sea necesario */
+    }
+}
+@media (max-width: 750px) {
+
+    #container-data {
+        padding: 10px;
+        width: 600px; /* Ajusta este valor según sea necesario */
+    }
+}
+/* Estilos para la barra de desplazamiento en Webkit (Chrome, Safari, Edge) */
+.jconfirm-content::-webkit-scrollbar {
+    height: 4px; /* Altura de la barra de desplazamiento */
+}
+
+.jconfirm-content::-webkit-scrollbar-track {
+    background: ##666; /* Color del fondo de la pista de desplazamiento */
+    border-radius: 3px; /* Bordes redondeados */
+}
+
+.jconfirm-content::-webkit-scrollbar-thumb {
+    background: ##666; /* Color de la barra de desplazamiento */
+    border-radius: 3px; /* Bordes redondeados */
+}
+
+    .jconfirm-content::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Color de la barra de desplazamiento al pasar el cursor */
+    }
+/* Estilos para Firefox */
+.jconfirm-content {
+    scrollbar-width: thin; /* Ancho de la barra de desplazamiento */
+    scrollbar-color: ##666 #f1f1f1; /* Color de la barra de desplazamiento y de la pista */
+}
+/* Estilos para IE y Edge heredados */
+.jconfirm-content {
+    -ms-overflow-style: -ms-autohiding-scrollbar; /* Oculta automáticamente la barra de desplazamiento cuando no se usa */
+}

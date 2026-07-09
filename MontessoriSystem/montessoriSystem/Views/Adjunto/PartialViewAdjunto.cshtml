@@ -1,0 +1,314 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Adjunto;
+@model List<AdjuntoViewModel>
+
+
+@{
+    ViewData["Title"] = "Student";
+}
+
+
+<div class="text-center">
+    <div class="container-btn-create">
+        <button type="button" id="btn-new-adjunto" class="btn btn-primary"><i class="fa-solid fa-plus"></i>  Nuevo</button>
+    </div>
+      <div class="container-cards">
+        @foreach (var adjunto in Model)
+        {
+        <div class="card ">
+            <div class="card-header">@adjunto.Name</div>
+            <div class="card-body">
+                    @if (adjunto.Path.EndsWith(".pdf"))
+                    {
+                        <embed class="pdf-preview" src="~/FileUser/DocumentStudent/@adjunto.Path" type="application/pdf">
+                    }
+                    else
+                    {
+                        <div class="container-img">
+                            <img class="file-preview" src="~/FileUser/DocumentStudent/@adjunto.Path" alt="Imagen">
+                        </div>
+                    }
+                <p class="card-text text-card-body">@adjunto.Description</p>
+
+                <div class="container-btn-card">
+                        <a href="~/FileUser/DocumentStudent/@adjunto.Path" title="Descargar Adjunto" download class="btn btn-primary text-white"><i class="fa-solid fa-download"></i></a>
+                        <button title="Editar Adjunto" class="btn btn-warning view-file btn-editar-adjunto" data-id="@adjunto.Id" id=""><i class="fa-regular fa-pen-to-square"></i></button>
+                        <button title="Eliminar Adjunto" class="btn btn-danger view-file btn-delete-adjunto" data-id="@adjunto.Id" id=""><i class="fa-regular fa-trash-can"></i></button>
+                        <button title="Ver Adjunto"  class="btn btn-success view-file" data-target="#modal-@adjunto.Id" data-toggle="modal"><i class="fa-solid fa-eye"></i></button>
+                </div>
+            </div>
+        </div>
+        }
+
+        @foreach (var adjunto in Model)
+        {
+        <div class="modal fade" id="modal-@adjunto.Id" tabindex="-1" role="dialog" aria-labelledby="modalLabel-@adjunto.Id" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel-@adjunto.Id">@if (adjunto.Path.EndsWith(".pdf"))
+                                {
+                                    <text>Visor de PDF</text>
+                                }
+                                else
+                                {
+                                    <text>Visor de Archivo</text>
+                                }</h5>
+                                <i  data-dismiss="modal" aria-label="Close" class="close fa-solid fa-xmark "></i>
+                    </div>
+                    <div class="modal-body">
+                            @if (adjunto.Path.EndsWith(".pdf"))
+                            {
+                                <embed id="pdf-viewer-@adjunto.Id" class="pdf-viewer" src="~/FileUser/DocumentStudent/@adjunto.Path" type="application/pdf">
+                            }
+                            else
+                            {
+                                <img id="file-viewer-@adjunto.Id" class="img-viewer" src="~/FileUser/DocumentStudent/@adjunto.Path" alt="Imagen">
+                            }
+                        <div class="container-download-btn-img">
+                                <a href="~/FileUser/DocumentStudent/@adjunto.Path" download class="btn btn-primary">Descargar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+      </div>
+    
+
+</div>
+
+<script>
+   
+    $(document).ready(function() { 
+
+        editAdjunto();
+
+        var viewPdfButtons = document.querySelectorAll('.view-pdf');
+        viewPdfButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var pdfPath = this.getAttribute('data-path');
+                document.getElementById('pdf-viewer').setAttribute('src', pdfPath);
+            });
+        });
+
+        var viewImageButtons = document.querySelectorAll('.view-image');
+        viewImageButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var imagePath = this.getAttribute('data-path');
+                document.getElementById('file-viewer').setAttribute('src', imagePath);
+                document.getElementById('btn-download-file').setAttribute('href', imagePath);
+            });
+        });
+        var confirmDailogAdjunto=null;
+    });
+
+    $('#btn-new-adjunto').on('click',function(){
+          $.ajax({
+          url: 'Adjunto/CreateUpdate',
+          method: 'GET',
+          success: function (data) {        
+              confirmDailogAdjunto=  $.confirm({
+                buttons: false,
+                boxWidth: '70%',
+                useBootstrap: false,
+                closeIcon: true,
+                title: 'Crear Adjunto',
+                content: data,
+                type: 'green',
+                typeAnimated: true
+                });
+          }
+          });
+     })
+    
+
+     function  editAdjunto(){
+        var editButtons = document.querySelectorAll('.btn-editar-adjunto');
+        editButtons.forEach(function(button) {
+              
+            button.addEventListener('click', function() {
+                var idAdjunto = this.getAttribute('data-id');
+              editAdjuntoAjax(idAdjunto)
+            });
+        });        
+     }
+
+     function  editAdjuntoAjax(idAdjunto){
+         $.ajax({
+          url: 'Adjunto/CreateUpdate',
+          method: 'GET',
+          data:{idAdjunto},
+          success: function (data) {        
+              confirmDailogAdjunto=  $.confirm({
+                buttons: false,
+                boxWidth: '70%',
+                useBootstrap: false,
+                closeIcon: true,
+                title: 'Editar Adjunto',
+                content: data,
+                type: 'green',
+                typeAnimated: true
+                });
+          }
+          });      
+     }
+
+     function deleteAdjunto(idAdjunto){
+
+      $.confirm({ typeAnimated: true,
+            typeAnimated: true,
+            type: 'red',
+            icon: 'fa fa-exclamation-circle',
+        title: 'Confirmar',
+        content: 'Se va a ELIMINAR el adjunto. Desea continuar?',
+        buttons: {
+            Continuar: function () {
+                showGlobalLoadingIndicator()
+              $.ajax({
+              url: 'Adjunto/Delete',
+              method: 'POST',
+              data:{idAdjunto},
+              success: function (data) {    
+                  toastr.success('Proceso realizado con exito!', 'Correcto!')
+                  hideGlobalLoadingIndicator();
+                 getDataAdjunto();
+              }
+              });
+            },
+            Cancelar: function () {
+
+            }
+        }
+      }); 
+     }
+
+     var deleteButtons = document.querySelectorAll('.btn-delete-adjunto');
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var idAdjunto = this.getAttribute('data-id');
+              deleteAdjunto(idAdjunto)
+            });
+     });   
+
+
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ 
+
+<style>
+    .img-viewer{
+        height:450px !important;
+    } .pdf-viewer{
+        width:100%;
+        height:450px !important;
+    }
+       .fa-xmark {
+           cursor:pointer;
+       } .container-download-btn-img a{
+          color:white !important;
+       }
+        .text-card-body{
+            text-align:start !important;
+            margin-top:10px;
+        }
+        .btn-outline-primary {
+            color: #0d6efd !important;
+        }
+        .btn-outline-primary:hover {
+            color: #fff !important;
+        }
+        .container-cards {
+            width: 100%;
+            justify-content: center;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            height: 315px;
+            max-width: 400px;
+            min-width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 10px auto;
+        }
+
+        .card-header {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: start;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .card-body {
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .container-btn-card {
+            display: flex;
+            justify-content: end;
+            margin-top: 7px;
+        }
+
+        #btn-download-file {
+            margin-right: 10px;
+        }
+        .pdf-preview {
+            width: 100%;
+        }
+        .file-preview {
+            width: 100%;
+            object-fit: contain;
+            height: 160px !important;
+        }
+        .file-viewer {
+            width: 100%;
+            height: 70vh;
+            border-radius: 6px;
+        }
+        #pdf-viewer {
+            width: 100%;
+            /*height: 70vh*/
+        }
+        .container-download-btn-img{
+            justify-content: end;
+            display: flex;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .container-btn-card  a{
+            color:white
+        }
+        .container-btn-create{
+            display: flex;
+            justify-content: end;
+            width: 97%;
+            margin-bottom:20px;
+        }
+        .btn-new{
+            width:150px !important
+        }
+        .btn-editar-adjunto{
+            margin-left:8px;
+            margin-right:8px;
+        }
+        .btn-delete-adjunto{
+            margin-right:8px;
+        }
+
+    .fa-download{
+        color:white !important;
+    }
+    </style>
+
+
+

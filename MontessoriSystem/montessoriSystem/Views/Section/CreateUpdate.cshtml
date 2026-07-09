@@ -1,0 +1,68 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Student;
+@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model SectionSaveViewModel
+
+
+@{
+    ViewData["Title"] = "Create Student";
+}
+<div class="container mt-5">
+    <form id="formCreateUpdateSection">
+        <input asp-for="Id"  type="hidden" />
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Name" class="form-label">Nombre:</label><span style="color:red"> *</span>
+                <input type="text" class="form-control" id="inputName" asp-for="Name" placeholder="Ingrese el nombre">
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+    <label asp-for="Description" class="form-label">Descripcion:</label>
+    <textarea class="form-control" id="inputDescription" asp-for="Description" placeholder="Ingrese la descripcion"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+        </div>        
+
+    </form>
+</div>
+
+<script>
+   
+    $(document).ready(function () {       
+
+        $('#formCreateUpdateSection').validate({});       
+        $("#inputName").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $('#inputLastname').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });     
+        
+    });  
+
+    function guardarDatos(){
+         var formData = $('#formCreateUpdateSection').serialize();
+         $.ajax({
+          url: 'Section/CreateUpdateSection',
+          method: 'POST',
+          data:formData,
+          success: function (data) {        
+              hideGlobalLoadingIndicator()
+              toastr.success('Registro creado con exito!', 'Correcto!')
+               refresshGrid()
+          },
+          error: function (error) {
+              hideGlobalLoadingIndicator()
+              toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!')
+                }
+          });
+    }
+
+</script>
+

@@ -1,0 +1,139 @@
+﻿@{
+    ViewData["Title"] = "Centro Educativo";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header d-flex align-items-center" style="background-color: #007bff; color: white;">
+            <img src="~/Img/default_educa_center.png" class="rounded-circle mr-3" alt="Centro Educativo" /> <!-- Imagen representativa -->
+            <h5 class="card-title mb-0 ml-2 " style="color: white;">Subir Archivo Excel - Centro Educativo</h5>
+        </div>
+        <div class="card-body">
+            <form id="uploadFormEducationalCenter" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="excelFileEducationalCenter" class="btn btn-outline-primary w-100">Seleccionar Archivo</label>
+                    <input type="file" class="form-control-file d-none" id="excelFileEducationalCenter" name="excelFileEducationalCenter" accept=".xlsx, .xls" />
+
+                    <!-- Campo para mostrar el nombre del archivo seleccionado -->
+                    <input type="text" class="form-control mt-2" id="fileNameDisplayEducationalCenter" placeholder="No hay archivo seleccionado" readonly />
+                </div>
+
+                <div class="text-center">
+                    <button type="button" id="downloadTemplateExcelEducationalCenter" class="btn btn-info mt-3 mr-2"><i class="fa fa-download"></i> Descargar Plantilla</button>
+                    <button type="button" id="uploadBtnExcelEducationalCenter" class="btn btn-success mt-3 mr-2"><i class="fa fa-upload"></i> Subir Archivo</button>
+                    <button type="button" id="resetBtn" class="btn btn-danger mt-3"><i class="fa fa-redo"></i> Resetear</button>
+                </div>
+            </form>
+            <div id="resultEducationalCenter" class="mt-4 text-center"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Estilos adicionales para mejorar la apariencia -->
+<style>
+
+    .card-title{
+        color:white !important;
+    }
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        background-color: #007bff;
+        color: white;
+        border-bottom: 3px solid #0056b3;
+    }
+
+        .card-header img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+
+    .btn {
+        font-weight: bold;
+        transition: transform 0.2s ease-in-out;
+    }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        // Cuando se selecciona un archivo, se muestra su nombre y se habilita el botón "Siguiente"
+        $('#excelFileEducationalCenter').change(function () {
+            var fileName = $('#excelFileEducationalCenter')[0].files[0].name;
+            $('#fileNameDisplayEducationalCenter').val(fileName);
+        });
+
+        $('#uploadBtnExcelEducationalCenter').click(function () {
+
+            var formData = new FormData();
+            var fileInput = $('#excelFileEducationalCenter')[0].files[0];
+
+            if (!fileInput) {
+                toastr.error('Por favor, seleccione un archivo.');
+                return;
+            }
+
+            showGlobalLoadingIndicator();
+
+            formData.append('excelFile', fileInput);
+
+            $.ajax({
+                url: '@Url.Action("CreateEducationalCenterExcel", "InitData")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    hideGlobalLoadingIndicator();
+                    if (response.result) {
+
+                        $.confirm({
+                            icon: 'fa fa-check',
+                            typeAnimated: true,
+                            type: 'green',
+                            title: '¡Correcto!',
+                            content: response.data,
+                            buttons: {
+                                Ok: {
+                                    text: 'Ok',
+                                    action: function () {
+                                        window.location.href = '/InitData';
+                                    }
+                                }
+                            }
+                        });
+
+                    } else {
+                        toastr.error(response.data, 'Error!');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrió un error. Intente nuevamente.', 'Error!');
+                }
+            });
+        });
+
+        $('#resetBtn').click(function () {
+            $('#uploadFormEducationalCenter')[0].reset();
+            $('#fileNameDisplayEducationalCenter').val('No hay archivo seleccionado');
+            $('#resultEducationalCenter').html('');
+        });
+
+        $('#downloadTemplateExcelEducationalCenter').click(function () {
+            window.location.href = '@Url.Action("DownloadTemplateExcelEducationalCenter", "InitData")';
+        });
+
+    });
+</script>

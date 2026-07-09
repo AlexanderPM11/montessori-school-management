@@ -1,0 +1,46 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Student;
+@model List<StudentViewModel>
+
+
+@{
+    ViewData["Title"] = "Student";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Matrícula</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Sexo</th>
+                <th>Edad</th>
+                <th>Dirección</th>
+                <th>Teléfono Padre</th>
+                <th>Teléfono Madre</th>
+                <th>Id Sección Estudiante</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                if(Model !=null)
+                {
+                    foreach (var item in Model)
+                    {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Lastname</td>
+                                    <td>@item.Sexo</td>
+                                    <td>@item.Age</td>
+                                    <td>@item.Direction</td>
+                                    <td>@item.TelFather</td>
+                                    <td>@item.TelMother</td>
+                                </tr>
+                    }
+                }
+            }
+                
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,349 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.User;
+@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model SaveUserViewModel
+
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="container mb-1 ">
+
+    <div class="container-principal">
+
+        <div class="btn-container">           
+
+            <button type="button" id="newUser" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nuevo</button>
+            <button type="button" disabled id="editUser" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+            <button type="button" disabled id="btnDeleteUser" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Eliminar</button>
+
+            <button type="button" id="filterUser" class="btn btn-info"><i class="fa-solid fa-filter"></i> Filtros</button>
+
+        </div>
+        <div id="gridContainerUser"></div>
+    </div>
+    
+
+</div>
+
+
+<script>
+   var IdInstituUsers = 0;
+
+    var idUser='';
+
+    $(document).ready(function () {
+        deleteSelectOptionMenu()
+        let page = "General / Usuarios";
+        //Cargar table listado estudiantes
+        GetDatosUserJson()
+    });
+
+    //Cargar table listado estudiantes
+    function GetDatosUserJson() {
+
+        $('#gridContainerUser').dxDataGrid({
+            dataSource: {
+                load: function () {
+                    return $.ajax({
+                        url: "User/GetDatosUserJson",
+                        data: { },
+                        dataType: "json"
+                    });
+                }
+            }, columnMinWidth: 160,
+            paging: {
+                pageSize: 10,
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard', // 'virtual' o 'standard'
+                // Otros ajustes de desplazamiento si es necesario
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                
+                {
+                    dataField: 'firstName',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'lastName',
+                    caption: "Apellidos"
+                },
+                {
+                    dataField: 'userName',
+                    caption: "Nombre de Usuario"
+                },
+                {
+                    dataField: 'sex',
+                    caption: "Sexo"
+                },
+                {
+                    dataField: 'dateBirth',
+                    caption: "Fecha de nacimiento",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = formatDateString(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                }, {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = GetCurrentAge(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+                {
+                    dataField: 'identificationId',
+                    caption: "Cédula de identidad"
+                },
+                {
+                    dataField: 'civilStatusDesc',
+                    caption: "Estado Civil"
+                },
+                {
+                    dataField: 'nationalityDesc',
+                    caption: "Nacionalidad"
+                },
+                {
+                    dataField: 'email',
+                    caption: "Correo Eléctronico"
+                },
+                {
+                    dataField: 'tel',
+                    caption: "Número de Teléfono"
+                },
+                {
+                    dataField: 'phoneNumber',
+                    caption: "Número de Celular"
+                },
+                {
+                    dataField: 'addres',
+                    caption: "Dirección"
+                },{
+                    dataField: 'estadoDes',
+                    caption: "Estado"
+                }
+
+            ],
+            onRowDblClick: function (e) {
+                CreateUpdate();
+            }, onRowClick: function (e) {
+                idUser =e.data.id
+                //activeBtn()
+            },
+            onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    idUser = selectedRowKeys[0].id;
+                    activeBtn()
+                } else {
+                    disableBtn();
+                }
+            },
+            onContentReady: function (e) {
+
+            }
+        });
+
+    }
+    
+
+
+    //Functions    
+
+    //Create
+
+    $('#newUser').on('click', function () {
+        idUser = '';        
+        CreateUpdate('green', 'Crear Usuario');
+    })
+    $('#editUser').on('click', function () {
+        CreateUpdate();
+    })
+    $('#filterUser').on('click', function () {
+        Filters();
+    });
+    $("#btnDeleteUser").click(function (event) {
+        event.preventDefault();       
+        deleteUser();
+    });
+
+
+    function CreateUpdate(type = 'green', title = 'Actualizar Usuario') {
+
+        $.ajax({
+            url: 'User/CreateOrUpdate',
+            method: 'GET',
+            data: { idUser },
+            success: function (data) {
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: title,
+                    content: data,
+                    type: type,
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+ function Filters() {
+
+        $.ajax({
+            url: 'User/Filtro',
+            method: 'GET',
+            data: { idUser },
+            success: function (data) {
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '50%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Filtros',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+
+    // btns Enable disable
+    function activeBtn() {
+        $('#editUser').prop("disabled", false);
+        $('#deleteUser').prop("disabled", false);
+        $('#btnDeleteUser').prop("disabled", false);
+    }
+
+    function disableBtn() {
+        $('#editUser').prop("disabled", true);
+        $('#deleteUser').prop("disabled", true);
+        $('#btnDeleteUser').prop("disabled", true);
+    }
+
+    function refresshGridUsers() {
+        
+        $("#loadPanelContainer").dxLoadPanel("show");
+
+        var dataGrid = $("#gridContainerUser").dxDataGrid("instance");
+        dataGrid.refresh().done(function () {
+            $("#loadPanelContainer").dxLoadPanel("hide");            
+        });
+    }
+    
+    function deleteUser() {
+        $.confirm({           
+            icon: 'fa fa-trash',
+            typeAnimated: true,
+            type: 'red',
+            title: '¡Atención!',
+            content: "Está a punto de eliminar permanentemente al usuario. ¿Desea continuar con esta acción irreversible?",
+            buttons: {
+                Continuar: {
+                    text: 'Continuar',
+                    btnClass: 'btn-red',
+                    action: function () {
+                        disableBtn();
+                        showGlobalLoadingIndicator()
+                        $.ajax({
+                            url: '@Url.Action("Delete", "User")',
+                            method: 'Post',
+                            data: { idUser },
+                            success: function (data) {
+                                activeBtn();
+                                hideGlobalLoadingIndicator();
+                                if (data.result) {
+                                    toastr.success(data.data, 'Correcto!');
+                                    refresshGridUsers();
+                                } else {
+                                    toastr.error(data.data, 'Error!');
+                                }
+
+                            }
+                        });
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-default',  // Clase de Bootstrap para el botón "Cancelar"
+                    action: function () {
+                        // Lógica para cancelar
+                    }
+                }
+            }
+        });
+    }
+
+
+
+    if (IdInstituUsers) {       
+        var element = document.querySelector('.container-principal');
+        element.style.boxShadow = 'initial';
+        element.style.webkitBoxShadow = 'initial';
+        element.style.border = 'initial';
+    }
+
+</script>
+
+<style>
+    .btn-container {
+        display: flex;
+        justify-content: end;
+        padding-bottom: 10px;
+        min-width: 200px;
+    }
+
+    .container-principal {
+        background-color: white;
+        border-radius: 5px;
+        padding: 30px;
+        margin-bottom: 30px;
+        -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #ccd2d5;
+    }
+
+    #editUser {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #deleteUser {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #btnDeleteUser {
+        margin-right: 10px;
+    }
+</style>
+

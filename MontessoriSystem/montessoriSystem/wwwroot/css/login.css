@@ -1,0 +1,54 @@
+body {
+    background-image: url('/Img/login4.jpg');
+    background-size: auto;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.login-content {
+    position: relative;
+    display: flex;
+    height: 90vh;
+}
+
+.container-login {
+    margin: auto;
+    width: 80%;
+    max-width: 500px;
+    padding: 20px;
+    justify-content: center;
+    background-color: rgba(11, 11, 11, 0.8) !important;
+}
+
+.text-forgot-pass {
+    font-weight: 500;
+    color: white;
+    text-align: right;
+    margin-top: 10px;
+}
+
+    .text-forgot-pass:hover {
+        color: #0d6efd
+    }
+
+.title-login {
+    text-align: center;
+    margin-bottom: 50px;
+    color: white;
+    /*font-style: italic;*/
+}
+
+.container-btn-login {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-login {
+    width: 100% !important;
+}
+
+.lable-style {
+    color: white;
+    font-weight: bold;
+}

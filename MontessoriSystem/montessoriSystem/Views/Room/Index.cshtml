@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewData["Title"] = "Salón";
+}
+
+<div class="container mb-1 container-report">
+    <div id="ContainerRooms"></div>
+
+</div>
+
+
+<script>
+    var idInstituSend = @ViewBag.idInstitu
+
+    $(document).ready(function () {
+
+        getRoomsMain();
+
+    });
+    function getRoomsMain() {
+
+        var idInstitu = idInstituSend
+        $.ajax({
+            url: '@Url.Action("Rooms", "Room")',
+            method: 'GET',
+            data: { idInstitu },
+            success: function (data) {
+                $('#ContainerRooms').html(data);
+            }
+        });
+
+    }
+
+
+</script>
+<style>
+    .container-report {
+        padding: 20px;
+        background-color: white;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #ccd2d5;
+    }
+</style>

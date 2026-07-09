@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>409de914-3272-49e4-8a5f-a9e7173aae80</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DevExtreme.AspNet.Data" Version="3.0.0" />
+    <PackageReference Include="DinkToPdf" Version="1.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.25" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.25">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+    <PackageReference Include="MimeKit" Version="4.7.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Rotativa.AspNetCore" Version="1.3.2" />
+    <PackageReference Include="Rotativaio.AspNetCore" Version="1.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MontessoriSystem.Core.Identity\MontessoriSystem.Infrastructure.Identity.csproj" />
+    <ProjectReference Include="..\MontessoriSystem.Infrastructure.Persistence\MontessoriSystem.Infrastructure.Persistence.csproj" />
+    <ProjectReference Include="..\MontessoriSystem.Infrastructure.Security\MontessoriSystem.Infrastructure.Security.csproj" />
+    <ProjectReference Include="..\MontessoriSystem.Infrastructure.Shared\MontessoriSystem.Infrastructure.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\FileUser\DocumentStudent\" />
+    <Folder Include="wwwroot\FileUser\EducantionalInstitution\" />
+    <Folder Include="wwwroot\FileUser\Suject\" />
+    <Folder Include="wwwroot\FileUser\Room\" />
+  </ItemGroup>
+	
+	<ItemGroup>
+    <Content Update="Views\Attendance\AttendanceInfo.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\Reports\SecondGrade\Evaluation.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\Reports\SecondGrade\SecondGradePreviewTemplate.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\Reports\SecondGrade\SecondGradeReport.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\Reports\SecondGrade\SecondGradeTemplate.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\Teacher\ViewExcel.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\BackupFiles\Script DB.txt">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="wwwroot\Img\TemplatesPDF\FirstYear\head2_report_one_year.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

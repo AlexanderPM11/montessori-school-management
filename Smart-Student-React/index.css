@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+    /* Fondo blanco */
+    -webkit-text-fill-color: #10172b !important;
+    /* Color del texto */
+}
+
+
+.react-tabs__tab--selected {
+    border-bottom: 2px solid #1a1a1a !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    height: 0px;
+    /* Altura de la barra de desplazamiento */
+    background-color: #f1f1f1;
+    /* Fondo de la barra de desplazamiento */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #888;
+    /* Color del pulgar */
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+    /* Color al pasar el ratón */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background-color: #f1f1f1;
+    /* Fondo de la pista */
+}
+input[type="color"],
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select:focus,
+textarea {
+    font-size: 16px;
+}

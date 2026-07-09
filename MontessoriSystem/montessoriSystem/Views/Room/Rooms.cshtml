@@ -1,0 +1,608 @@
+﻿@using MontessoriSystem.Core.Application.DTOS.Account
+@using MontessoriSystem.Core.Application.Enums;
+@using MontessoriSystem.Infrastructure.Identity.Entities
+@using RealtyApp.Core.Application.Helpers;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http;
+@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.EducationalInstitution;
+
+@inject UserManager<ApplicationUser> userManager
+@inject IHttpContextAccessor httpContextAccessor
+
+@{
+    var UserLogued = User.Identity.Name;
+    bool isAdmin = true;
+    string pathImg = "";
+
+    ApplicationUser? UserLogin = null;
+    IList<string> roles = new List<string>();
+
+    if (UserLogued != null)
+    {
+        UserLogin = await userManager.FindByNameAsync(UserLogued);
+
+
+        if (userManager != null)
+        {
+            roles = await userManager.GetRolesAsync(UserLogin);
+        }
+
+    }
+}
+
+<div class="text-center">
+    @*<h1 class="display-4">Estudiantes</h1>*@
+
+
+    @*Test*@
+    @*Fin *@
+
+
+    <div class="btn-container">
+        
+        @if (roles.Contains(Roles.Admin.ToString()))
+        {
+            <button type="button" id="btnNewsRoom" class="btn btn-success"><i class="fa-solid fa-plus"></i>  Nuevo</button>
+            <button type="button" disabled id="btnTeacherRoom" class="btn btn-info"><i class="fa-solid fa-book-open-reader"></i> Profesores</button>
+            <button type="button" disabled id="btnSujectRoom" class="btn btn-success"><i class="fa-solid fa-book-open-reader"></i> Asignaturas</button>
+        }
+
+        <button type="button" disabled id="btnSeeschedule" class="btn btn-primary"><i class="fa-regular fa-calendar-days"></i> Horario</button>
+
+        <button type="button" disabled id="btnStudentRoom" class="btn btn-custom-Blue-Steel"><i class="fa-solid fa-user-graduate"></i> Estudiantes</button>
+        <button type="button" disabled id="btnAttendanceRoom" class="btn btn-info"><i class="fa-solid fa-list-ul"></i> Pase de lista</button>
+        <button type="button" disabled id="btngetReportPdfRoomToGeneret" class="btn btn-aqua-green"><i class="fa-solid fa-table-cells"></i> Registro</button>
+
+        @if (roles.Contains(Roles.Admin.ToString()))
+        {
+            <button type="button" disabled id="btnGroupRoom" class="btn btn-light"><i class="fa-solid fa-diagram-project"></i> Grupos</button>
+            <button type="button" disabled id="btnEditRoom" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+        }
+        
+        @* <button type="button" disabled id="btnDeleteRoom" class="btn btn-danger"><i class="fa-solid fa-trash"></i>  Eliminar</button> *@
+    </div>
+
+    <div id="gridContainerRooms"></div>
+
+
+</div>
+
+<script>
+
+
+$(document).ready(function() { 
+    
+    GetRoomsJson();      
+    
+});
+    var idInstituSendRoom = @ViewBag.idInstitu
+    var idRoomSelect =  0; 
+    var IdTypeRegisterSelect = 0;
+    var TypeRegisterSelect = "";
+
+
+    function GetRoomsJson() {
+        
+        $('#gridContainerRooms').dxDataGrid({
+            dataSource: {
+                load: function () {
+                    return $.ajax({
+                        url: '@Url.Action("GetRoomsJson", "Room")',
+                        data: { idInstitu: idInstituSendRoom },
+                        dataType: "json"
+                    });
+                }
+            },
+            paging: {
+                pageSize: 10,
+            },
+            columnMinWidth: 160,
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard', // 'virtual' o 'standard'
+                // Otros ajustes de desplazamiento si es necesario
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'name',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'description',
+                    caption: "Descripción"
+                },
+                {
+                    dataField: 'teacherFullName',
+                    caption: "Profesor Encargado"
+                },
+                {
+                    dataField: 'location',
+                    caption: "Ubicación"
+                },
+                {
+                    dataField: 'capacity',
+                    caption: "Capacidad"
+                } ,
+                {
+                    dataField: 'level',
+                    caption: "Niveles"
+                }
+                
+
+            ],
+            onRowDblClick: function (e) {
+                CreateUpdatenroom()
+            }, 
+            onRowClick: function (e) {
+                idRoomSelect = e.data.id;
+                IdTypeRegisterSelect = e.data.idTypeRegister;
+                TypeRegisterSelect = e.data.level;
+            },
+            onSelectionChanged(selectedItems) {
+               
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    id = selectedRowKeys[0].id;
+                    idRoomSelect = selectedRowKeys[0].id;
+                    IdTypeRegisterSelect = selectedRowKeys[0].idTypeRegister;
+                    TypeRegisterSelect = selectedRowKeys[0].level;
+                    activeBtnRoom();
+                } else {
+                    disableBtnRoom();
+                }
+            }
+        });
+
+    }
+
+    function CreateUpdatenroom(type = 'orange') {
+        
+        $.ajax({
+            url: '@Url.Action("CreateUpdate", "Room")',
+            method: 'GET',
+            data: { id: idRoomSelect, idInstitu: idInstituSendRoom },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: '',
+                    content: divCont,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }    
+   
+    function GetSchedule() {
+       
+        $.ajax({
+            url: '@Url.Action("PartialViewSchedule", "Room")',
+            method: 'GET',
+            data: { id: idRoomSelect },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: '',
+                    content: divCont,
+                    type: 'green',
+                    onContentReady: function () {
+                        setTimeout(function () {
+                            calendar.render();
+
+                        }, 50);
+                    }
+                });
+            }
+        });
+
+    }    
+    
+    function GetSujectRoom() {
+       
+        $.ajax({
+            url: '@Url.Action("RoomTeachers", "RoomTeacher")',
+            method: 'GET',
+            data: { idRoom: idRoomSelect },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Asignaturas',
+                    content: divCont,
+                    type: 'green'
+                });
+            }
+        });
+
+    }  
+    
+    function GetStudentRoom() {
+        $.ajax({
+            url: '@Url.Action("StudentRoom", "Student")',
+            method: 'GET',
+                data: { IdInstitu:idInstituSendRoom, IdRoom: idRoomSelect },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Estudiantes',
+                    content: divCont,
+                    type: 'green'
+                });
+            }
+        });
+
+    }    
+     function GetTeacherRoom() {
+        $.ajax({
+            url: '@Url.Action("TeacherRoom", "Teacher")',
+            method: 'GET',
+                data: { IdRoom: idRoomSelect },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Profesores',
+                    content: divCont,
+                    type: 'green'
+                });
+            }
+        });
+
+    }    
+
+    function activeBtnRoom() {
+        $('#btnEditRoom').prop("disabled", false);
+        $('#btnSeeschedule').prop("disabled", false);
+        $('#BtnRoomRoom').prop("disabled", false);
+        $('#btnDeleteRoom').prop("disabled", false);
+        $('#btnSujectRoom').prop("disabled", false);
+        $('#btnGroupRoom').prop("disabled", false);
+        $('#btnStudentRoom').prop("disabled", false);
+        $('#btnAttendanceRoom').prop("disabled", false);
+        $('#btngetReportPdfRoomToGeneret').prop("disabled", false);
+        $('#btnTeacherRoom').prop("disabled", false);
+    }
+
+    function disableBtnRoom() {
+        $('#btnEditRoom').prop("disabled", true);
+        $('#btnSeeschedule').prop("disabled", true);
+        $('#BtnRoomRoom').prop("disabled", true);
+        $('#btnDeleteRoom').prop("disabled", true);
+        $('#btnSujectRoom').prop("disabled", true);
+        $('#btnGroupRoom').prop("disabled", true);
+        $('#btnStudentRoom').prop("disabled", true);
+        $('#btnAttendanceRoom').prop("disabled", true);
+        $('#btngetReportPdfRoomToGeneret').prop("disabled", true);
+        $('#btnTeacherRoom').prop("disabled", true);
+    }
+   
+    function deleteRoom() {
+
+        $.confirm({
+            typeAnimated: true,
+            type: 'red',
+            title: 'Confirmar',
+            content: 'Se va a eliminar este Salón. Desea continuar?',
+            buttons: {
+                Continuar: {
+                    text: 'Continuar',
+                    btnClass: 'btn-red',  // Clase de Bootstrap para el botón "Continuar"
+                    action: function () {
+                        showGlobalLoadingIndicator();
+                       
+                        $.ajax({
+                            url: '@Url.Action("Delete", "Room")',
+                            method: 'Post',
+                            data: { id: idRoomSelect },
+                            success: function (data) {
+                                
+                                hideGlobalLoadingIndicator();
+                                if (data.result) {
+                                    idRoomSelect = 0;
+                                    disableBtnRoom();
+
+                                    toastr.success(data.data, 'Correcto!');
+                                    refresshGridRooms();
+                                } else {
+                                    toastr.error(data.data, 'Error!');
+                                }
+                            }
+                        });
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-default',  // Clase de Bootstrap para el botón "Cancelar"
+                    action: function () {
+                        // Lógica para cancelar
+                    }
+                }
+            }
+        });
+
+    }
+    
+    // Grid functions
+    function refresshGridRooms() {
+        var dataGrid = $("#gridContainerRooms").dxDataGrid("instance");
+        dataGrid.refresh();
+    }
+
+    function deselectAllRows() {
+        var dataGrid = $('#gridContainerRooms').dxDataGrid('instance');
+        dataGrid.clearSelection();
+    }
+
+    function getGropusFuct() {
+
+        $.ajax({
+            url: '@Url.Action("GroupCenter", "Group")',
+            method: 'GET',
+            data: { idRoom: idRoomSelect },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Grupos',
+                    content: divCont,
+                    type: 'green'
+                });
+            }
+        });
+
+    }
+
+    function getAttendanceRoom() {
+
+        $.ajax({
+            url: '@Url.Action("Index", "Attendance")',
+            method: 'GET',
+            data: { IdInstitu: idInstituSendRoom, IdRoom: idRoomSelect, TypeRegisterSelect },
+            success: function (data) {
+                // Crear el div con un id
+                var divCont = '<div id="container-data">' + data + '</div>';
+
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Pase de lista',
+                    content: divCont,
+                    type: 'green',
+                  
+                });
+            }
+        });
+
+    }
+
+
+
+
+    
+    function getReportPdfRoom() {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("Index", "ReportAttendance")',
+            method: 'GET',
+            data: {},
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                // Mostrar el PDF en el contenedor deseado
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '80%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: 'Pase de lista',
+                    content: data,
+                    type: 'green'
+                });
+            },
+            error: function (error) {
+                console.error('Error al obtener datos:', error);
+            }
+        });
+    }
+
+    // Btns actions
+    $("#btnNewsRoom").click(function (event) {
+        disableBtnRoom();
+        deselectAllRows();
+        idRoomSelect = 0;
+        CreateUpdatenroom('green');
+    });
+    $("#btnEditRoom").click(function (event) {
+        CreateUpdatenroom();
+        disableBtnRoom();
+        deselectAllRows();
+        
+    });
+    $("#btnSeeschedule").click(function (event) {
+        GetSchedule()
+        disableBtnRoom();
+        deselectAllRows();
+    });
+    $("#btnSujectRoom").click(function (event) {
+        GetSujectRoom()
+        disableBtnRoom();
+        deselectAllRows();
+        
+    });
+    $("#btnPeriodRoom").click(function (event) {
+        event.preventDefault();
+        disableBtnRoom();
+        deselectAllRows();
+        getRoom();
+    });
+    $("#btnDeleteRoom").click(function (event) {
+        event.preventDefault();
+        disableBtnRoom();
+        deselectAllRows();
+        deleteRoom();       
+    });
+    $("#btnGroupRoom").click(function (event) {
+        event.preventDefault()
+        getGropusFuct();
+        disableBtnRoom();
+        deselectAllRows();
+       
+    });
+    $("#btnStudentRoom").click(function (event) {
+        event.preventDefault()
+        GetStudentRoom();
+        disableBtnRoom();
+        deselectAllRows();
+       
+    });
+    $("#btnAttendanceRoom").click(function (event) {
+        event.preventDefault()
+        getAttendanceRoom();
+        disableBtnRoom();
+        deselectAllRows();
+       
+    });
+
+    $("#btngetReportPdfRoomToGeneret").click(function (event) {
+        event.preventDefault()
+        getReportPdfRoom();
+        disableBtnRoom();
+        deselectAllRows();       
+    });
+
+    $("#btnTeacherRoom").click(function (event) {
+        event.preventDefault()
+        GetTeacherRoom();
+        disableBtnRoom();
+        deselectAllRows();       
+    });
+
+
+</script>
+
+
+<style>
+    .btn-container {
+        display:flex;
+        justify-content:end;
+        padding-bottom: 10px;
+        min-width: 200px;
+        margin-top:10px;
+        margin-right:10px;
+    }
+
+    #BtnRoomRoom {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #btnEditRoom {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    #btnSujectRoom {
+        margin-left: 10px;
+    }
+
+    #btngetReportPdfRoomToGeneret {
+        margin-left: 10px;
+    }
+
+    #btnGroupRoom {
+        margin-left: 10px;
+    }
+
+    #btnStudentRoom {
+        margin-left: 10px;
+    }
+    
+    #btnSujectRoom {
+        margin-right: 10px;
+    }
+
+    #btnAttendanceRoom {
+        margin-left: 10px;
+    }
+
+    /* Responsive */
+
+    .btn-container {
+        display: flex;
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan en múltiples líneas */
+        justify-content: flex-end;
+        padding-bottom: 10px;
+        min-width: 200px;
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+
+    .btn-container button {
+        margin: 5px; /* Ajuste de márgenes para que haya espacio entre los botones */
+    }
+
+    @@media (max-width: 768px) {
+        .btn-container {
+            justify-content: center; /* Centra los botones en pantallas pequeñas */
+        }
+
+        #btnAttendanceRoom {
+            margin-left: 5px;
+        }
+        .btn-container button {
+             width: 45%; 
+            max-width:120px;
+        }
+
+        .dx-group-panel-message{
+            display:none !important;
+        }
+       
+    }
+
+</style>

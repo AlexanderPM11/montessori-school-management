@@ -1,0 +1,86 @@
+﻿
+
+@{
+    ViewData["Title"] = "Reportes de asistencia";
+}
+
+<div class=" container-report">
+
+    <div class="d-flex justify-content-start align-items-center mb-4 p-3 pb-0 rounded">
+       
+
+        
+
+        <div class="d-flex align-items-end mx-2">
+            <button type="button" id="btngeneratedReportPdf" class="btn btn-aqua-green"><i class="fa-solid fa-print"></i> Generar</button>
+        </div>        
+
+    </div>
+    <div id="container-report-pdf">
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+<script>
+   
+
+    $('#btngeneratedReportPdf').on('click', function () {
+        getPdfRegister();       
+    });
+
+    function getPdfRegister(){
+
+        if (/Mobi|Android/i.test(navigator.userAgent)) {
+            GetpdfDowload();
+        } else {
+            generatedReportPdf();
+        }
+    }
+
+    // 
+    function generatedReportPdf() {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("ReportsFirst", "Reports")',
+            method: 'GET',
+            xhrFields: {
+                responseType: 'blob' // Espera una respuesta binaria
+            },
+            success: function (data) {
+
+                hideGlobalLoadingIndicator();
+
+                var blob = new Blob([data], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+
+                // Crear un elemento embed para mostrar el PDF
+                var embed = '<embed src="' + url + '" type="application/pdf" width="100%" height="600px"/>';
+
+                // Mostrar el PDF en el contenedor deseado
+                $('#container-report-pdf').empty();
+                $('#container-report-pdf').html(embed);               
+            },
+            error: function (error) {
+                toastr.error('Ocurrio un error. Intente nuevamente. Si el error persisste, contacte con administración!', 'Error!');
+            }
+        });
+    }
+
+   
+</script>
+
+
+<style>
+    .container-report {
+        width:100%;
+        /* padding:20px;
+        background-color: white;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #ccd2d5; */
+    }
+</style>

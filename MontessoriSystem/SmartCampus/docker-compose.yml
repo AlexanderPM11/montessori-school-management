@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+
+  smartcampus-mysql:
+    image: mysql:8.4.8
+    container_name: smartcampus-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    command: --mysql-native-password=ON
+
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+    volumes:
+      - smartcampus-mysql-data:/var/lib/mysql
+
+    networks:
+      - smartcampus-network
+
+
+
+  smartcampusapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: smartcampusapi:latest
+    container_name: smartcampus-container
+    restart: unless-stopped
+
+    depends_on:
+      smartcampus-mysql:
+        condition: service_healthy
+
+    ports:
+      - "8086:80"
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:80
+
+      SecurityConnection: ${SECURITY_CONNECTION}
+      IdentityConnection: ${IDENTITY_CONNECTION}
+      DefaultConnection: ${DEFAULT_CONNECTION}
+      URL_Send_Forgot_Password: ${URL_SEND_FORGOT_PASSWORD}
+
+    volumes:
+      - smartcampus-DocumentStudent:/app/Files/DocumentStudent
+      - smartcampus-FileUser:/app/Files/FileUser/User
+      - smartcampus-Suject:/app/Files/FileUser/Suject
+      - smartcampus-Students:/app/Files/FileUser/Students
+      - smartcampus-Room:/app/Files/FileUser/Room
+      - smartcampus-EducantionalInstitution:/app/Files/FileUser/EducantionalInstitution
+
+    networks:
+      - smartcampus-network
+
+
+networks:
+  smartcampus-network:
+    driver: bridge
+
+
+volumes:
+  smartcampus-mysql-data:
+  smartcampus-DocumentStudent:
+  smartcampus-FileUser:
+  smartcampus-Suject:
+  smartcampus-Students:
+  smartcampus-Room:
+  smartcampus-EducantionalInstitution:

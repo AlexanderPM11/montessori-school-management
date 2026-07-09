@@ -1,0 +1,222 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.Group;
+@model GroupSaveViewModel
+
+@{
+
+}
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="~/js/filter_multi_select.css" />
+<script src="~/js/filter-multi-select-bundle.min.js"></script>
+
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            @if (Model.Id > 0)
+            {
+                <text>Editar Grupo</text>
+            }
+            else
+            {
+                <text>Nuevo Grupo</text>
+            }
+        </label>
+
+        <form class="" id="form-group" runat="server" method="post" asp-controller="TeachingPeriod" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name-group" class="form-label">Nombre<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Name" class="form-control" id="name-group">
+                </div>
+                <div class="col">
+                    <label for="description-group" class="form-label">Descripción<span style="color:red"> *</span></label>
+                    <textarea asp-for="Description" rows="20" class="form-control" id="description-group" maxlength="400"></textarea>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-5">
+                    <label asp-for="IdsGrade" class="form-label">Grados:</label><span style="color:red"> *</span>
+                    <select asp-for="IdsGrade" multiple name="IdsGrade">
+                        @{
+                            foreach (var item in ViewBag.IdsGrade as List<ClassSelected<int>> )
+                            {
+                                <option value="@item.Id">@item.text</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="container-btn">
+                <button type="button" id="btn-save-group" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>  
+
+    var gradeOptions
+
+    $(document).ready(function () {
+
+        validateInputs();
+
+        // Funtions
+
+        $("#btn-save-group").click(function (event) {
+            if ($('#form-group').valid()) {
+                const grades = gradeOptions.getSelectedOptionsAsJson();
+
+                const selectedOptions = JSON.parse(grades);
+
+                if (selectedOptions.IdsGrade.length > 0) {
+                    guardarDatosGroup();
+                }
+                else {
+                    // Si ninguna opción está seleccionada, mostrar un mensaje de error
+                    toastr.error('Seleccione al menos un grado.', 'Error!');
+                    return false;
+                }
+
+            } else {
+                return false;
+            }
+        });
+
+        function guardarDatosGroup() {
+
+
+            showGlobalLoadingIndicator();
+
+            var formData = new FormData($('#form-group')[0]);
+
+            // Agregar idInstitu al objeto FormData
+            formData.append('idInstitu', idInstituSendRoom);
+            formData.append('IdRoom',IdRoomGroup);
+
+            $.ajax({
+                url: '@Url.Action("CreateUpdatePost", "Group")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+
+
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        toastr.success(data.data, 'Correcto!');
+                        refresshGridGroups();
+                        confirmDailog.close();
+
+                    } else {
+                        toastr.error(data.data, 'Error!');
+                    }
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+
+            $('#form-group').validate({});
+
+            $('#name-group').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#description-group').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            gradeOptions = $('#IdsGrade').filterMultiSelect({
+                // displayed when no options are selected
+                placeholderText: "Sin selección",
+                // placeholder for search field
+                filterText: "Filtro",
+                // Select All text
+                selectAllText: "Seleccionar todos",
+            });
+
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });
+
+    });
+
+
+</script>
+
+
+<style>
+
+
+    .container-form {
+        border-radius: 5px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 10px;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+    }
+
+    .title-institu-form {
+        margin-bottom: 40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content: end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+</style>

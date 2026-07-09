@@ -1,0 +1,2437 @@
+﻿
+@using MontessoriSystem.Core.Application.ViewModels.AchievementIndicators;
+@model AchievementIndicatorStatusViewModelResponse
+
+@using MontessoriSystem.Core.Domain.Settings;
+@using MontessoriSystem.Core.Domain.Settings.Grades;
+@using MontessoriSystem.Core.Domain.Settings.Period;
+
+@inject Microsoft.Extensions.Options.IOptions<EducationalPeriodCalifict> EducationalPeriodCalifict
+@inject Microsoft.Extensions.Options.IOptions<CuartoGrade> CuartoGrade
+
+@{
+
+    string Agosto_Octubre = EducationalPeriodCalifict.Value.Agosto_Octubre;
+    string Noviembre_Enero = EducationalPeriodCalifict.Value.Noviembre_Enero;
+    string Febrero_Marzo = EducationalPeriodCalifict.Value.Febrero_Marzo;
+    string Abril_Junio = EducationalPeriodCalifict.Value.Abril_Junio;
+
+    string imgHead1 = CuartoGrade.Value.Head1;
+    string imgHead2 = CuartoGrade.Value.Head2;
+    string imgFooter2 = CuartoGrade.Value.Footer2;
+
+    Layout = null; 
+}
+
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe Estudiante</title>
+    <style>
+
+        /* Eliminar márgenes y padding del body y html */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial;
+            color: #222222;
+        }
+
+        .image-container-1 {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+            .image-container-1 img {
+                width: 100%;
+                height: 100vh;
+                object-fit: cover;
+            }
+    </style>
+
+</head>
+<body>
+
+    @* Encabezado *@
+
+    <div class="image-container-1">
+        <img src="@imgHead1" />
+    </div>
+
+    @*  <div class="image-container-2" style="@($"background-image: url('{imgHead2}');")">
+    </div> *@
+
+    @* ----------------------------------------------------------------------------------------------- *@
+
+    @* Logo Inicial y Reporte para las familias *@
+
+    <div class="container-logo-gob-rep-dom">
+
+        <div style="position:absolute; width:200px; height:200px;   display:flex; justify-content:start; align-items:start">
+            <img style="object-fit: cover;width: 100%;" src="data:image/png;base64,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" />
+
+        </div>
+
+        <divstyle ="width:100%">
+            <img src="data:image/png;base64,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" />
+        </divstyle>
+
+        <br />
+        <span style="width:100%; font-size:10px; font-weight:100;">GOBIERNO DE LA</span>
+
+        <br />
+        <span style="width:100%; font-size:16px; font-weight:300;">REPÚBLICA DOMINICANA</span>
+        <div class="container-linea" style="width: 100%; display: flex; align-items: center; justify-content: center; margin-top:5px; margin-bottom:5px;">
+            <div style="width: 85px; height: 3px; background-color: #3d3d3d; margin: 0 auto;"></div>
+        </div>
+
+        <span style="width:100%; font-size:16px; font-weight:300;">EDUCACIÓN</span>
+
+        @* Reporte para las familias *@
+
+        <div style="width:100%;display:flex;  justify-content:center; margin-top:55px; margin-bottom:20px;">
+            <div style="width:400px; font-size:32px; font-weight:bold; text-align:center; width:650px; margin: 0 auto;  line-height: 1.5;">
+                <p>
+                    INFORME DE APRENDIZAJE <br />  Cuarto Grado del Nivel Primario
+                </p>
+
+            </div>
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start; ">
+                <p style="font-size: 12px; margin: 0;">
+                    Nombre (s):
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:500px;">
+                        @(Model.StudentViewModel.Name)
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Apellido (s):
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:500px;">
+                        @Model.StudentViewModel.Lastname
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    ID Estudiante (Número de identificación SIGERD):
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:163px;">
+
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Año Escolar:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:496px;">
+                        @(DateTime.Now.Year) - @(DateTime.Now.Year + 1)
+                    </span>
+
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Docente:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:530px;">
+                        @Model.NameTeacher
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Centro Educativo:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:455px;">
+                        @Model.EducationalInstitutionViewModel.Name
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Código del Centro:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:450px;">
+                        @Model.EducationalInstitutionViewModel.EducationalRegistry
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Tanda:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:553px;">
+                        @Model.EducationalInstitutionViewModel.Session
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Teléfono del Centro:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:435px;">
+                        @Model.EducationalInstitutionViewModel.Phone
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Distrito Educativo:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:455px;">
+                        @Model.EducationalInstitutionViewModel.District
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Regional de Educación:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:410px;">
+                        @Model.EducationalInstitutionViewModel.Regional
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Provincia:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:530px;">
+                        @Model.NameProvince
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top: 20px;">
+
+            <div style="margin-left: 90px; margin-right: 90px; text-align: start;">
+                <p style="font-size: 12px; margin: 0;">
+                    Municipio:
+                    <span style="border-bottom:1px solid rgb(70, 69, 69); margin-left: 5px; font-style:italic;font-size: 12px; display: inline-block; width:530px;">
+                        @Model.NameMunicipality
+                    </span>
+                </p>
+            </div>
+
+        </div>
+
+        <div style="width: 100%; display: flex; justify-content: center; margin-top:100px;">
+            <div style="text-align: center;">
+                <hr style="width: 400px; border: 1px solid rgb(70, 69, 69); margin-bottom: 5px;">
+                <span style="font-weight: bold; font-size: 14px;">Firma del Director (a) del Centro Educativo</span>
+            </div>
+        </div>
+
+        @* ----------------------------------------------------------------------------------------------- *@
+
+        @* Presentación *@
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:80px;padding-right:80px; text-align: center; margin-top:0px; font-family: Arial, sans-serif; line-height: 1.5;">
+
+            <div style="padding-top:50px; text-align:center;">
+
+                <p style="font-weight: bold; font-size: 17px; margin: 0;">Presentación</p>
+                <p style="font-weight: bold; font-size: 17px;text-align:start !important;"> Apreciada Familia: Madre, Padre o Tutora, Tutor.</p>
+
+                <p style="font-size: 14px;text-align: justify;">
+                    En este Informe compartimos contigo cómo va el proceso de aprendizaje del niño
+                    o de la niña que desde tu hogar viene a la escuela con muchos sueños, con muchas
+                    esperanzas para aprender y para desarrollarse plenamente, como persona digna y
+                    valiosa.
+                </p>
+
+                <p style="font-size: 14px;text-align: justify;">
+                    Como familia estás cumpliendo con un deber sagrado y con un derecho fundamental,
+                    que es enviar puntual y diariamente tu hijo o hija a la escuela. De esta manera le
+                    estás ayudando a que, a través de la educación, pueda desarrollar al máximo todo su
+                    potencial, lo que, en el futuro, repercutirá positivamente en la mejora de su calidad de
+                    vida.
+                </p>
+
+                <p style="font-size: 14px;text-align: justify;">
+                    Ten presente que tanto en el hogar como en la escuela debemos apoyar amorosamente
+                    al niño o la niña en su proceso de aprendizaje, para que pueda alcanzar sus metas, que
+                    es el mayor legado que podemos brindarle.
+                </p>
+
+                <p style="font-size: 14px;text-align: justify;">
+                    Los grados primero, segundo y tercero, que conforman el Primer Ciclo del Nivel Primario,
+                    tienen como propósito propiciar el logro la alfabetización inicial en la etapa oportuna.
+                    Durante esos tres años tenemos la responsabilidad de que lea correctamente cualquier
+                    situación de lectura que deseen o se les presente. De igual modo, que escriban con
+                    claridad sus ideas, pensamientos y sentimientos para responder a diferentes situaciones
+                    de escritura. Esta es una tarea que requiere de tu seguimiento y apoyo desde la casa,
+                    preparando espacios y tiempo, para la lectura y ofreciendo oportunidades para la
+                    escritura. Cuando le ofrezcas regalos agrégale libros variados que incluyan valores.
+                    Revisa en el Informe de Aprendizaje las competencias que debe alcanzar, para que así
+                    puedas acompañar y apoyar todo el proceso junto a la escuela.
+                </p>
+
+                <p style="font-size: 14px;text-align: justify;">
+                    Es importante estar pendiente de lo que aprende tu hijo o hija y lo que le falta por
+                    aprender. Para eso debes revisar su Informe de Aprendizaje que recibirás al menos
+                    cuatro (4) veces durante el año escolar: <strong>
+                        agosto-octubre, noviembre-enero, febrero
+                        marzo, abril-junio.
+                    </strong>   Así tendrás la oportunidad de reforzarlo/a donde lo necesite, para
+                    de esa manera superar el grado satisfactoriamente y con éxito.
+                </p>
+
+                <p style="font-size: 14px;text-align: justify;">
+                    El Informe de Aprendizaje es como un cofre donde se van registrando los tesoros que
+                    tu hijo o hija va descubriendo cada día, desde la escuela. En otras palabras, es donde
+                    se te informa del proceso que va desarrollando respecto a lo que debe aprender en el
+                    grado. Por tanto, para obtener los mejores aprendizajes se necesita tu apoyo y estímulo
+                    permanente.
+                </p>
+
+                <p style="font-size: 14px;text-align: justify;">
+                    Los resultados de los trabajos, ejercicios de evaluación o tareas que realiza tu hijo o hija
+                    expresan en qué medida va adquiriendo las competencias específicas. Estos pueden
+                    expresarse a través de una escala de calificación cualitativa (descriptiva) o cuantitativa
+                    (números). Con la adecuación curricular se asume una escala de valoración, como se
+                    muestra a continuación:
+                </p>
+
+            </div>
+
+        </div>
+
+        @* -------Numero Page----------*@
+
+        <div style="font-size:8px; position: relative; bottom: 0; right:0; width: 100%; text-align: right; font-family: Arial, sans-serif; padding: 10px; padding-top:20px; padding-bottom:20px;">
+            <span style="font-size:12px !important; padding-right:60px;">3</span>
+        </div>
+
+        @* ----------------------------------------------------------------------------------------------- *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:60px;padding-right:60px; text-align: center; padding-top:100px; line-height: 1.5;">
+
+            <div style="padding-top:00px; text-align:center;padding-left:7px; ">
+
+                <p style="font-weight: bold;text-align:start; font-size: 16px; margin: 0; margin-bottom:10px;"> Escala de valoración</p>
+
+                <div class="" style="width:600px; margin: 0px auto;">
+
+                    <table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; text-align: left;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2; border: 1px solid #000;">
+                                <th style="padding: 4px; border: 1px solid #000; width: 25%;">Escala numérica</th>
+                                <th style="padding: 4px; border: 1px solid #000; width: 25%;">Escala literal</th>
+                                <th style="padding: 4px; border: 1px solid #000; width: 50%;">Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border: 1px solid #000;">
+                                <td style="padding: 8px; border: 1px solid #000;">91-100</td>
+                                <td style="padding: 8px; border: 1px solid #000;">(S) Sobresaliente</td>
+                                <td style="padding: 8px; border: 1px solid #000;">Ha superado de manera destacada los aprendizajes esperados.</td>
+                            </tr>
+                            <tr style="border: 1px solid #000;">
+                                <td style="padding: 8px; border: 1px solid #000;">80-90</td>
+                                <td style="padding: 8px; border: 1px solid #000;">(L) Logrado</td>
+                                <td style="padding: 8px; border: 1px solid #000;">Ha logrado satisfactoriamente los aprendizajes esperados.</td>
+                            </tr>
+                            <tr style="border: 1px solid #000;">
+                                <td style="padding: 8px; border: 1px solid #000;">70-79</td>
+                                <td style="padding: 8px; border: 1px solid #000;">(P) En Proceso</td>
+                                <td style="padding: 8px; border: 1px solid #000;">Muestra avances de los aprendizajes esperados, pero aún le falta alcanzar el nivel esperado.</td>
+                            </tr>
+                            <tr style="border: 1px solid #000;">
+                                <td style="padding: 8px; border: 1px solid #000;">63-69</td>
+                                <td style="padding: 8px; border: 1px solid #000;">(I) Iniciado</td>
+                                <td style="padding: 8px; border: 1px solid #000;">Ha logrado el nivel mínimo de los aprendizajes esperados.</td>
+                            </tr>
+                            <tr style="border: 1px solid #000;">
+                                <td style="padding: 8px; border: 1px solid #000;">62 o menos</td>
+                                <td style="padding: 8px; border: 1px solid #000;">(N) No alcanzado</td>
+                                <td style="padding: 8px; border: 1px solid #000;">No ha alcanzado el mínimo de los aprendizajes esperados, presenta dificultades para el desarrollo de sus actividades.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+                <p style="text-align:justify; font-size: 14px; margin-bottom:10px;">
+                    Cuando tu hijo o hija no ha participado en el proceso de enseñanza-aprendizaje durante el
+                    período por alguna situación de movilidad (cambio a otro centro o comunidad), enfermedad,
+                    ingreso tardío, entre otras; se coloca <strong>(NE)</strong>No evaluado, en la casilla correspondiente.
+                </p>
+                <p style="text-align:justify; font-size: 14px; margin-bottom:10px;">
+                    Al recibir el Informe de Aprendizaje podrás notar que el nivel de logro de las competencias
+                    en cada período se expresa en escala numérica y el resultado final de la asignatura se expresa
+                    de forma numérica con su representación literal.
+                </p>
+
+                <p style="text-align:justify; font-size: 14px; margin-bottom:10px;">
+                    Apreciada familia, contamos contigo, ya que educar es un proceso de responsabilidad
+                    conjunta tanto dentro como fuera de la escuela. Si en algún momento observas que algo no
+                    va bien con tu hijo o hija, acércate a la escuela para que juntos y juntas podamos analizarlo
+                    y resolverlo. Está comprobado que todo niño y toda niña puede superar los obstáculos que
+                    se le presentan en el camino, para hacer realidad sus ideales, sus sueños de superación y sus
+                    metas proyectadas.
+                </p>
+                <p style="text-align:justify; font-size: 14px; margin-bottom:10px;">
+                    <strong>
+                        MUCHAS FELICIDADES POR LOS APRENDIZAJES Y POR LOS LOGROS ALCANZADOS POR
+                        TU HIJO E HIJA.
+                    </strong> Acompáñales en su proceso formativo con alegría, motívales con fe y con
+                    mucha confianza en sus extraordinarias posibilidades. Tu hija o tu hijo cuentan contigo en
+                    esta preciosa aventura de aprender.
+                </p>
+                <p style="text-align:justify; font-size: 14px; margin-bottom:10px;">
+                    <strong>
+                        Nunca lo olvides: La escuela tiene, siempre, sus puertas abiertas para tu hijo o hija y para
+                        ti ¡TE ESPERAMOS!
+                    </strong>
+                </p>
+                <p style="font-size: 14px; margin-top:20px;">
+                    <strong>
+                        Ministerio de Educación de la República Dominicana
+                    </strong>
+                </p>
+
+                <div style=" font-size:8px; position: relative; bottom: 0; width: 100%; text-align: left; font-family: Arial, sans-serif;padding: 10px; padding-top:60px;">
+                    <span style="font-size:12px !important;  padding-right:10px;">4</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:60px;padding-right:60px; text-align: center; padding-top:100px; line-height: 1.5;">
+
+            <div style="padding-top:350px; text-align:center;padding-left:7px; ">
+                <p style="font-size:30px;  font-weight:bold;">
+                    INFORME DE EVALUACIÓN
+                    DE LOS APRENDIZAJES
+                    POR ÁREA CURRICULAR
+                </p>
+            </div>
+            <div style=" font-size:8px; position: relative; bottom: 0; width: 100%; text-align: left; font-family: Arial, sans-serif;padding: 10px; padding-top:350px;">
+                <span style="font-size:12px !important;  padding-right:10px;">5</span>
+
+            </div>
+
+        </div>
+
+
+        @* Pagina #6 *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:40px;padding-right:30px; text-align: center; margin-top:5px; padding-top:20px; line-height: 1.5;">
+
+            <div style="padding-top:00px; text-align:center;padding-left:7px;">
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center;">
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: Lengua Española</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                int index = 1;
+
+                                // Variables para las calificaciones (nota) de cada materia
+                                double LenguaCFE = 0;
+                                double MatemCFE = 0;
+                                double CienciaSociCFE = 0;
+                                double CienciaNatuCFE = 0;
+                                double LenguasExtra = 0;
+                                double EducaciFisiCFE = 0;
+                                double IntegralHumanaCFE = 0;
+                                double EducaciArtiCFE = 0;
+
+
+                                bool Promovido = false;
+                                bool AllPeriodCompleteOne = false;
+
+
+                                string GetLiteral(double average)
+                                {
+                                    if (average >= 91)
+                                        return "S";
+                                    else if (average >= 80)
+                                        return "L";
+                                    else if (average >= 70)
+                                        return "P";
+                                    else if (average >= 62)
+                                        return "I";
+                                    else
+                                        return "N";
+                                }
+
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                LenguaCFE += average;
+                                            }
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+
+                            @{
+                                LenguaCFE = (LenguaCFE / 3);
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center; margin-top:20px;">
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: Matemática</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                index = 1;
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Skip(3).Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                MatemCFE += average;
+
+                                            }
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+                            @{
+                                MatemCFE = (MatemCFE / 3);
+                            }
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div style=" font-size:8px; position: relative; bottom: 0; width: 100%; text-align: left; font-family: Arial, sans-serif;padding: 10px; padding-top:10px;">
+                <span style="font-size:12px !important;  padding-right:10px;">6</span>
+                (<strong>C1</strong>) Competencia 1,
+                (<strong>C2</strong>) Competencia 2,
+                (<strong>C3</strong>) Competencia 3,
+                (<strong>C.F.E.</strong>) Calificación final del estudiante<br>
+                <strong>Leyenda Evaluación:</strong> S = Sobresaliente, L = Logrado, P = En proceso, I = Iniciado, N = No alcanzado
+            </div>
+
+
+        </div>
+
+        @* ----------------------------------------------------------------------------------------------- *@
+
+        @* Pagina #7 *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:40px;padding-right:30px; text-align: center; margin-top:5px; padding-top:20px; line-height: 1.5;">
+
+            <div style="padding-top:00px; text-align:center;padding-left:7px;">
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center;">
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: Ciencias Sociales</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                index = 1;
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Skip(6).Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                CienciaSociCFE += average;
+                                            }
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+                            @{
+                                CienciaSociCFE = (CienciaSociCFE / 3);
+                            }
+                        </tbody>
+
+                    </table>
+
+
+                </div>
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center; margin-top:20px;">
+
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: Ciencias de la Naturaleza</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                index = 1;
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Skip(9).Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                CienciaNatuCFE += average;
+                                            }
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+                            @{
+                                CienciaNatuCFE = (CienciaNatuCFE / 3);
+                            }
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+            </div>
+
+            <div style=" font-size:8px; position: relative; bottom: 0; width: 100%; text-align: start; font-family: Arial, sans-serif;padding: 10px; padding-top:10px;">
+                <span style="font-size:12px !important;  padding-right:10px;">7</span>
+                (<strong>C1</strong>) Competencia 1,
+                (<strong>C2</strong>) Competencia 2,
+                (<strong>C3</strong>) Competencia 3,
+                (<strong>C.F.E.</strong>) Calificación final del estudiante<br>
+                <strong>Leyenda Evaluación:</strong> S = Sobresaliente, L = Logrado, P = En proceso, I = Iniciado, N = No alcanzado
+            </div>
+
+
+        </div>
+
+
+        @* Pagina #8 *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:40px;padding-right:30px; text-align: center; margin-top:5px; padding-top:40px; line-height: 1.5;">
+
+            <div style="padding-top:00px; text-align:center;padding-left:7px;">
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center;">
+
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: de Lenguas Extranjeras (inglés)</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                index = 1;
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Skip(12).Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                LenguasExtra += average;
+                                            }
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+
+                            @{
+                                LenguasExtra = (LenguasExtra / 3);
+                            }
+
+                        </tbody>
+
+                    </table>
+
+
+                </div>
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center; margin-top:20px;">
+
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: Educación Física</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                index = 1;
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Skip(15).Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                EducaciFisiCFE += average;
+                                            }
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+
+                            @{
+                                EducaciFisiCFE = (EducaciFisiCFE / 3);
+                            }
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+            </div>
+
+            <div style=" font-size:8px; position: relative; bottom: 0; width: 100%; text-align: left; font-family: Arial, sans-serif;padding: 10px; padding-top:10px;">
+                <span style="font-size:12px !important;  padding-right:10px;">8</span>
+                (<strong>C1</strong>) Competencia 1,
+                (<strong>C2</strong>) Competencia 2,
+                (<strong>C3</strong>) Competencia 3,
+                (<strong>C.F.E.</strong>) Calificación final del estudiante<br>
+                <strong>Leyenda Evaluación:</strong> S = Sobresaliente, L = Logrado, P = En proceso, I = Iniciado, N = No alcanzado
+            </div>
+
+
+        </div>
+
+        @* Pagina #9 *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:40px;padding-right:30px; text-align: center; margin-top:5px; padding-top:40px; line-height: 1.5;">
+
+            <div style="padding-top:00px; text-align:center;padding-left:7px;">
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center;">
+
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: Formación Integral Humana y Religiosa</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                index = 1;
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Skip(18).Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                IntegralHumanaCFE = average;
+                                            }
+                                        }
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+
+                            @{
+                                IntegralHumanaCFE = (IntegralHumanaCFE / 3);
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center; margin-top:20px;">
+
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: Educación Artística</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @{
+                                index = 1;
+                            }
+
+                            @foreach (var item in Model.vmPrinc.Skip(21).Take(3))
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            AllPeriodCompleteOne = true;
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                            {
+                                                average = califications.Average();
+                                                EducaciArtiCFE += average;
+                                            }
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                </tr>
+                                index++;
+                            }
+
+                            @{
+                                EducaciArtiCFE = (EducaciArtiCFE / 3);
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div style=" font-size:8px; position: relative; bottom: 0; width: 100%; text-align: left; font-family: Arial, sans-serif;padding: 10px; padding-top:50px;">
+                <span style="font-size:12px !important;  padding-right:10px;">9</span>
+                (<strong>C1</strong>) Competencia 1,
+                (<strong>C2</strong>) Competencia 2,
+                (<strong>C3</strong>) Competencia 3,
+                (<strong>C.F.E.</strong>) Calificación final del estudiante<br>
+                <strong>Leyenda Evaluación:</strong> S = Sobresaliente, L = Logrado, P = En proceso, I = Iniciado, N = No alcanzado
+            </div>
+
+
+        </div>
+
+        @* Pagina #10 *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:60px;padding-right:70px; text-align: center; padding-top:80px; line-height: 1.5;">
+
+            <div style="padding-top:0px; text-align:center;padding-left:7px; margin-top:-40px;">
+
+                <div style="">
+
+                    <p style="font-weight:bold;">OBSERVACIONES</p>
+
+                    <div style="margin: 0 auto;">
+
+                        <p style="text-align: start; font-weight: bold; font-style:italic;">
+                            1er. Registro de evaluación
+                        </p>
+
+                        @{
+                            var firstCommnet = Model.ObservationCommentEvaluationViewModel.FirstOrDefault(x => x.Period.Equals(Agosto_Octubre));
+                            string textFullfirst = firstCommnet?.Comment1 ?? "";
+
+                            // Si el texto excede los 802 caracteres, agregar puntos suspensivos y reemplazar los espacios por &&
+                            if (textFullfirst.Length > 802)
+                            {
+                                textFullfirst = textFullfirst.Substring(0, 802) + "...";
+                            }
+                            textFullfirst += "&nbsp;&nbsp;&nbsp;";
+                        }
+
+                        <div style="width:100%;">
+                            <p style="text-align:justify; margin-top:20px;">
+                                <span style="font-weight:bold; text-decoration:none;">Agosto - Octubre:&nbsp;&nbsp;&nbsp;</span>
+
+                                @* @if (!string.IsNullOrWhiteSpace(textFullfirst))
+                                {
+                                <span style="text-decoration:underline;">@Html.Raw(textFullfirst)</span>
+                                } *@
+                                <text>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                </text>
+
+                                <div style="text-align: left; margin-top: 10px;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del o la Docente:</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del Padre, Madre o Tutor(a):</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Fecha:</p>
+                                    <div style="display: inline-block; border-bottom: 1px solid #000; width: 280px; height: 20px; margin-bottom: 5px;"></div>
+                                </div>
+
+                            </p>
+                        </div>
+
+
+                        <p style="text-align: start; font-weight: bold; font-style:italic;">
+                            2do. Registro de evaluación
+                        </p>
+
+                        @{
+                            var secondCommnet = Model.ObservationCommentEvaluationViewModel.FirstOrDefault(x => x.Period.Equals(Noviembre_Enero));
+                            string textFullSecond = secondCommnet?.Comment1 ?? "";
+
+                            // Si el texto excede los 802 caracteres, agregar puntos suspensivos y reemplazar los espacios por &&
+                            if (textFullSecond.Length > 802)
+                            {
+                                textFullSecond = textFullSecond.Substring(0, 802) + "...";
+                            }
+                            textFullSecond += "&nbsp;&nbsp;&nbsp;";
+                        }
+
+                        <div style="max-height:230px; width:100%;">
+                            <p style="text-align:justify; margin-top:20px;">
+                                <span style="font-weight:bold; text-decoration:none;">Noviembre - Enero:&nbsp;&nbsp;&nbsp;</span>
+                                @* <span style="text-decoration:underline;">@Html.Raw(textFullSecond)</span> *@
+                                <text>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                </text>
+                                <div style="text-align: left; margin-top: 10px;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del o la Docente:</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del Padre, Madre o Tutor(a):</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Fecha:</p>
+                                    <div style="display: inline-block; border-bottom: 1px solid #000; width: 480px; margin-bottom: 5px;"></div>
+                                </div>
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div style="font-size:8px; position: relative; bottom: 0; right:0; width: 100%; text-align: right; font-family: Arial, sans-serif; padding: 10px; padding-top:10px;">
+            <span style="font-size:12px !important; padding-right:60px;">10</span>
+        </div>
+
+        @* Pagina #11 *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:60px;padding-right:70px; text-align: center; padding-top:80px; line-height: 1.5;">
+
+            <div style="padding-top:0px; text-align:center;padding-left:7px; margin-top:-40px;">
+
+                <div style="">
+
+                    <p style="font-weight:bold;">OBSERVACIONES</p>
+
+                    <div style="margin: 0 auto;">
+
+                        <p style="text-align: start; font-weight: bold; font-style:italic;">
+                            3er. Registro de evaluación
+                        </p>
+
+                        @{
+                            var threeCommnet = Model.ObservationCommentEvaluationViewModel.FirstOrDefault(x => x.Period.Equals(Febrero_Marzo));
+                            string textFullthree = threeCommnet?.Comment1 ?? "";
+
+                            // Si el texto excede los 802 caracteres, agregar puntos suspensivos y reemplazar los espacios por &&
+                            if (textFullthree.Length > 802)
+                            {
+                                textFullthree = textFullthree.Substring(0, 802) + "...";
+                            }
+                            textFullthree += "&nbsp;&nbsp;&nbsp;";
+                        }
+
+                        <div style="width:100%;">
+                            <p style="text-align:justify; margin-top:20px;">
+                                <span style="font-weight:bold; text-decoration:none;">Febrero - Marzo:&nbsp;&nbsp;&nbsp;</span>
+                                @* <span style="text-decoration:underline;">@Html.Raw(textFullthree)</span> *@
+                                <text>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                </text>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del o la Docente:</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del Padre, Madre o Tutor(a):</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Fecha:</p>
+                                    <div style="display: inline-block; border-bottom: 1px solid #000; width: 480px; height: 20px; margin-bottom: 5px;"></div>
+                                </div>
+                            </p>
+                        </div>                       
+
+                        <p style="text-align: start; font-weight: bold; font-style:italic;">
+                            4to. Registro de evaluación
+                        </p>
+
+                        @{
+                            var fourCommnet = Model.ObservationCommentEvaluationViewModel.FirstOrDefault(x => x.Period.Equals(Noviembre_Enero));
+                            string textFullfour = fourCommnet?.Comment1 ?? "";
+
+                            // Si el texto excede los 802 caracteres, agregar puntos suspensivos y reemplazar los espacios por &&
+                            if (textFullfour.Length > 802)
+                            {
+                                textFullfour = textFullfour.Substring(0, 802) + "...";
+                            }
+                            textFullfour += "&nbsp;&nbsp;&nbsp;";
+                        }
+
+                        <div style="width:100%;">
+                            <p style="text-align:justify; margin-top:20px;">
+                                <span style="font-weight:bold; text-decoration:none;">Abril - Junio:&nbsp;&nbsp;&nbsp;</span>
+                                @* <span style="text-decoration:underline;">@Html.Raw(textFullfour)</span> *@
+                                <text>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                    <div style="border-bottom: 1px solid #000; height: 15px; margin-bottom: 5px;"></div>
+                                </text>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del o la Docente:</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Firma del Padre, Madre o Tutor(a):</p>
+                                    <div style="border-bottom: 1px solid #000;margin-bottom: 5px;"></div>
+                                </div>
+                                <div style="text-align: left;">
+                                    <p style="display: inline-block; margin-right: 10px;">Fecha:</p>
+                                    <div style="display: inline-block; border-bottom: 1px solid #000; width: 480px; height: 20px; margin-bottom: 5px;"></div>
+                                </div>
+
+                            </p>
+                        </div>                       
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div style="font-size:8px; position: relative; bottom: 0; right:0; width: 100%; text-align: right; font-family: Arial, sans-serif; padding: 10px; padding-top:3px;">
+            <span style="font-size:12px !important; padding-right:60px;">11</span>
+        </div>
+
+        @* Pagina #12 *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:60px;padding-right:70px; text-align: center; padding-top:180px; line-height: 1.5;">
+
+            <div style="padding-top:0px; text-align:center;padding-left:7px; margin-top:-40px;">
+
+                <div style="">
+
+                    <div style="margin: 0 auto;">
+
+                        <div style="width:100%;">
+                            <p style="text-align:justify; margin-top:20px;">
+
+                                <div style="text-align: left;">
+                                    <span style="margin-right: 10px;">Total de asistencia de la niña o del niño:</span>
+                                    <span style="display: inline-block; border-bottom: 1px solid #000; width: 120px;"></span>
+                                    <br />
+                                    <span style="margin-right: 10px;font-weight:bold;">% de asistencia anual:</span>
+                                    <span style="display: inline-block; border-bottom: 1px solid #000; width: 120px; "></span>
+                                </div>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="font-size:8px; position: relative; bottom: 0; right:0; width: 100%; text-align: right; font-family: Arial, sans-serif; padding-right: 10px; padding-top:700px;">
+            <span style="font-size:12px !important; padding-right:60px;">12</span>
+        </div>
+
+        @* Pagina #13 *@
+
+        @if (AllPeriodCompleteOne)
+        {
+            <div style="page-break-before: always;"></div>
+
+            @* Condición final de la/el estudiantes *@
+
+            <div style="padding-left:60px; padding-right:70px; text-align: center; padding-top:80px; line-height: 1.5;">
+
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: center;">
+                    <!-- Encabezado principal -->
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px; font-size: 12px; font-weight: bold; text-align: center;" colspan="18">
+                            Condición final de la/el estudiante
+                        </td>
+                    </tr>
+                    <!-- Títulos de columnas -->
+                    <tr>
+                        <th style="border: 1px solid #000; padding: 6px;" colspan="16">Condición final de la/el estudiante por área</th>
+                        <th style="border: 1px solid #000; padding: 6px;" colspan="2">Condición final de la/el estudiante</th>
+                    </tr>
+                    <tr style="font-weight:bold;">
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Lengua<br>Española</td>
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Matemática</td>
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Ciencias<br>Sociales</td>
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Ciencias de<br>la Naturaleza</td>
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Lenguas<br>Extranjeras<br>(inglés) </td>
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Educación<br>Física</td>
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Formación<br>Integral Humana y<br>Religiosa</td>
+                        <td style="border: 1px solid #000; padding: 3px;" colspan="2">Educación<br>Artística</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Promovido/a</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Repitente</td>
+                    </tr>
+                    <tr style="font-weight:bold;">
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;">C.F.E.</td>
+                        <td style="border: 1px solid #000; padding: 3px;">Literal</td>
+                        <td style="border: 1px solid #000; padding: 3px;"></td>
+                        <td style="border: 1px solid #000; padding: 3px;"></td>
+                    </tr>
+                    <!-- Notas de prueba -->
+                    @if (AllPeriodCompleteOne)
+                    {
+
+
+                        int numberSubject = 8;
+                        if (LenguaCFE <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+                        if (MatemCFE <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+                        if (CienciaSociCFE <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+                        if (CienciaNatuCFE <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+                        if (LenguasExtra <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+                        if (EducaciFisiCFE <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+                        if (IntegralHumanaCFE <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+                        if (EducaciArtiCFE <= 0)
+                        {
+                            numberSubject -= 1;
+                        }
+
+                        double avageFinal = (LenguaCFE + MatemCFE + CienciaSociCFE + CienciaNatuCFE + LenguasExtra + EducaciFisiCFE + IntegralHumanaCFE + EducaciArtiCFE) / (numberSubject);
+
+                        if (avageFinal >= 63)
+                        {
+                            Promovido = true;
+                        }
+
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 6px;">@LenguaCFE.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(LenguaCFE)</td>
+
+                            <td style="border: 1px solid #000; padding: 6px;">@MatemCFE.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(MatemCFE)</td>
+
+                            <td style="border: 1px solid #000; padding: 6px;">@CienciaSociCFE.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(CienciaSociCFE)</td>                            
+
+                            <td style="border: 1px solid #000; padding: 6px;">@CienciaNatuCFE.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(CienciaNatuCFE)</td>
+
+                            <td style="border: 1px solid #000; padding: 6px;">@LenguasExtra.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(LenguasExtra)</td>
+
+                            <td style="border: 1px solid #000; padding: 6px;">@EducaciFisiCFE.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(EducaciFisiCFE)</td>
+
+                            <td style="border: 1px solid #000; padding: 6px;">@IntegralHumanaCFE.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(IntegralHumanaCFE)</td>
+
+                            <td style="border: 1px solid #000; padding: 6px;">@EducaciArtiCFE.ToString("F2")</td>
+                            <td style="border: 1px solid #000; padding: 6px;">@GetLiteral(EducaciArtiCFE)</td>
+
+                            @if (Promovido)
+                            {
+
+                                <td style="border: 1px solid #000; padding: 6px; ">
+                                    <div style="height:30px; font-size:13px; font-style:italic; margin-top:0px;">
+                                        <img style="width:20px;height: 25px; padding:0px; margin:0px;" src="data:image/png;base64,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" />
+                                    </div>
+                                </td>
+
+                                <td style="border: 1px solid #000; padding: 0px;"></td>
+                            }
+                            else
+                            {
+                                <td style="border: 1px solid #000; padding: 0px;"></td>
+
+                                <td style="border: 1px solid #000; padding: 6px; ">
+                                    <div style="height:30px; font-size:13px; font-style:italic; margin-top:0px;">
+                                        <img style="width:20px;height: 25px; padding:0px; margin:0px;" src="data:image/png;base64,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" />
+                                    </div>
+                                </td>
+
+                            }
+
+                        </tr>
+                    }
+
+                    else
+                    {
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                            <td style="border: 1px solid #000; padding: 6px;"></td>
+                        </tr>
+                    }
+
+                </table>
+
+            </div>
+
+            <div style=" padding-left:60px; padding-right:70px; text-align: center; padding-top:40px; line-height: 1.5;">
+
+                <div style="border:1px solid black; height:630px; width:100%; padding:10px;">
+
+                    <p style="font-size:13px; font-weight:bold; text-align:start;">
+                        Información sobre el nivel de avance de los aprendizajes y los apoyos que necesita para la
+                        mejora de sus aprendizajes.
+                    </p>
+
+                    <table style="width:100%; margin-top:5px;">
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-bottom: 1px solid black; padding: 15px 5px; font-size:13px;"></td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        }
+
+        @* Pagina #14 *@
+        @* Firmas *@
+
+        <div style="page-break-before: always;"></div>
+
+        <div style="padding-left:60px; padding-right:70px; text-align: center; padding-top:280px; line-height: 1.5;">
+
+            <div style="width: 600px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+
+                <table style="width: 100%; border-collapse: collapse;">
+
+                    <tr>
+                        <td style="width: 500px; padding-top: 10px; padding-bottom:60px; border-top: 1px solid black; text-align: center;">
+                            <p>Firma del o la Docente</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="width: 500px;padding-top: 10px; padding-bottom:60px; border-top: 1px solid black; text-align: center;">
+                            <p>Firma del Padre o Madre o Tutor(a)</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="width: 200px; padding-top: 10px; padding-bottom:60px;border-top: 1px solid black; text-align: center;">
+                            <p>Fecha</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="width: 500px;padding-top: 10px; padding-bottom:60px; border-top: 1px solid black; text-align: center;">
+                            <p>Firma Director(a)</p>
+                        </td>
+                    </tr>
+
+                </table>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+    @* Ultima pagina *@
+
+    <div style="page-break-before: always;"></div>
+
+    <div class="image-container-final">
+        <img src="@imgFooter2" />
+    </div>
+
+</body>
+
+</html>
+
+<style>
+    .image-container-final img {
+        width: 100%;
+        height: 1052px;
+        object-fit: cover;
+    }
+
+    .container-logo-gob-rep-dom {
+        width: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        text-align: center;
+        align-items: center;
+        align-content: center;
+    }
+
+        .container-logo-gob-rep-dom img {
+            margin-top: 70px;
+            width: 85px;
+        }
+
+</style>
+
+
+

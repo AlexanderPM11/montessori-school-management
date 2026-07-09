@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+
+
+<div class="container mb-1">
+
+    <div id="tabs" class="tab-custom">
+
+        <div class="container-tabs">
+
+            <ul class="tabs">
+                <li><a href="#tabs-1">Estudiantes</a></li>
+                <li><a href="#tabs-2">Padres</a></li>
+                <li><a href="#tabs-3">Profesores</a></li>
+                <li><a href="#tabs-4">Salones</a></li>
+            </ul>
+
+            @* Estudiantes *@
+            <div class="container-form" id="tabs-1">
+
+                @await Html.PartialAsync("StudentCharts")
+
+            </div>
+
+            <div class="container-form" id="tabs-2"></div>
+            <div class="container-form" id="tabs-3"></div>
+            <div class="container-form" id="tabs-4"></div>
+
+
+        </div>
+
+
+
+    </div>
+   
+</div>
+
+<script>
+    $(function () {
+        $("#tabs").tabs();
+    });
+</script>

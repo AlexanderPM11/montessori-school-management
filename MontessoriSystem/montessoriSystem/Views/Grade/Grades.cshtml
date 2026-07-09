@@ -1,0 +1,245 @@
+﻿
+<div class="text-center">
+    @*<h1 class="display-4">Estudiantes</h1>*@
+
+
+    @*Test*@
+    @*Fin *@
+
+
+    <div class="btn-container">
+        <button type="button" id="btnNewsGrade" class="btn btn-success"><i class="fa-solid fa-plus"></i> Nuevo</button>
+        <button type="button" disabled id="btnEditGrade" class="btn btn-warning"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+        @* <button type="button" disabled id="btnDeleteGrade" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Eliminar</button> *@
+    </div>
+
+    <div id="gridContainerGrades"></div>
+
+
+</div>
+
+<script>
+
+
+$(document).ready(function() { 
+    
+    GetGradesJson();  
+    
+});
+    var idInstituSend = @ViewBag.idInstitu
+    var id = 0;
+
+    function GetGradesJson() {
+        $('#gridContainerGrades').dxDataGrid({
+            dataSource: {
+                load: function () {
+                   
+                    return $.ajax({
+                        url: '@Url.Action("GetGradesJson", "Grade")',
+                        data: { idInstitu: idInstituSend },
+                        dataType: "json"
+                    });
+                }
+            },
+            paging: {
+                pageSize: 10,
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard', // 'virtual' o 'standard'
+                // Otros ajustes de desplazamiento si es necesario
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'name',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'description',
+                    caption: "Descripción"
+                }              
+                
+
+            ],
+            onRowDblClick: function (e) {
+                CreateUpdatenGrade()
+            }, 
+            onRowClick: function (e) {
+                id = e.data.id
+            },
+            onSelectionChanged(selectedItems) {
+               
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                if (selectedRowKeys.length === 1) {
+                    id = selectedRowKeys[0].id;
+                    activeBtnGrade();
+                } else {
+                    disableBtnGrade();
+                }
+            }
+        });
+    }
+
+    function CreateUpdatenGrade() {
+        
+        $.ajax({
+            url: '@Url.Action("CreateUpdate", "Grade")',
+            method: 'GET',
+            data: { id },
+            success: function (data) {
+               confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '70%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: '',
+                    content: data,
+                    type: 'green',
+                    typeAnimated: true
+                });
+            }
+        });
+
+    }
+
+    // Btns actions
+    $("#btnNewsGrade").click(function (event) {
+        event.preventDefault();
+        id = 0;
+        deselectAllRowsGridGrades();
+        disableBtnGrade();
+        CreateUpdatenGrade();
+    });
+
+    $("#btnEditGrade").click(function (event) {
+        event.preventDefault();
+        CreateUpdatenGrade();
+    });
+
+    $("#btnPeriodGrade").click(function (event) {
+        event.preventDefault();
+        getGrade();
+    });
+
+    $("#btnDeleteGrade").click(function (event) {
+        event.preventDefault();
+        disableBtnGrade();
+        deleteGrade();
+    });
+
+
+    function activeBtnGrade() {
+        $('#btnEditGrade').prop("disabled", false);
+        $('#BtnGradeGrade').prop("disabled", false);
+        $('#btnDeleteGrade').prop("disabled", false);
+    }
+
+    function disableBtnGrade() {
+        $('#btnEditGrade').prop("disabled", true);
+        $('#BtnGradeGrade').prop("disabled", true);
+        $('#btnDeleteGrade').prop("disabled", true);
+    }
+
+    function refresshGridGrades() {
+        var dataGrid = $("#gridContainerGrades").dxDataGrid("instance");
+        dataGrid.refresh();
+    }
+    function deselectAllRowsGridGrades() {
+        var dataGrid = $('#gridContainerGrades').dxDataGrid('instance');
+        dataGrid.clearSelection();
+    }
+
+
+
+    function deleteGrade() {
+
+        $.confirm({
+            typeAnimated: true,
+            type: 'red',
+            title: 'Confirmar',
+            content: 'Se va a eliminar esta Asignatura. Desea continuar?',
+            buttons: {
+                Continuar:{
+                    text: 'Continuar',
+                    btnClass: 'btn-red',
+                    action:function () {
+                       
+                        showGlobalLoadingIndicator()
+                        $.ajax({
+                            url: '@Url.Action("Delete", "Grade")',
+                            method: 'Post',
+                            data: { id },
+                            success: function (data) {
+                                hideGlobalLoadingIndicator();
+                                if (data.result) {
+                                    toastr.success(data.data, 'Correcto!');
+                                    refresshGridGrades();
+                                } else {
+                                    toastr.error(data.data, 'Error!');
+                                }
+
+                            }
+                        });
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-default',  // Clase de Bootstrap para el botón "Cancelar"
+                    action: function () {
+                        // Lógica para cancelar
+                    }
+                }
+            }
+        });
+    }
+
+
+
+</script>
+
+<style>
+    .btn-container {
+        display:flex;
+        justify-content:end;
+        padding-bottom: 10px;
+        min-width: 200px;
+        margin-right: 10px;
+        margin-top: 10px;
+    }
+
+    #btnNewsGrade{
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #BtnGradeGrade {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    #btnEditGrade {
+        margin-right: 10px;
+    }
+
+</style>

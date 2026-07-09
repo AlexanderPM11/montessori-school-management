@@ -1,0 +1,234 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.AchievementIndicators;
+@model AchievementIndicatorStatusViewModelResponse
+
+@using MontessoriSystem.Core.Domain.Settings;
+@using MontessoriSystem.Core.Domain.Settings.Period;
+
+@inject Microsoft.Extensions.Options.IOptions<EducationalPeriodCalifict> EducationalPeriodCalifict
+
+@{
+    string Agosto_Octubre = EducationalPeriodCalifict.Value.Agosto_Octubre;
+    string Noviembre_Enero = EducationalPeriodCalifict.Value.Noviembre_Enero;
+    string Febrero_Marzo = EducationalPeriodCalifict.Value.Febrero_Marzo;
+    string Abril_Junio = EducationalPeriodCalifict.Value.Abril_Junio;
+
+
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe Estudiante</title>
+
+    <style>
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial;
+            color: #222222;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container-logo-gob-rep-dom">
+
+        <div style="padding-left:40px;padding-right:30px; text-align: center; margin-top:5px; padding-top:40px; line-height: 1.5;">
+
+            <div style="padding-top:00px; text-align:center;padding-left:7px;">
+
+                <div>
+                    <table border="1" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+
+                        <thead>
+
+                            <tr style="background-color: #4f4f4f; color: #fff;">
+                                <th colspan="2" style="padding: 7px; text-align: center; width: 40%; font-size:15px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DE:</th>
+                                <th colspan="8" style="text-align: center; width: 70%;">EVALUACIÓN</th>
+                            </tr>
+
+                            <tr>
+                                <th rowspan="2" colspan="2" style="padding: 10px; text-align: left; width: 40%;  background-color: #d1d1d1;">@Model.SubjectName</th>
+
+                                <th style="padding: 4px; width: 5%;">P1</th>
+                                <th style="padding: 4px; width: 5%;">P2</th>
+
+                                <th style="padding: 4px; width: 5%; background-color: #d1d1d1;">RP</th>
+
+                                <th style="padding: 4px; width: 5%;">P3</th>
+                                <th style="padding: 4px; width: 5%;">P4</th>
+                                <th style="padding: 4px; width: 5%; background-color: #d1d1d1;">RP</th>
+
+                                <th style="padding: 10px; width: 8%;">CF</th>
+                                <th style="padding: 10px; width: 8%;">%A</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody style="font-size:12px;">
+
+                            
+                            @foreach (var item in Model.vmPrinc)
+                            {
+                                var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                double average = 0;
+                                double finalCalif = 0;
+
+                                if (allPeriodCompleted)
+                                {
+                                    // Si todos los períodos están completos, calculamos el average
+                                    var califications = new List<double>();
+
+
+                                    califications.Add(firstPeriod.Calification);
+                                    califications.Add(secondPeriod.Calification);
+                                    califications.Add(thirdPeriod.Calification);
+                                    califications.Add(fourPeriod.Calification);
+
+                                    // Calculamos el average si hay calificaciones disponibles
+                                    if (califications.Count > 0)
+                                    {
+                                        finalCalif = califications.Sum();
+
+                                        if (secondPeriod.RecuperaPedg > 0)
+                                        {
+                                            finalCalif = finalCalif + (secondPeriod.RecuperaPedg / 2) ?? 0;
+                                        }
+                                        if (fourPeriod.RecuperaPedg > 0)
+                                        {
+                                            finalCalif = finalCalif + Math.Round(fourPeriod.RecuperaPedg * 0.3 ?? 0, 2);
+                                        }
+
+                                        finalCalif = finalCalif / 4;
+                                    }
+                                }
+
+                                <tr>
+
+                                    <td style="padding: 10px; text-align:start;" colspan="2">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td style="padding: 4px; text-align: center;">
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding:4px; text-align: center;"></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td style="padding: 4px; text-align: center;">
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding:4px; text-align: center;"></td>
+                                    }
+
+                                    @if (secondPeriod != null && secondPeriod.RecuperaPedg > 0)
+                                    {
+                                        <td style="padding: 4px; text-align: center; background-color: #d1d1d1;">
+                                            @((secondPeriod.RecuperaPedg / 2)?.ToString("F2"))
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding:4px; text-align: center;background-color: #d1d1d1;"></td>
+                                    }
+
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td style="padding: 4px; text-align: center;">
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding:4px; text-align: center;"></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td style="padding: 4px; text-align: center;">
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding:4px; text-align: center;"></td>
+                                    }
+
+                                    @if (fourPeriod != null && fourPeriod.RecuperaPedg > 0)
+                                    {
+                                        <td style="padding: 4px; text-align: center; background-color: #d1d1d1;">
+                                            @((fourPeriod.RecuperaPedg * 0.3)?.ToString("F2"))
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding: 4px; text-align: center;background-color: #d1d1d1;"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td style="padding: 10px; text-align: center;">@finalCalif.ToString("F2")</td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding: 10px; text-align: center;"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td style="padding: 10px; text-align: center;">@finalCalif.ToString("F2")</td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding: 10px; text-align: center;"></td>
+                                    }
+
+                                </tr>
+
+                            }
+
+                        </tbody>
+
+                    </table>
+
+
+                </div>
+
+            </div>           
+
+
+        </div>
+
+
+    </div>
+
+
+</body>
+</html>
+
+<style>
+
+</style>

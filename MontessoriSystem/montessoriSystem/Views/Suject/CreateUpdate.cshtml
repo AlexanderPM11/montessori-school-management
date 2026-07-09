@@ -1,0 +1,317 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Suject;
+@model SujectSaveViewModel
+
+@{
+
+}
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            @if (Model.Id > 0)
+            {
+                <text>Editar Asignatura</text>
+            }
+            else
+            {
+                <text>Nueva Asignatura</text>
+            }
+        </label>
+
+        <form class="" id="formdescription-suject" runat="server" method="post" asp-controller="TeachingPeriod" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name-suject" class="form-label">Nombre<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Name" class="form-control" id="name-suject">
+                </div>
+                <div class="col">
+                    <label for="codigo-suject" class="form-label">Código<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Code" class="form-control" id="codigo-suject">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="descriptiondescription-suject" class="form-label">Descripción<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Description" class="form-control" id="descriptiondescription-suject">
+                </div>
+            </div>
+
+            <div class="row mb-3 container-img">
+                <div class="col">
+                    <label class="form-label fw-bold">Imagen</label>
+                    <span class="text-danger"></span>
+
+                    <div class="file-drop-area-institu" id="fileDropArea-institu">
+
+                        @if (string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <span class="file-message" id="fileMessage-institu">Arrastra aquí o haz click para seleccionar</span>
+                        }
+
+                        <input asp-for="ImageUrl" id="file-input" class="file-input" type="file" accept="image/*" multiple>
+
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img id="image-preview" src="~/FileUser/Suject/@Model.ImageUrl" alt="Vista previa" style="width: 100%; height: auto; margin-top: 10px;">
+                        }
+                        else
+                        {
+                            <img id="image-preview" src="#" alt="Vista previa" style="display: none; width: 100%; height: auto; margin-top: 10px;">
+                        }
+                    </div>
+                </div>
+                
+            </div>
+            <div class="container-btn">
+                <button type="button" id="btn-savedescription-suject" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    // Change Image
+    $('#codigo-suject').prop("disabled", true);
+    $('#name-suject').on('input', function () {
+        var name = $(this).val();
+        var code = generateCode(name);
+        $('#codigo-suject').val(code);
+    });
+
+    function generateCode(name) {
+        var words = name.split(' ');
+        var code = '';
+        for (var i = 0; i < words.length; i++) {
+            if (words[i].length >= 3) {
+                code += words[i].substring(0, 3).toUpperCase();
+            } else {
+                code += words[i].toUpperCase();
+            }
+        }
+        return code;
+    }
+
+    $(document).on('change', '#file-input', function (event) {
+
+        const fileInput = document.getElementById('file-input');
+        const fileDropAreainstitu = document.getElementById('fileDropArea-institu');
+        const fileMessageinstitu = document.getElementById('fileMessage-institu');
+        const imagePreview = document.getElementById('image-preview');
+
+        const files = event.target.files;
+        if (files && files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                if (fileMessageinstitu) {
+                    fileMessageinstitu.style.display = 'none';
+                }
+
+            };
+            reader.readAsDataURL(files[0]);
+        }
+
+
+    });
+
+
+    $(document).ready(function () {
+
+        deleteSelectOptionMenu()
+        let page = "General / Estudiante";
+        setPageCurretn(page);
+
+        validateInputs();
+
+        // Funtions
+
+         $("#btn-savedescription-suject").click(function (event) {            
+            event.preventDefault()
+            if ($('#formdescription-suject').valid()) {
+                guardarDatos();
+            } else {
+                return false;
+            }
+        });
+
+        function guardarDatos() {
+
+            $('#codigo-suject').prop("disabled", false);
+            showGlobalLoadingIndicator();
+
+            var formData = new FormData($('#formdescription-suject')[0]);
+
+            // Agregar idInstitu al objeto FormData
+            formData.append('idInstitu', idInstituSend);
+            
+            var fileInput = $('#file-input')[0].files[0];
+            formData.append('File', fileInput);
+            
+            $.ajax({
+                url: '@Url.Action("CreateUpdatePost", "Suject")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    idSelectSuject = 0;
+                    deselectAllRowsGridGrades();
+                    disableBtnSuject();
+
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        toastr.success(data.data, 'Correcto!');
+                        refresshGridSujects();
+                        confirmDailog.close();
+                    } else {
+                        $('#codigo-suject').prop("disabled", true);
+                        toastr.error(data.data, 'Error!');
+                    }                   
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+
+            $('#formdescription-suject').validate({});
+
+            $('#name-suject').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#descriptiondescription-suject').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            
+            $('#codigo-suject').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+          
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });    
+
+
+
+
+    });
+
+
+</script>
+
+
+
+
+<style>
+
+
+    .container-form {
+        border-radius: 5px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 10px;
+         -webkit-box-shadow:none ; 
+        box-shadow: none ;
+    }
+
+    .title-institu-form  {
+        margin-bottom:40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    @@media (max-width:1200px) {
+       
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content:end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+
+
+
+    /* Hide the file input */
+    .file-input {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        cursor: pointer;
+    }
+    /* Style the file-drop-area-institu to look like a button */
+    .file-drop-area-institu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 20px;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        background-color: #f9f9f9;
+        position: relative;
+        z-index: 1;
+    }
+
+        .file-drop-area-institu:hover {
+            background-color: #f1f1f1;
+        }
+
+    .file-message {
+        font-size: 16px;
+        color: #555;
+    }
+</style>

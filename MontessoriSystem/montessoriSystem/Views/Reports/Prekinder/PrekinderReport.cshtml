@@ -1,0 +1,809 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.AchievementIndicators;
+@model AchievementIndicatorStatusViewModelResponse
+
+<div class="accordion" id="accordionExample" style="margin-top:10px; margin-bottom:10px;">
+
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                Competencia Fundamental: Comunicativa
+            </button>
+        </h2>
+
+        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-1">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-1">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-1">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Quitar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Dominio Artístico y Creativo
+                <br />
+                Competencia Fundamental: Comunicativa
+            </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(3).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-2">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-2">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-2">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                Dominio Psicomotor y de Salud
+                <br />
+                Competencia Fundamental: Comunicativa
+            </button>
+        </h2>
+
+        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(6).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap4" aria-expanded="false" aria-controls="collap4">
+                Dominio Descubrimiento del mundo
+                <br />
+                Competencia Fundamental: Comunicativa
+            </button>
+        </h2>
+
+        <div id="collap4" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(9).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap5" aria-expanded="false" aria-controls="collap5">
+                Dominio Cognitivo
+                <br />
+                Competencia Fundamental: Comunicativa
+            </button>
+        </h2>
+
+        <div id="collap5" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(12).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap6" aria-expanded="false" aria-controls="collap6">
+                Dominio Comunicativo
+                <br />
+                Competencia Fundamental: Comunicativa
+            </button>
+        </h2>
+
+        <div id="collap6" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(15).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap8" aria-expanded="false" aria-controls="collap8">
+                Dominio Socioemocional
+                <br />
+                Competencias Fundamentales:  Pensamiento Lógico, Creativo y Crítico; Resolución de Problemas;
+                Tecnológica y Científica.
+            </button>
+        </h2>
+
+        <div id="collap8" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(18).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap9" aria-expanded="false" aria-controls="collap9">
+                Dominio Artístico y Creativo
+                <br />
+                Competencias Fundamentales:  Pensamiento Lógico, Creativo y Crítico; Resolución de Problemas;
+                Tecnológica y Científica.
+            </button>
+        </h2>
+
+        <div id="collap9" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(21).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap10" aria-expanded="false" aria-controls="collap10">
+                Dominio Psicomotor y de Salud
+                <br />
+                Competencias Fundamentales: Pensamiento Lógico, Creativo y Crítico; Resolución de Problemas;
+                Tecnológica y Científica.
+            </button>
+        </h2>
+
+        <div id="collap10" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(24).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap11" aria-expanded="false" aria-controls="collap11">
+                Dominio Descubrimiento del mundo
+                <br />
+                Competencias Fundamentales: Pensamiento Lógico, Creativo y Crítico; Resolución de Problemas;
+                Tecnológica y Científica
+            </button>
+        </h2>
+
+        <div id="collap11" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(27).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap12" aria-expanded="false" aria-controls="collap12">
+                Dominio Cognitivo
+                <br />
+                Competencias Fundamentales: Pensamiento Lógico, Creativo y Crítico; Resolución de Problemas;
+                Tecnológica y Científica
+            </button>
+        </h2>
+
+        <div id="collap12" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(30).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap13" aria-expanded="false" aria-controls="collap13">
+                Dominio Comunicativo
+                <br />
+                Competencias Fundamentales:  Pensamiento Lógico, Creativo y Crítico; Resolución de Problemas;
+                Tecnológica y Científica
+            </button>
+        </h2>
+
+        <div id="collap13" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(33).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap14" aria-expanded="false" aria-controls="collap14">
+                Dominio Socioemocional
+                <br />
+                Competencias Fundamentales: Ética y Ciudadana; Desarrollo Personal y Espiritual; Ambiental y de la
+                Salud
+            </button>
+        </h2>
+
+        <div id="collap14" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(36).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap15" aria-expanded="false" aria-controls="collap15">
+                Dominio Artístico y Creativo
+                <br />
+                Competencias Fundamentales: Ética y Ciudadana; Desarrollo Personal y Espiritual; Ambiental y de la
+                Salud
+            </button>
+        </h2>
+
+        <div id="collap15" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(39).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap16" aria-expanded="false" aria-controls="collap16">
+                Dominio Psicomotor y de Salud
+                <br />
+                Competencias Fundamentales: Ética y Ciudadana; Desarrollo Personal y Espiritual; Ambiental y de la
+                Salud
+            </button>
+        </h2>
+
+        <div id="collap16" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(42).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap17" aria-expanded="false" aria-controls="collap17">
+                Dominio Descubrimiento del Mundo
+                <br />
+                Competencias Fundamentales: Ética y Ciudadana; Desarrollo Personal y Espiritual; Ambiental y de la
+                Salud
+            </button>
+        </h2>
+
+        <div id="collap17" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(45).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap18" aria-expanded="false" aria-controls="collap18">
+                Dominio Cognitivo
+                <br />
+                Competencias Fundamentales: Ética y Ciudadana; Desarrollo Personal y Espiritual; Ambiental y de la
+                Salud
+            </button>
+        </h2>
+
+        <div id="collap18" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(48).Take(3))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collap19" aria-expanded="false" aria-controls="collap19">
+                Dominio Comunicativo
+                <br />
+                Competencias Fundamentales: Ética y Ciudadana; Desarrollo Personal y Espiritual; Ambiental y de la
+                Salud
+            </button>
+        </h2>
+
+        <div id="collap19" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc.Skip(51))
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description">@item.Indicator.Description</span>
+                        </div>
+                        <div class="status">
+                            <button class="status-button @(item.Estado == "Logrado" ? "active" : "")" data-status="Logrado" data-period="period-select-3">Logrado</button>
+                            <button class="status-button @(item.Estado == "En Proceso" ? "active" : "")" data-status="En Proceso" data-period="period-select-3">En Proceso</button>
+                            <button class="status-button @(item.Estado == "Iniciando" ? "active" : "")" data-status="Iniciando" data-period="period-select-3">Iniciando</button>
+                            <button class="delete-button btn btn-outline-danger" data-id="@item.Indicator.Id">Eliminar</button>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    <p class="custom-subtitle-form "> Observaciones y Comentarios:</p>
+
+    <div class="row mb-3 container-input">
+        <div class="col">
+            <label asp-for="Comment1" class="form-label"> Cualidades y habilidades a destacar del niño/niña:</label>
+            <textarea class="form-control" id="comment1" asp-for="Comment1" maxlength="400" rows="4" placeholder="Escriba su comentario aquí " title="Solo letras y espacios, máximo 200 caracteres"></textarea>
+        </div>
+        <div class="col">
+            <label asp-for="Comment2" class="form-label"> Aspectos en los que necesita apoyo:</label>
+            <textarea class="form-control" asp-for="Comment2" id="comment2" maxlength="400" rows="4" placeholder="Escriba su comentario aquí " title="Solo letras y espacios, máximo 200 caracteres"></textarea>
+        </div>
+    </div>
+
+
+    <div class="container-btn">
+        <button type="button" id="save-comments" class="btn btn-primary btn-save-commet"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Maneja los botones de estado
+        $('.status-button').click(function () {
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
+
+            const estado = $(this).data('status');
+            const achievementId = $(this).closest('.item').data('id');
+            const period = $('#period-select').val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateEvaluationInitial", "Reports")',
+                type: 'POST',
+                data: {
+                    idAchievementIndicator: achievementId,
+                    estado: estado,
+                    idStudent: idStudent,
+                    period: period
+                },
+                success: function (response) {
+                    toastr.success('Estado actualizado correctamente.');
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al actualizar el estado:", error);
+                }
+            });
+        });
+
+        // Maneja el botón de eliminación
+        $('.delete-button').click(function () {
+
+            const achievementId = $(this).data('id');
+            const itemDiv = $(this).closest('.item');
+            const period = $('#period-select').val();
+
+           
+
+            $.confirm({
+                typeAnimated: true,
+                type: 'red',
+                icon: 'fa fa-exclamation-circle',
+                title: 'Confirmar Eliminación',
+                content: '¿Estás seguro de que deseas eliminar este indicador?',
+                buttons: {
+                    Confirmar: {
+                        text: 'Sí, eliminar',
+                        btnClass: 'btn-red',
+                        action: function () {
+                            $.ajax({
+                                url: '@Url.Action("DeleteEvaluationInitial", "Reports")',
+                                type: 'POST',
+                                data: { idAchievementIndicator: achievementId, idStudent: idStudent, period },
+                                success: function (response) {
+                                    toastr.success('Indicador eliminado correctamente.');
+                                    itemDiv.find('.status-button').removeClass('active');
+
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("Error al eliminar el indicador:", error);
+                                }
+                            });
+                        }
+                    },
+                    Cancelar: {
+                        text: 'Cancelar',
+                        btnClass: 'btn-default'
+                    }
+                }
+            });
+
+        });
+
+        
+        // Llamada al guardar comentarios
+        $('#save-comments').click(function () {
+            const comment1 = $('#comment1').val();
+            const comment2 = $('#comment2').val();
+
+            const period = $('#period-select').val();
+            $.ajax({
+                url: '@Url.Action("SaveComments", "Reports")',
+                method: 'POST',
+                data: {
+                    IdStudent: idStudent,
+                    comment1,
+                    comment2,
+                    period: period
+                },
+                success: function (response) {
+                    toastr.success(response.message);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al guardar los comentarios:", error);
+                }
+            });
+
+        });
+
+    });
+</script>
+
+
+<style>
+    textarea{
+        height:140px;
+    }
+    .custom-subtitle-form{
+        margin-top:20px !important;
+        margin-bottom:10px !important;
+    }
+    .container-input {
+        width:100%;
+    }
+
+    .container-btn {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .evaluation {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 20px;
+        width: 100%;
+    }
+
+    .container-description {
+        width: 350px;
+        margin-right: 20px;
+    }
+
+    .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .description {
+        flex: 2;
+        width: 60%;
+    }
+
+    .status {
+        display: flex;
+        gap: 10px;
+        flex: 1;
+        margin-top: 10px;
+    }
+
+    .status-button {
+        width: 100px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        background-color: #e0e0e0;
+        color: #333;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .status-button.active {
+            background-color: #a8d5a8;
+            color: #333;
+        }
+
+    @@media (max-width: 968px) {
+        .item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .description {
+            width: 60%;
+            margin-bottom: 5px;
+        }
+
+        .status {
+            width: 100%;
+            justify-content: flex-start;
+            gap: 5px;
+        }
+
+        .status-button {
+            width: 100px;
+            text-align: center;
+            padding: 4px 8px;
+            font-size: 0.8em;
+        }
+    }
+</style>

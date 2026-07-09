@@ -1,0 +1,442 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.Attendance
+@model AttendanceSummaryViewModel
+
+@{
+    string GetStatusClass(AttendanceViewModel attendance)
+    {
+        if (attendance.IsPresent == true) return "bg-success";
+        if (attendance.IsDelay == true) return "bg-warning";
+        if (attendance.IsAbsent == true) return "bg-danger";
+        if (attendance.IsExcuse == true) return "bg-info";
+        return "bg-secondary";
+    }
+
+    string GetIconClass(AttendanceViewModel attendance)
+    {
+        if (attendance.IsPresent == true) return "bi bi-check2 text-white";
+        if (attendance.IsDelay == true) return "bi bi-clock text-dark";
+        if (attendance.IsAbsent == true) return "bi bi-x text-white";
+        if (attendance.IsExcuse == true) return "bi bi-info-circle text-white";
+        return "bi bi-question-circle text-white";
+    }
+
+    string GetStatusText(AttendanceViewModel attendance)
+    {
+        if (attendance.IsPresent == true) return "Presente";
+        if (attendance.IsDelay == true) return "Tardanza";
+        if (attendance.IsAbsent == true) return "Ausente";
+        if (attendance.IsExcuse == true) return "Excusa";
+        return "";
+    }
+}
+
+
+<div class="attendance-container">
+    <div class="attendance-summary">
+        <button class="btn btn-warning btn-lg" id="BtnMakeAllPresent">Pasar Presente (@Model.TotalCount)</button>
+        <div class="d-flex align-items-center  container-summary">
+            <span class="badge bg-success me-2 p-2 fs-6">@Model.PresentCount Presentes</span>
+            <span class="badge bg-warning text-dark me-2 p-2 fs-6">@Model.DelayCount Tardanzas</span>
+            <span class="badge bg-danger me-2 p-2 fs-6">@Model.AbsentCount Ausentes</span>
+            <span class="badge bg-info me-2 p-2 fs-6">@Model.ExcuseCount Excusa</span>
+        </div>
+    </div>
+</div>
+
+<table class="table table-hover table-container">
+        <thead>
+            <tr>
+                <th>N°</th>
+                <th>NOMBRE</th>
+                <th>ESTADO</th>
+                <th>COMENTARIO</th>
+                <th></th> <!-- Columna para el botón de guardar -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var attendance in Model.Attendances)
+            {
+                <tr>
+                    <td class="align-middle">@attendance.NumberList</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <div>@attendance.FullNameStudent</div>
+                                @if (  !string.IsNullOrEmpty(GetStatusText(attendance)))
+                                {
+                                <small id="status-info-@attendance.IdStudent" 
+                                data-date-attendance="@attendance.Date.ToString("ddd dd MMM yyyy HH:mm")" class="text-muted">
+                                    @(GetStatusText(attendance))
+                                    El @(attendance.Date.ToString("ddd dd MMM yyyy HH:mm"))</small>
+                                }else{
+                                <small id="status-info-@attendance.IdStudent" data-date-attendance="@attendance.Date.ToString("ddd dd MMM yyyy HH:mm")" class="text-muted"></small>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div id="attendance-status-button-@attendance.IdStudent" class="status-button rounded-circle text-center p-2 @(GetStatusClass(attendance))">
+                                <i class="@(GetIconClass(attendance))"></i>
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm dropdown-toggle" type="button" id="dropdownMenuButton-@attendance.IdStudent" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@attendance.IdStudent">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" >
+                                        <div class="rounded-circle text-center p-2 bg-success me-2">
+                                            <i class="bi bi-check2 text-white"></i>
+                                        </div>
+                                        Presente
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" >
+                                        <div class="rounded-circle text-center p-2 bg-warning me-2">
+                                            <i class="bi bi-clock text-dark"></i>
+                                        </div>
+                                        Tardanza
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center">
+                                        <div class="rounded-circle text-center p-2 bg-danger me-2">
+                                            <i class="bi bi-x text-white"></i>
+                                        </div>
+                                        Ausente
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" >
+                                        <div class="rounded-circle text-center p-2 bg-info me-2">
+                                            <i class="bi bi-info-circle text-white"></i>
+                                        </div>
+                                        Excusa
+                                    </a>
+                                </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <textarea class="form-control comment" rows="3" placeholder="Añadir comentario" data-id="@attendance.IdStudent">@attendance.Observation</textarea>
+                    </td>
+                    <td>
+                    <button class="btn btn-primary btn-save-pase-list" id="@attendance.IdStudent" name="@GetStatusText(attendance).ToLower()">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        //Manejar el cambio de estado
+        $('.dropdown-menu').on('click', '.dropdown-item', function () {
+            var selectedText = $(this).text().trim().toLowerCase();
+            var dropdown = $(this).closest('.dropdown');
+            var divId = dropdown.prev('.status-button').attr('id');
+
+            // Eliminar todas las clases del div y agregar la nueva clase según la selección
+            $('#' + divId).removeClass().addClass('status-button rounded-circle text-center p-2 ');
+
+            switch (selectedText) {
+                case 'presente':
+                    $('#' + divId).addClass('bg-success');
+                    $('#' + divId + ' i').removeClass().addClass('bi bi-check2 text-white');
+                    break;
+                case 'tardanza':
+                    $('#' + divId).addClass('bg-warning');
+                    $('#' + divId + ' i').removeClass().addClass('bi bi-clock text-dark');
+                    break;
+                case 'ausente':
+                    $('#' + divId).addClass('bg-danger');
+                    $('#' + divId + ' i').removeClass().addClass('bi bi-x text-white');
+                    break;
+                case 'excusa':
+                    $('#' + divId).addClass('bg-info');
+                    $('#' + divId + ' i').removeClass().addClass('bi bi-info-circle text-white');
+                    break;
+                default:
+                    $('#' + divId).addClass('bg-secondary');
+                    $('#' + divId + ' i').removeClass().addClass('bi bi-question-circle text-white');
+            }
+            // Eliminar el atributo data-status del botón btn-save-pase-list            
+            dropdown.closest('tr').find('.btn-save-pase-list').attr('name', selectedText);
+
+        });
+        //Manejar el boton de guardar los cambios
+
+        $('.btn-save-pase-list').on('click', function () {
+            var studentId = $(this).attr('id');
+            var status = $(this).attr('name');
+            var comment = $(this).closest('tr').find('.comment').val();
+
+            // Verificar si el estado ha sido seleccionado
+            if (!status) {
+                toastr.error('Por favor, seleccione el estado antes de guardar.', 'Error!');
+                return;
+            }
+
+            
+            //Actualizar informacion
+            UpdateAttendance(studentId, status, comment);
+            
+        });
+        
+       
+
+    });
+
+    $('#BtnMakeAllPresent').on('click', function () {
+        UpdateAttendanceMakeAllPresent()
+
+    });
+    
+
+    function UpdateAttendance(studentIdPaseList, statusPaseList, observationsPaseList) {
+
+        showGlobalLoadingIndicator();
+
+        $.ajax({
+            url: '@Url.Action("UpdateAttendance", "Attendance")',
+            method: 'POST',
+            data: { IdInstitu: idInstituSendRoom, IdRoom: idRoomSelect, IdStudent: 
+                studentIdPaseList, status: statusPaseList,
+                observations: observationsPaseList,
+                IdSuject: selectSujectPaseList,
+                DayWeek: selectDayPaseList
+            },
+            success: function (data) {
+
+                hideGlobalLoadingIndicator();
+                if (data.result) {
+                    UpdateStatusAttendanceList(studentIdPaseList, statusPaseList);
+                    toastr.success(data.data, 'Correcto!');
+                    updateTotals();
+                } else {
+                    toastr.error(data.data, 'Error!');
+                }
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator();
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+            }
+        });
+
+    }
+    
+
+    function UpdateAttendanceMakeAllPresent() {
+
+        $.confirm({
+            typeAnimated: true,
+            type: 'orange',
+            icon: 'fa fa-exclamation-circle',
+            title: 'Confirmar',
+            content: '¿Está seguro de que desea marcar a todos los estudiantes como PRESENTES?',
+            buttons: {
+                Confirmar: {
+                    text: 'Sí, continuar',
+                    btnClass: 'btn-orange',
+                    action: function () {
+                        showGlobalLoadingIndicator();
+                        $.ajax({
+                            url: '@Url.Action("MakeAllPresent", "Attendance")',
+                            method: 'POST',
+                            data: {
+                                IdInstitu: idInstituSendRoom,
+                                IdRoom: idRoomSelect,
+                                IdSuject: selectSujectPaseList,
+                                DayWeek: selectDayPaseList
+                            },
+                            success: function (data) {
+
+                                hideGlobalLoadingIndicator();
+                                if (data.result) {
+                                    toastr.success(data.data, 'Correcto!');
+                                    confirmDailog.close();
+                                } else {
+                                    toastr.error(data.data, 'Error!');
+                                }
+                            },
+                            error: function (error) {
+                                hideGlobalLoadingIndicator();
+                                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                            }
+                        });
+                    }
+                },
+                Cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-default'
+                }
+            }
+        });       
+
+       
+    }
+    
+    function updateTotals() {
+        var presentCount = 0;
+        var delayCount = 0;
+        var absentCount = 0;
+        var excuseCount = 0;
+
+        // Iterate through each status button to calculate totals
+        $('.status-button').each(function () {
+            var statusClass = $(this).attr('class');
+            if (statusClass.includes('bg-success')) {
+                presentCount++;
+            } else if (statusClass.includes('bg-warning')) {
+                delayCount++;
+            } else if (statusClass.includes('bg-danger')) {
+                absentCount++;
+            } else if (statusClass.includes('bg-info')) {
+                excuseCount++;
+            }
+        });
+
+        // Update the badge counts in the DOM
+        $('.badge.bg-success').text(presentCount + ' Presentes');
+        $('.badge.bg-warning').text(delayCount + ' Tardanzas');
+        $('.badge.bg-danger').text(absentCount + ' Ausentes');
+        $('.badge.bg-info').text(excuseCount + ' Excusa');
+        $('.badge.bg-secondary').text((presentCount + delayCount + absentCount + excuseCount) + ' Asistencia Total');
+    }
+
+    function UpdateStatusAttendanceList(studentId, statu) {      
+        
+        // Actualizar la etiqueta <small> con el nuevo estado y fecha
+        var statusInfoElement = $('#status-info-' + studentId);
+        var dateTimeSelect = statusInfoElement.data('date-attendance');
+        statusInfoElement.text(capitalizeFirstLetter(statu) + ' El ' + dateTimeSelect);
+    }
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+</script>
+
+
+
+
+<style>
+    .table-container {
+        overflow-x: visible;
+        /* width:100px; */
+    }
+    #radio-no{
+        margin-left: 30px;
+    }
+    .form-check {
+        padding-left: 1.6rem !important;
+    }
+    .container-btn{
+        margin-top:30px;
+        width:100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+    #btn-save-student{
+        margin-right:10px;
+    }
+
+    #btn-add-seen-room {
+        margin-left:10px;
+    }
+
+    .container-btn-seacrh{
+
+        margin-left:10px
+    }
+
+    .container-filter{
+        display:flex;
+        justify-content:end;
+        padding-right: 33px;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    li{
+        cursor:pointer;
+    }
+
+
+    /* Responsive */
+     .btn-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        padding-bottom: 10px;
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+
+    .btn-container button {
+        margin: 5px;
+    }
+
+   
+    .attendance-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .attendance-summary {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        width:95%;
+    }
+
+    .attendance-summary > * {
+        margin: 0.5rem;
+    }
+
+   
+
+    @@media (max-width: 768px) {
+        .attendance-container {
+           background-color:transparent !important;
+            box-shadow:none;
+        }
+
+        .attendance-summary {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+            .attendance-summary > * {
+                margin: 0.25rem 0;
+            }
+
+            .attendance-summary button {
+                font-size: 14px;
+            }
+
+        .container-summary .badge {
+                font-size: 12px !important;
+            }
+    }
+
+    
+   
+</style>
+

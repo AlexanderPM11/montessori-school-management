@@ -1,0 +1,83 @@
+﻿
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        @if (ViewBag.Roles is List<string> roles)
+        {
+            <div class="d-flex flex-wrap justify-content-center">
+                <div class="m-2">
+                    <button type="button" class="btn btn-outline-secondary btn-filtros-sseccion">Todos</button>
+                </div>
+                @foreach (var role in roles)
+                {
+                    <div class="m-2">
+                        <button type="button" class="btn btn-outline-secondary btn-filtros-sseccion">@role</button>
+                    </div>
+                }
+
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    var selectedOptions = @Html.Raw(ViewBag.SelectedOptions);
+
+    $(document).ready(function () {
+        // Itera sobre los botones y marca o desmarca según selectedOptions
+        $('.btn-filtros-sseccion').each(function () {
+            let role = $(this).text().trim();
+            if (selectedOptions.includes(role)) {
+                $(this).addClass('btn-primary').removeClass('btn-outline-secondary');
+                $(this).prepend('<i class="fa-solid fa-check me-2"></i>');
+            } else {
+                $(this).removeClass('btn-primary').addClass('btn-outline-secondary');
+                $(this).find('i.fa-check').remove();
+            }
+        });
+
+        $('.btn-filtros-sseccion').on('click', function () {
+            let role = $(this).text().trim();
+
+            if ($(this).hasClass('btn-primary')) {
+                $(this).removeClass('btn-primary').addClass('btn-outline-secondary');
+                $(this).find('i.fa-check').remove();
+                selectedOptions = selectedOptions.filter(option => option !== role);
+            } else {
+                $(this).addClass('btn-primary').removeClass('btn-outline-secondary');
+                $(this).prepend('<i class="fa-solid fa-check me-2"></i>');
+                selectedOptions.push(role);
+            }
+            refresshGridUsers();
+            SetFilters();
+        });
+        
+    });
+
+
+    function SetFilters() {
+        var selectedOptionsJSON = JSON.stringify(selectedOptions);
+       
+        $.ajax({
+            url: '@Url.Action("SetFiltro", "User")',
+            method: 'GET',
+            data: { filters: selectedOptionsJSON },
+            success: function (data) {
+               
+            }
+        });
+
+    }
+
+
+</script>
+
+<style>
+    .btn-filtros-sseccion{
+        width:169px;
+    }
+    .container-btnFiltro{
+        margin-bottom:15px;
+        /*margin-left:30px;*/
+    }
+</style>

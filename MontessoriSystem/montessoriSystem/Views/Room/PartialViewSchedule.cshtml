@@ -1,0 +1,421 @@
+﻿
+
+<script src='~/js/calendar.js'></script>
+<script src='~/js/es.global.js'></script>
+<script src='~/js/es.globalMin.min.js'></script>
+
+
+<div class="container-calendar-room">
+    
+    <label for="name" class="form-label fw-bold">
+        Horario de clases
+    </label>
+
+    <div id='calendarDisplay'>
+    </div>
+
+</div>
+
+
+
+<script>
+
+    // values
+
+    var title = '';
+    var startDate = '';
+    var endDate = '';
+    var subjectName = '';
+    var teacherName = '';
+    var selectedInfo;
+    var idScheduleSelect = 0;
+
+    var calendarEl = document.getElementById('calendarDisplay');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        eventColor: '#2ecc71',
+        initialDate: '2023-01-12',
+        initialView: 'timeGridWeek',
+        locale: 'es',
+        weekends: false, // Oculta los fines de semana
+        headerToolbar: false, // Oculta la barra de herramientas
+        navLinks: false, // Oculta los enlaces de navegación
+        editable: true, // Activa la edición de eventos
+        selectable: true, // Activa la selección de fechas
+        selectMirror: true, // Activa el reflejo de selección
+        dayMaxEvents: false, // Desactiva el "más" enlace cuando hay demasiados eventos
+        slotDuration: '01:00:00', // Intervalo de tiempo por hora
+        slotMinTime: '07:00:00', // Hora mínima a mostrar (7:00 a.m.)
+        slotMaxTime: '24:00:00', // Hora máxima a mostrar (medianoche)
+        allDaySlot: false, // Oculta la columna de Todo el día
+        slotLabelFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            omitZeroMinute: false,
+            hour12: true
+        },
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: 'short',
+            hour12: true
+        },
+        slotLabelContent: function (arg) {
+            var hour = arg.date.getHours();
+            var minute = arg.date.getMinutes();
+            var ampm = hour >= 12 ? 'PM' : 'AM';
+            hour = hour % 12 || 12;
+            var formattedHour = hour < 10 ? '0' + hour : hour;
+            var formattedMinute = minute < 10 ? '0' + minute : minute;
+            return formattedHour + ':' + formattedMinute + ' ' + ampm;
+        },
+        dayHeaderContent: function (arg) {
+            var day = arg.date.toLocaleDateString('es-ES', { weekday: 'long' });
+            return day.charAt(0).toUpperCase() + day.slice(1);
+        },
+        select: async function (info) {
+
+            var startTime = info.start;
+            var endTime = info.end;
+
+            var startHour = startTime.getHours();
+            var startMinute = startTime.getMinutes();
+            var startSecond = startTime.getSeconds();
+
+            var endHour = endTime.getHours();
+            var endMinute = endTime.getMinutes();
+            var endSecond = endTime.getSeconds();
+
+            var startTime12h = convertTo12HourFormat(`${startHour}:${startMinute}:${startSecond}`);
+            var endTime12h = convertTo12HourFormat(`${endHour}:${endMinute}:${endSecond}`);
+
+            startDate = startTime12h;
+            endDate = endTime12h;
+
+            selectedInfo = info;
+            SetInfoSchedule();
+            idScheduleSelect = 0;
+
+        },
+
+        eventClick: function (info) {
+
+
+            var startTime = info.event.start;
+            var endTime = info.event.end;
+
+            var startHour = startTime.getHours();
+            var startMinute = startTime.getMinutes();
+            var startSecond = startTime.getSeconds();
+
+            var endTime12h
+            if (endTime  != null){
+                var endHour = endTime.getHours();
+                var endMinute = endTime.getMinutes();
+                var endSecond = endTime.getSeconds();
+
+                endTime12h = convertTo12HourFormat(`${endHour}:${endMinute}:${endSecond}`);
+
+            }else{
+                endTime12h = convertTo12HourFormat(`${startHour}:${startMinute}:${startSecond}`);
+            }         
+
+            var startTime12h = convertTo12HourFormat(`${startHour}:${startMinute}:${startSecond}`);          
+
+            var endT
+
+            if (endTime != null) {
+                endT = info.event.end;
+            } else {
+                endT = info.event.start
+            }
+
+            var editSelectedInfo = {
+                start: info.event.start,
+                end: endT
+            };
+
+
+            selectedInfo = editSelectedInfo;
+
+            startDate = startTime12h;
+            endDate = endTime12h;
+            idScheduleSelect = info.event.id;
+
+
+            // Display confirmation to the user
+            actionEvent()
+        },
+
+        eventDrop: function (info) {
+            startDate = info.event.start;
+            endDate = info.event.end;
+            idScheduleSelect = info.event.id;
+
+
+            SaveEventDrop(info)
+
+        }
+    });
+   
+    $.ajax({
+        url: '@Url.Action("JsonSchedule", "Room")',
+        type: 'GET',
+        data: { idRoomSelect },
+        success: function (response) {
+
+            // Iterar sobre cada evento recibido
+            response.forEach(function (evento) {
+
+                var start = new Date(evento.initDate);
+                var end = new Date(evento.finishDate);
+
+                // Construir un objeto de evento en el formato esperado por FullCalendar
+                var eventoFullCalendar = {
+                    title: `${evento.subjectName != null ? evento.subjectName : ""} -- \n ${evento.teacherName != null ? evento.teacherName:"" }`,
+                    start: start.toISOString(),
+                    end: end.toISOString(),
+                    id: evento.id,
+                    color: '#2ecc71'
+                };
+                // Agregar el evento al calendario
+                calendar.addEvent(eventoFullCalendar);
+            });
+        },
+        error: function (error) {
+            console.error('Error al obtener los eventos:', error);
+            // Manejar errores si es necesario
+        }
+    });
+    
+
+    //Alerts
+    function SetInfoSchedule() {
+        
+     $.ajax({
+            url: '@Url.Action("SetScheduleInfo", "Room")',
+            method: 'GET',
+            data: { idInstitu: idInstituMain, IdRoom: idRoomSelect, reqDataStart: startDate, reqDataEnd: endDate, TypeRegisterSelect: TypeRegisterSelect },
+            success:  function (data) {
+
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '50%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: '',
+                    content:data,
+                    type: 'green',
+                    onContentReady: function () {
+                       
+                    }
+                });
+
+            }
+        });
+
+    }  
+
+    function EditInfoSchedule() {
+       
+        $.ajax({
+            url: '@Url.Action("SetScheduleInfo", "Room")',
+            method: 'GET',
+            data: { id: idScheduleSelect, IdRoom: idRoomSelect, idInstitu: idInstituSendRoom, reqDataStart: startDate, reqDataEnd: endDate, TypeRegisterSelect: TypeRegisterSelect },
+            success: function (data) {
+
+                confirmDailog = $.confirm({
+                    buttons: false,
+                    boxWidth: '50%',
+                    useBootstrap: false,
+                    closeIcon: true,
+                    title: '',
+                    content: data,
+                    type: 'green',
+                    onContentReady: function () {
+
+                    }
+                });
+
+            }
+        });
+
+    }
+
+    function DeleteSchedule() {
+       
+        $.ajax({
+            url: '@Url.Action("DeleteScheduleInfo", "Room")',
+            method: 'Post',
+            data: { id: idScheduleSelect, IdRoom: idRoomSelect },
+            success: function (data) {              
+
+            }
+        });
+
+    }
+
+    function actionEvent() {
+    $.confirm({
+            typeAnimated: true,
+            type: 'green',
+            icon: 'fa fa-cogs',
+            title: 'Opciones del Evento',
+            content: 'Seleccione una acción para el evento programado:',
+        buttons: {
+            Continuar: {
+                text: 'Eliminar',
+                btnClass: 'btn-red',
+                action: function () {
+                    $.confirm({
+                        typeAnimated: true,
+                        type: 'red',
+                        icon: 'fa fa-exclamation-circle',
+                        title: 'Confirmar Eliminación',
+                        content: '¿Está seguro de que desea eliminar este evento?',
+                        buttons: {
+                            Confirmar: {
+                                text: 'Sí, eliminar',
+                                btnClass: 'btn-red',
+                                action: function () {
+                                    var event = calendar.getEventById(idScheduleSelect);
+                                    if (event) {
+                                        event.remove();
+                                        DeleteSchedule();
+                                    } else {
+                                        toastr.error('Evento no encontrado.', 'Error!');
+                                    }
+                                }
+                            },
+                            Cancelar: {
+                                text: 'Cancelar',
+                                btnClass: 'btn-default'
+                            }
+                        }
+                    });
+                }
+            },
+            Editar: {
+                text: 'Editar',
+                btnClass: 'btn-warning',
+                action: function () {
+                    EditInfoSchedule();
+                }
+                },Salir: {
+                    text: 'Salir',
+                    btnClass: 'btn-default',
+                    action: function () {
+                        // Cerrar el cuadro de diálogo
+                    }
+                }
+        }
+    });
+}
+
+    function SaveEventDrop(info) {
+        
+        $.ajax({
+            url: '@Url.Action("SaveEventDropScheduleInfo", "Room")',
+            method: 'POST',
+            data: { id: idScheduleSelect, reqDataStart: startDate, reqDataEnd: endDate, IdRoom: idRoomSelect, level: TypeRegisterSelect },
+            success: function (data) {
+                if (!data.result) {
+                    info.revert();
+                    toastr.error(data.data, 'Error!');
+                } 
+            },
+            error: function (error) {
+               
+            }
+        });
+    }
+
+
+
+</script>
+
+<style>
+    /* Estilos generales */
+.container-calendar-room {
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 0 15px;
+}
+
+/* Estilos para diferentes tamaños de pantalla */
+
+/* Teléfonos en orientación vertical y horizontal */
+@@media (max-width: 575.98px) {
+        .container-calendar-room {
+            width: 600px;
+        }
+    .container-calendar-room {
+        padding: 10px;
+    }
+
+    #calendarDisplay {
+        font-size: 12px;
+    }
+
+    .fc-toolbar h2 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Tablets en orientación vertical y horizontal */
+@@media (min-width: 576px) and (max-width: 991.98px) {
+    .container-calendar-room {
+        padding: 15px;
+    }
+
+    #calendarDisplay {
+        font-size: 14px;
+    }
+
+    .fc-toolbar h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Ordenadores de escritorio y tablets en orientación horizontal */
+@@media (min-width: 992px) {
+    .container-calendar-room {
+        padding: 20px;
+    }
+
+    #calendarDisplay {
+        font-size: 16px;
+    }
+
+    .fc-toolbar h2 {
+        font-size: 1.75rem;
+    }
+}
+
+/* Ajustes específicos para FullCalendar */
+.fc {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.fc-timegrid-event {
+    font-size: 1em;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+/* Ajustar el ancho de las columnas del calendario para que sean más compactas en pantallas pequeñas */
+.fc-timegrid-col {
+    max-width: 100px;
+}
+
+/* Aumentar el tamaño de las ranuras de tiempo en dispositivos móviles para facilitar la interacción */
+@@media (max-width: 575.98px) {
+    .fc-timegrid-slot {
+        height: 1.5em;
+    }
+}
+
+</style>
+
+

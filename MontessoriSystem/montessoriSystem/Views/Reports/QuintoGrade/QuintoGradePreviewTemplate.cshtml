@@ -1,0 +1,227 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.AchievementIndicators;
+@model AchievementIndicatorStatusViewModelResponse
+
+@using MontessoriSystem.Core.Domain.Settings;
+@using MontessoriSystem.Core.Domain.Settings.Period;
+
+@inject Microsoft.Extensions.Options.IOptions<EducationalPeriodCalifict> EducationalPeriodCalifict
+
+@{
+    string Agosto_Octubre = EducationalPeriodCalifict.Value.Agosto_Octubre;
+    string Noviembre_Enero = EducationalPeriodCalifict.Value.Noviembre_Enero;
+    string Febrero_Marzo = EducationalPeriodCalifict.Value.Febrero_Marzo;
+    string Abril_Junio = EducationalPeriodCalifict.Value.Abril_Junio;
+
+
+    Layout = null;
+}
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe Estudiante</title>
+
+    <style>
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial;
+            color: #222222;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="container-logo-gob-rep-dom">
+
+        <div style="padding-left:40px;padding-right:30px; text-align: center; margin-top:5px; padding-top:40px; line-height: 1.5;">
+
+            <div style="padding-top:00px; text-align:center;padding-left:7px;">
+
+                <div>
+
+                    <table border="1" style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11px; text-align: center;">
+                        <thead>
+                            <tr>
+                                <th colspan="10" style="text-align: center; padding: 4px;">Área: @Model.SubjectName</th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" rowspan="2" style="text-align: center; padding: 4px;">COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO</th>
+                                <th colspan="4" style="padding-left:8px; padding-right:8px;">Calificación por periodo</th>
+                                <th colspan="2" style="padding-left:6px; padding-right:6px;" rowspan="2">Promedio</th>
+                                <th colspan="2">Resultado del área</th>
+                            </tr>
+                            <tr>
+                                <th style="padding-left:12px; padding-right:12px;">P1</th>
+                                <th style="padding-left:12px; padding-right:12px;">P2</th>
+                                <th style="padding-left:12px; padding-right:12px;">P3</th>
+                                <th style="padding-left:12px; padding-right:12px;">P4</th>
+                                <th style="padding-left:9px; padding-right:9px;">C.F.E.</th>
+                                <th style="padding-left:9px; padding-right:9px;">Literal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @{
+                                int index = 1;
+                                string GetLiteral(double average)
+                                {
+                                    if (average >= 91)
+                                        return "S";
+                                    else if (average >= 80)
+                                        return "L";
+                                    else if (average >= 70)
+                                        return "P";
+                                    else if (average >= 62)
+                                        return "I";
+                                    else
+                                        return "N";
+                                }
+                            }
+                            @foreach (var item in Model.vmPrinc)
+                            {
+                                <tr>
+                                    <td style="padding: 8px;">@($"C{index}")</td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        @Html.Raw(item.Indicator.Description)
+                                    </td>
+
+                                    @{
+                                        var firstPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Agosto_Octubre));
+                                        var secondPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Noviembre_Enero));
+                                        var thirdPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Febrero_Marzo));
+                                        var fourPeriod = item.PeriodosEstados.FirstOrDefault(x => x.Periodo.Equals(Abril_Junio));
+
+                                        bool allPeriodCompleted = firstPeriod != null && secondPeriod != null && thirdPeriod != null && fourPeriod != null;
+                                        double average = 0;
+
+                                        if (allPeriodCompleted)
+                                        {
+                                            // Si todos los períodos están completos, calculamos el average
+                                            var califications = new List<double>();
+                                            califications.Add(firstPeriod.Calification);
+                                            califications.Add(secondPeriod.Calification);
+                                            califications.Add(thirdPeriod.Calification);
+                                            califications.Add(fourPeriod.Calification);                                               
+
+                                            // Calculamos el average si hay calificaciones disponibles
+                                            if (califications.Count > 0)
+                                                average = califications.Average();
+                                        }
+
+                                        string literal = allPeriodCompleted ? GetLiteral(average) : "No Evaluado";
+
+                                    }
+
+                                    @if (firstPeriod != null)
+                                    {
+                                        <td>
+                                            @firstPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (secondPeriod != null)
+                                    {
+                                        <td>
+                                            @secondPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (thirdPeriod != null)
+                                    {
+                                        <td>
+                                            @thirdPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (fourPeriod != null)
+                                    {
+                                        <td>
+                                            @fourPeriod.Calification
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td colspan="2">
+                                            @average
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="2"></td>
+                                    }
+
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@average</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    @if (allPeriodCompleted)
+                                    {
+                                        <td>@literal</td>
+                                    }
+                                    else
+                                    {
+                                        <td></td>
+                                    }
+                                    
+                                </tr>
+                                index++;
+                            }
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+            </div>
+
+            <div style=" font-size:8px; position: relative; bottom: 0; width: 100%; text-align: left; font-family: Arial, sans-serif;padding: 10px; padding-top:130px;">
+                <span style="font-size:12px !important;  padding-right:10px;">6</span>
+                (<strong>C1</strong>) Competencia 1,
+                (<strong>C2</strong>) Competencia 2,
+                (<strong>C3</strong>) Competencia 3,
+                (<strong>C.F.E.</strong>) Calificación final del estudiante<br>
+                <strong>Leyenda Evaluación:</strong> S = Sobresaliente, L = Logrado, P = En proceso, I = Iniciado, N = No alcanzado
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</body>
+</html>
+
+<style>
+
+</style>

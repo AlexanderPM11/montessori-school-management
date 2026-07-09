@@ -1,0 +1,160 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.ObservationCommentEvaluation;
+@model ObservationCommentEvaluationViewModel
+@using MontessoriSystem.Core.Domain.Settings;
+@inject Microsoft.Extensions.Options.IOptions<EducationalPeriod> EducationalPeriodOptions
+
+@{
+    string Agosto_Diciembre = EducationalPeriodOptions.Value.Agosto_Diciembre;
+    string Enero_Marzo = EducationalPeriodOptions.Value.Enero_Marzo;
+    string Abril_Junio = EducationalPeriodOptions.Value.Abril_Junio;
+}
+
+<div class="select">
+
+    <div class="container-select">
+        <label for="period" class="form-label">Periodo</label>
+        <select for="period" id="period-select" class="form-select col" aria-label="Default select example">
+            <option value="@Agosto_Diciembre">@Agosto_Diciembre</option>
+            <option value="@Enero_Marzo">@Enero_Marzo</option>
+            <option value="@Abril_Junio">@Abril_Junio</option>
+        </select>
+    </div> 
+
+    <div class="container-btn-preview-pdf">
+        <button type="button" id="previewreportInfanteStudent" class="btn btn-info"><i class="fa-regular fa-file-pdf"></i>  Vista Previa</button>
+    </div>
+
+</div>
+
+<div id="container-data-infante-report"></div>
+
+
+<script>
+
+    $(document).ready(function () {
+        evaluationBtn();
+
+        $('#previewreportInfanteStudent').on('click', function () {
+            previewreportInfante();
+        })
+
+
+        function evaluationBtn(period = "@Agosto_Diciembre") {
+
+            $.ajax({
+                url: '@Url.Action("GetDataReport", "Reports")',
+                method: 'GET',
+                data: { IdStudent: idStudent },
+                success: function (data) {
+
+                    if (data.success !== undefined && !data.success) {
+                        toastr.warning(data.message);
+                        return;
+                    }
+                    $('#container-data-infante-report').empty();
+                    $('#container-data-infante-report').html(data);
+                    
+                }
+            });
+        }
+
+        // Función para refrescar los datos en función del periodo seleccionado
+        $('#period-select').change(function () {
+            // Obtiene el valor seleccionado del periodo
+            const selectedPeriod = $(this).val();
+
+            // Realiza una solicitud AJAX para recargar los datos de acuerdo al periodo
+            $.ajax({
+                url: '@Url.Action("GetDataReport", "Reports")', // Ajusta esta URL según tu controlador y acción
+                method: 'GET',
+                data: { IdStudent: idStudent, period: selectedPeriod },
+                success: function (data) {
+                    $('#container-data-infante-report').empty();
+                    $('#container-data-infante-report').html(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al actualizar los datos:", error);
+                }
+            });
+            
+        });
+
+        function previewreportInfante() {
+            showGlobalLoadingIndicator();
+            $.ajax({
+                url: '@Url.Action("PreviewReport", "Reports")',
+                method: 'GET',
+                data: { IdStudent: idStudent },
+                xhrFields: {
+                    responseType: 'arraybuffer' // Asegura que los datos se reciben en formato binario
+                },
+                success: function (data) {
+                    hideGlobalLoadingIndicator();
+
+                    // Crear un Blob URL para el PDF
+                    var blob = new Blob([data], { type: 'application/pdf' });
+                    var url = URL.createObjectURL(blob);
+
+                    // Mostrar el PDF en el cuadro de diálogo
+                    confirmDailog = $.confirm({
+                        buttons: false,
+                        boxWidth: '70%',
+                        useBootstrap: false,
+                        closeIcon: true,
+                        title: `Vista Previa - ${fullNameStudent}`,
+                        content: `<iframe src="${url}" width="100%" height="500px" style="border:none;"></iframe>`,
+                        type: 'green',
+                        onClose: function () {
+                            // Liberar el objeto URL al cerrar el cuadro de diálogo
+                            URL.revokeObjectURL(url);
+                        }
+                    });
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.warning('El informe para este grado está en proceso de construcción y estará disponible próximamente. ¡Gracias por su paciencia!', 'Warning!');
+                }
+            });
+        }
+
+      
+    });
+</script>
+
+<style>
+    .container-btn-preview-pdf{
+        margin-left:10px;
+        margin-bottom: 20px;
+    }
+    .container-select {
+        width: 60%;
+        max-width: 350px;
+        margin-bottom: 20px;
+    }
+
+    .select {
+        width: 100%;
+        display: flex;
+        justify-content: end;
+        align-content: end;
+        align-items: end;
+    }
+
+    @@media (max-width: 968px) {
+        .select {
+            width: 100%;
+            flex-direction:column;
+            display: flex;
+            justify-content: start;
+            align-content: start;
+            align-items: start;
+        }
+
+        .container-btn-preview-pdf {
+            width: 100%;
+            margin-left: 0px;
+            margin-bottom: 20px;
+        }
+    }
+
+</style>

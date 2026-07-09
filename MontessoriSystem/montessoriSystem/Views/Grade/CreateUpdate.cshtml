@@ -1,0 +1,209 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Grade;
+@model GradeSaveViewModel
+
+@{
+
+}
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            @if (Model.Id > 0)
+            {
+                <text>Editar Grado</text>
+            }
+            else
+            {
+                <text>Nuevo Grado</text>
+            }
+        </label>
+
+        <form class="" id="formdescription-grade" runat="server" method="post" asp-controller="TeachingPeriod" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="IdEducationalInsti" type="hidden" />
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name-grade" class="form-label">Nombre<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Name" class="form-control" id="name-grade">
+                </div>
+                @* <div class="col">
+                    <label for="age-grade" class="form-label">Edad<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Age" class="form-control" id="age-grade">
+                </div> *@
+                <div class="col">
+                    <label for="descriptiondescription-grade" class="form-label">Descripción<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Description" class="form-control" id="descriptiondescription-grade">
+                </div>
+            </div>
+            
+
+            <div class="container-btn">
+                <button type="button" id="btn-savedescription-grade" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+    $(document).ready(function () {
+
+       
+        validateInputs();
+
+        // Funtions
+
+         $("#btn-savedescription-grade").click(function (event) {            
+            event.preventDefault()
+            if ($('#formdescription-grade').valid()) {
+                guardarDatos();
+            } else {
+                return false;
+            }
+        });
+
+        function guardarDatos() {
+
+            $('#codigo-grade').prop("disabled", false);
+            showGlobalLoadingIndicator();
+
+            var formData = new FormData($('#formdescription-grade')[0]);
+
+            // Agregar idInstitu al objeto FormData
+            formData.append('idInstitu', idInstituSend);
+            
+            $.ajax({
+                url: '@Url.Action("CreateUpdatePost", "Grade")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        toastr.success(data.data, 'Correcto!');
+                        refresshGridGrades();
+                        disableBtnGrade();
+                        confirmDailog.close();
+                    } else {
+                        $('#codigo-grade').prop("disabled", true);
+                        toastr.error(data.data, 'Error!');
+                    }                   
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+
+            $('#formdescription-grade').validate({});
+
+            $('#name-grade').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#descriptiondescription-grade').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $.validator.addMethod("numeric", function (value, element) {
+                return this.optional(element) || /^[0-9]+$/.test(value);
+            }, "Por favor, ingrese solo números.");
+
+            $.validator.addMethod("greaterThanZero", function (value, element) {
+                return this.optional(element) || (Number(value) > 0);
+            }, "Por favor, ingrese un número mayor a 0.");
+
+            $('#age-grade').rules('add', {
+                required: true,
+                numeric: true,
+                greaterThanZero: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });    
+
+
+
+
+    });
+
+
+</script>
+
+
+
+
+<style>
+
+
+    .container-form {
+        border-radius: 5px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 10px;
+         -webkit-box-shadow:none ; 
+        box-shadow: none ;
+    }
+
+    .title-institu-form  {
+        margin-bottom:40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    @@media (max-width:1200px) {
+       
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content:end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+
+</style>

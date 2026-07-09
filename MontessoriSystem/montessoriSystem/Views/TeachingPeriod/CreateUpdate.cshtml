@@ -1,0 +1,226 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.TeachingPeriods;
+@model TeachingPeriodsSaveViewModel
+
+@{
+
+}
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+<div class="container mb-1">
+    <div class="container-form">
+
+        <label for="name" class="form-label title-institu-form fw-bold">
+            @if (Model.Id > 0)
+            {
+                <text>Editar Periodo Lectivo</text>
+            }
+            else
+            {
+                <text>Nuevo Periodo Lectivo</text>
+            }
+        </label>
+
+        <form class="" id="formCreateUpdate-teaching-periods" runat="server" method="post" asp-controller="TeachingPeriod" asp-action="CreateUpdate" enctype="multipart/form-data">
+            <input asp-for="Id" type="hidden" />
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name-teaching-periods" class="form-label">Nombre<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Name" class="form-control" id="name-teaching-periods">
+                </div>
+                <div class="col">
+                    <label for="description" class="form-label">Descripción<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="Description" class="form-control" id="description">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="dateInit" class="form-label">Fecha de Inicio<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="DateInit" class="form-control" id="dateInit">
+                </div>
+                <div class="col">
+                    <label for="dateFinish" class="form-label">Fecha Finalización<span style="color:red"> *</span></label>
+                    <input type="text" asp-for="DateFinish" class="form-control" id="dateFinish">
+                </div>
+            </div>
+
+            <div class="container-btn">
+                <button type="button" id="btn-save-institu" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+                <button type="button" id="btn-cancel" class="btn btn-outline-secondary"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#dateInit').datepicker({
+            format: 'dd MM yyyy' ,
+            language: 'es'
+        });
+
+        var initialDate = $('#dateInit').val()
+        $('#dateInit').datepicker('update', parseDateLongToShort(initialDate));
+
+
+        $('#dateFinish').datepicker({
+            format: 'dd MM yyyy',
+            language: 'es'
+        });
+
+        var finishDate = $('#dateFinish').val()
+        $('#dateFinish').datepicker('update', parseDateLongToShort(finishDate));
+
+
+        deleteSelectOptionMenu()
+        let page = "General / Estudiante";
+        setPageCurretn(page);
+
+        validateInputs();
+
+        // Funtions
+
+         $("#btn-save-institu").click(function (event) {            
+            event.preventDefault()
+            if ($('#formCreateUpdate-teaching-periods').valid()) {
+                guardarDatos();
+            } else {
+                return false;
+            }
+        });
+
+        function guardarDatos() {
+           
+          
+            showGlobalLoadingIndicator();
+
+            var formData = new FormData($('#formCreateUpdate-teaching-periods')[0]);
+
+            // Agregar idInstitu al objeto FormData
+            formData.append('idInstitu', idInstituSend);
+            
+            $.ajax({
+                url: '@Url.Action("CreateUpdatePost", "TeachingPeriod")',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    
+                    hideGlobalLoadingIndicator();
+                    if (data.result) {
+                        toastr.success(data.data, 'Correcto!');
+                        refresshGridTeachingPeriods();
+                        confirmDailog.close();
+                    } else {
+                        toastr.error(data.data, 'Error!');
+                    }                   
+
+                },
+                error: function (error) {
+                    hideGlobalLoadingIndicator();
+                    toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+                }
+            });
+        }
+
+        function validateInputs() {
+            $('#formCreateUpdate-teaching-periods').validate({});
+
+            $('#name-teaching-periods').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+
+            $('#description').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+            $('#dateInit').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+            $('#dateFinish').rules('add', {
+                required: true,
+                messages: {
+                    required: 'El campo es obligatorio.'
+                }
+            });
+          
+
+        }
+
+        $("#btn-cancel").click(function () {
+            confirmDailog.close();
+        });    
+
+
+
+
+    });
+
+
+</script>
+
+
+
+
+<style>
+
+
+    .container-form {
+        border-radius: 5px;
+        padding: 20px;
+        width: 100%;
+        margin-bottom: 10px;
+         -webkit-box-shadow:none ; 
+        box-shadow: none ;
+    }
+
+    .title-institu-form  {
+        margin-bottom:40px;
+    }
+
+    .container-inputs {
+        width: 65%;
+    }
+
+    @@media (max-width:1200px) {
+       
+    }
+
+    .line-divisor {
+        width: 100%;
+        height: 1px;
+        background-color: lightgray;
+        margin-bottom: 40px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        display: flex;
+        justify-content:end;
+    }
+
+    #btn-cancel {
+        margin-left: 10px
+    }
+
+</style>

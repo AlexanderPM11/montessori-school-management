@@ -1,0 +1,562 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.User;
+@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model SaveUserViewModel
+
+
+@{
+    ViewData["Title"] = "Create Teacher";
+    bool isEditin = (Model.Id != null);
+}
+ <!-- Load Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="~/js/filter_multi_select.css" />
+    <script src="~/js/filter-multi-select-bundle.min.js"></script>
+
+<link rel="stylesheet" href="~/css/bootstrap-datepicker.min.css" asp-append-version="true" />
+<script src="~/js/bootstrap-datepicker.min.js"></script>
+<script src="~/js/bootstrap-datepicker.es.min.js"></script>
+
+
+<div class="container mt-5">
+   
+    <form id="formCreateUpdateTeacher">
+        <input asp-for="Id" type="hidden" />
+
+        <!-- Información Personal -->
+        <div class="mb-4">
+            <p class="custom-subtitle-form">Información Personal</p>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label">Nombre(s):</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" id="inputName" asp-for="FirstName" placeholder="Ingrese el nombre">
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label">Apellidos:</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" id="inputLastname" asp-for="LastName" placeholder="Ingrese los apellidos">
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="UserName" class="form-label">Nombre de Usuario:</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" id="inputUserName" asp-for="UserName" placeholder="Ingrese el nombre de usuario">
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Gender" class="form-label">Género:</label><span style="color:red"> *</span>
+                    <select class="form-select col" asp-for="Gender" aria-label="Default select example">
+                        <option value="">Sin seleccionar</option>
+                        <option value="1">Masculino</option>
+                        <option value="0">Femenino</option>                        
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+               
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="DateBirth" class="form-label">Fecha de Nacimiento:</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" id="inputDateBirth" asp-for="DateBirth" placeholder="Fecha de nacimiento">
+                    <span asp-validation-for="DateBirth" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="IdentificationId" class="form-label">Cédula de identidad:</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" asp-for="IdentificationId" placeholder="Ingrese la cédula de identidad">
+                    <span asp-validation-for="IdentificationId" class="text-danger"></span>
+                </div>
+                
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="CivilStatus" class="form-label">Estado Civil:</label><span style="color:red"> *</span>
+                    <select class="form-select col" asp-for="CivilStatus" aria-label="Default select example">
+                        <option value="">Sin seleccionar</option>
+                        @{
+                            foreach (var item in ViewBag.MaritalStatus as List<ClassSelected<int>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                        <span asp-validation-for="CivilStatus" class="text-danger"></span>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Nationality" class="form-label">Nacionalidad:</label><span style="color:red"> *</span>
+                    <select class="form-select col" asp-for="Nationality" aria-label="Default select example">
+                        <option value="">Sin seleccionar</option>
+                        @{
+                            foreach (var item in ViewBag.Nacionaties as List<ClassSelected<int>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                        <span asp-validation-for="Nationality" class="text-danger"></span>
+                    </select>
+                    
+                </div>
+
+            </div>
+
+           
+            <div class="mb-4">
+                <div class="row mb-3">
+                   
+                    @if (!isEditin)
+                    {
+                        
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label">Contraseña:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" id="password" asp-for="Password" placeholder="Ingrese la contraseña">
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label">Confirmar Contraseña:</label><span style="color:red"> *</span>
+                            <input type="text" class="form-control" id="confirmPassword" asp-for="ConfirmPassword" placeholder="Confirme la contraseña">
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    }
+
+                    else{
+                        
+                    }
+                </div>
+
+               
+            </div>
+
+
+        </div>
+
+        <!-- Contacto -->
+        <div class="mb-4">
+            <p class="custom-subtitle-form">Contacto</p>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label">Correo:</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" asp-for="Email" placeholder="Ingrese el correo">
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Tel" class="form-label">Número de Teléfono:</label>
+                    <input type="text" class="form-control" asp-for="Tel" placeholder="Ingrese el número de Teléfono">
+                    <span asp-validation-for="Tel" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+       
+        <div class="mb-4">
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label">Celular:</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" id="PhoneNumber" asp-for="PhoneNumber" placeholder="Ingrese el numero de celular">
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Addres" class="form-label">Dirección:</label><span style="color:red"> *</span>
+                    <input type="text" class="form-control" id="addres" asp-for="Addres" placeholder="Ingrese la dirección">
+                    <span asp-validation-for="Addres" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+       
+        <!-- Ocupación y Trabajo -->
+        <div class="mb-4">
+            <p class="custom-subtitle-form">Ocupación y Trabajo</p>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="YearsServiceEducationalSystem" class="form-label">Años en servicio en el Sistema Educativo:</label>
+                    <input type="text" class="form-control" asp-for="YearsServiceEducationalSystem"  maxlength="2" placeholder="Años en servicio">
+
+                    <span asp-validation-for="YearsServiceEducationalSystem" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="AreaSpecialization" class="form-label">Área de Especialización:</label>
+
+                    <select class="form-select col" asp-for="AreaSpecialization" aria-label="Default select example">
+                        <option value="">Sin seleccionar</option>
+                        @{
+                            foreach (var item in ViewBag.Specializations as List<ClassSelected<int>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                        <span asp-validation-for="AreaSpecialization" class="text-danger"></span>
+                    </select>
+
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="TitleAchieved" class="form-label">Título alcanzado:</label>
+                    <select class="form-select col" asp-for="TitleAchieved" aria-label="Default select example">
+                        <option value="">Sin seleccionar</option>
+                        @{
+                            foreach (var item in ViewBag.TitleAchieved as List<ClassSelected<int>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                        <span asp-validation-for="TitleAchieved" class="text-danger"></span>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="StudiesCurrentlyPursuing" class="form-label">Estudios que cursa en la actualidad:</label>
+                    <select class="form-select col" asp-for="StudiesCurrentlyPursuing" aria-label="Default select example">
+                        <option value="">Sin seleccionar</option>
+                        @{
+                            foreach (var item in ViewBag.Specializations as List<ClassSelected<int>>)
+                            {
+                                <option value=@item.Id>@item.text</option>
+                            }
+                        }
+                        <span asp-validation-for="StudiesCurrentlyPursuing" class="text-danger"></span>
+                    </select>
+                </div>
+                
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="WorksAnActivityDiferentThanteaching" class="col-form-label">¿Labora en actividad distinta a docencia?</label>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="flexRadioDefault1" asp-for="WorksAnActivityDiferentThanteaching" value="true">
+                        <label class="form-check-label" for="flexRadioDefault1">
+                            Sí
+                        </label>
+                        <input class="form-check-input  ml-2" type="radio" id="flexRadioDefault2" asp-for="WorksAnActivityDiferentThanteaching" value="false">
+                        <label class="form-check-label" id="radio-no" for="flexRadioDefault2">
+                            No
+                        </label>
+                    </div>
+                   
+                    <span asp-validation-for="WorksAnActivityDiferentThanteaching" class="text-danger"></span>
+                </div>
+                <div class="col-md-6" id="especifiqueContainer">
+                    <label asp-for="Specify" class="form-label">Especifique:<span style="color:red"> *</span></label>
+                    <textarea asp-for="Specify" rows="20" class="form-control" maxlength="400"></textarea>
+                    <span asp-validation-for="Specify" class="text-danger"></span>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="container-btn">
+            <button type="button" class="btn btn-primary" id="btn-save-teacher"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+            <button type="button" class="btn btn-outline-secondary" id="btn-cancel"><i class="fa-solid fa-circle-xmark"></i> Cancelar</button>
+        </div>
+
+    </form>
+
+
+
+</div>
+
+
+<script>
+
+    $(document).ready(function () {       
+        
+        validateInputs();
+
+        const inputYearsService = document.getElementById('YearsServiceEducationalSystem');
+
+        // Agregar un event listener para el evento 'input'
+        inputYearsService.addEventListener('input', function () {
+            validateDigits(inputYearsService);
+        });
+        function validateDigits(input) {
+            input.value = input.value.replace(/\D/g, '');
+        }
+
+
+        // Obtener referencias a los elementos relevantes
+        const specifyContainer = document.getElementById('especifiqueContainer');
+        const specifyInput = document.getElementById('Specify');
+        const radioYes = document.getElementById('flexRadioDefault1');
+        const radioNo = document.getElementById('flexRadioDefault2');
+
+        // Función para mostrar u ocultar el campo "Especifique"
+        function toggleSpecifyField() {
+            if (radioYes.checked) {
+                specifyContainer.style.display = 'block'; // Mostrar el campo si "Sí" está seleccionado
+            } else {
+                specifyContainer.style.display = 'none'; // Ocultar el campo si "No" está seleccionado
+                specifyInput.value = ''; // Limpiar el valor del campo al ocultarlo
+            }
+        }
+
+        // Agregar event listeners a los radios para controlar el cambio
+        radioYes.addEventListener('change', toggleSpecifyField);
+        radioNo.addEventListener('change', toggleSpecifyField);
+
+        // Llamar a toggleSpecifyField al inicio para asegurarse de que el campo esté correctamente inicializado
+        toggleSpecifyField();
+    });
+
+    function validateInputs() {
+
+        $('#formCreateUpdateTeacher').validate({});
+
+       
+        $("#PhoneNumber").rules("add", {
+            required: true,
+            phoneFormat: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $("#Specify").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $("#Nationality").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+         $("#CivilStatus").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+
+        $("#inputName").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+
+        $("#inputGender").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+
+        $("#inputDateBirth").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+
+        var maxDate = new Date();
+        maxDate.setFullYear(maxDate.getFullYear() - 18);
+        $('#inputDateBirth').datepicker({
+            format: 'dd MM yyyy',
+            language: 'es',
+            startDate: '01/01/1940', 
+            endDate: maxDate
+        });
+
+        var inputDateBirth = $('#inputDateBirth').val()
+        $('#inputDateBirth').datepicker('update', parseDateLongToShort(inputDateBirth));
+
+        $("#password").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $("#confirmPassword").rules("add", {
+            required: true,
+            messages: {
+                required: "El campo es obligatorio."
+            }
+        });
+        $('#inputLastname').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+        $('#inputUserName').rules('add', {
+            required: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            }
+        });
+
+        $('#Email').rules('add', {
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+            emailFormat: true,
+        });
+
+        $('#addres').rules('add', {
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+        });
+        $('#Gender').rules('add', {
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+        });
+
+        $('#IdentificationId').rules('add', {
+            identificationId: true,
+            messages: {
+                required: 'El campo es obligatorio.'
+            },
+            required: true,
+        });
+
+
+        formatterTel("Tel");
+        formatterTel("PhoneNumber");
+        formatterIdenticationId("IdentificationId");
+
+        $('#Tel').on('input', function () {
+            let value = $(this).val().replace(/\D/g, ''); 
+            if (value.length > 0) {
+                $("#Tel").rules("add", {
+                    required: true,
+                    phoneFormat: true
+                });
+            }else{
+                $("#Tel").rules("add", {
+                    required: false,
+                    phoneFormat: false
+                });
+            }
+        });
+
+
+        // Configurations Place Job
+
+        // Custom valiator
+        $.validator.addMethod("phoneFormat", function (value, element) {
+            // Validar que el valor tenga el formato esperado
+            return /^\d{3}-\d{3}-\d{4}$/.test(value);
+        }, "El formato del teléfono debe ser 999-999-9999.");
+
+        $.validator.addMethod("identificationId", function (value, element) {
+            // Validar que el valor tenga el formato esperado
+            return /^\d{3}-\d{7}-\d{1}$/.test(value);
+        }, "El formato de la cédula debe ser 000-0000000-0.");
+
+        $.validator.addMethod("emailFormat", function(value, element) {
+            // Validar que el valor tenga el formato esperado de correo electrónico
+            return /^(([^<>()[\]\\.,;:\s@@"]+(\.[^<>()[\]\\.,;:\s@@"]+)*)|.(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value);
+        }, "El formato del correo electrónico no es válido.");
+    }
+
+    function guardarDatosParentForm() {
+
+        var form = document.getElementById('formCreateUpdateTeacher');
+
+        var formData = new FormData(form);
+
+        formData.append('idInstitu', IdInstituTeachers);
+        formData.append('institutionIdPrincipal', idInstituMain);
+        $.ajax({
+            url: '@Url.Action("CreateOrUpdate", "Teacher")',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                hideGlobalLoadingIndicator()
+                if (data.result) {
+                    toastr.success(data.data, 'Correcto!');
+                    refresshGridUsers();
+                    disableBtn();
+                    confirmDailog.close();
+                } else {
+                    toastr.error(data.data, 'Error!');
+                }
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator()
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!')
+            }
+        });
+
+
+    }
+
+    $("#btn-save-teacher").click(function () {
+        if ($('#formCreateUpdateTeacher').valid()) {
+            showGlobalLoadingIndicator()
+            guardarDatosParentForm();
+        } else {
+            return false;
+        }
+       
+    });
+
+
+    $("#btn-cancel").click(function () {
+        confirmDailog.close();
+    });
+
+</script>
+
+
+<style>
+    #radio-no {
+        margin-left: 30px;
+    }
+    .form-check {
+        padding-left: 1.6rem !important;
+    }
+    .rounded-image {
+        width: 100%;
+        height: 100% !important;
+        border-radius: 50%;
+        object-fit: cover; /* Asegura que la imagen se ajuste dentro del contenedor circular */
+    }
+
+    .container-img {
+        /* justify-content:start !important;  */
+    }
+
+    .container-lable-image {
+        text-align: center;
+    }
+
+    .container-img {
+        justify-content: center;
+        display: flex;
+        min-width: 250px;
+    }
+
+    .container-btn {
+        margin-top: 30px;
+        margin-right: 30px;
+        margin-bottom: 10px;
+        width: 100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+
+    #btn-save-teacher {
+        margin-right: 10px;
+    }
+
+    .jconfirm-box {
+        max-width: 1000px !important; /* Establecer ancho máximo */
+    }
+</style>
+
+

@@ -1,0 +1,217 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.Student;
+@model List<StudentViewModel>
+
+@{
+    ViewData["Title"] = "Agregar Estudiantes";
+}
+
+<div class="container mt-5" id="display-students">
+    @if(Model.Count  > 0)
+    {
+        <div class="container" id="display-filter">
+            <div class="container-filter">
+                <div class="d-flex align-items-end" style="max-width: 400px;">
+                    <input type="text" id="input-search-Student" class="form-control" placeholder="Buscar..." aria-label="Buscar..." aria-describedby="basic-addon2">
+                    <div class="container-btn-seacrh">
+                        <button disabled class="btn btn-outline-primary" type="button" id="searchStudent">Buscar</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-center">
+            @foreach (var student in Model)
+            {
+                <div class="mb-4 m-2" style="display: flex; justify-content: center; width: 100%; max-width: 400px;">
+                    <div class="card" style="width: 100%; height: 110px;">
+                        <div class="card-body d-flex flex-wrap align-items-center">
+                            <img src="~/FileUser/User/defaultuser.png" alt="Student Image" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover; margin-right: 15px;">
+                            <div>
+                                <h5 class="card-title mb-0">@student.Name @student.Lastname</h5>
+                                <p class="card-text text-muted mb-0">@student.Age años</p>
+                            </div>
+                            <div class="ml-auto d-flex justify-content-end" style="width: 100%;">
+                                <button class="btn btn-primary btn-add-student-room btn-sm" data-student-id='@student.Id'>Agregar</button>
+                                <button id="btn-add-seen-room" class="btn btn-outline-secondary btn-add-seen-room btn-sm" data-student-id='@student.Id'>Ver</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            }
+        </div>
+    }
+    else
+    {
+        <h3>No hay estudiantes disponibles</h3>
+    }
+    
+</div>
+
+
+
+
+<script>
+
+    
+    $(document).ready(function () {
+        // Asignar evento clic a todos los botones con la clase '.btn-agregar'
+        listeneBtnAdd();
+    });  
+
+
+
+    //Functions
+    $('#searchStudent').click(function () {
+        var searchTerm = $('#input-search-Student').val();
+        searchStudent();
+        if (searchTerm.trim() === '') {
+            $('#searchStudent').prop('disabled', true);
+        }
+        $('#input-search-Student').val('');
+    });
+
+
+    $('#input-search-Student').on('input', function () {
+
+        var inputValue = $(this).val().trim(); 
+
+        // Verificar la longitud del valor del campo de entrada
+        if (inputValue.length > 3) {
+            $('#searchStudent').prop('disabled', false);
+        } else {
+            $('#searchStudent').prop('disabled', true); 
+        }
+    });
+
+    function listeneBtnAdd() {
+        $('.btn-add-student-room').click(function () {
+            var button = $(this); // Referencia al botón clicado
+            var idStudent = button.data('student-id'); // Obtener el ID del estudiante desde el atributo data
+
+            // Desactivar el botón y cambiar el texto a "Agregado"
+            button.prop('disabled', true).text('Agregando...');
+
+            AddStudentToRoom(idStudent, button);
+        });
+    }
+
+    function AddStudentToRoom(idStudent, button) {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("AddStudentRoom", "Student")',
+            method: 'POST',
+            data: { idStudent,IdRoom: IdRoomStudent },
+            success: function (data) {
+                hideGlobalLoadingIndicator()
+                toastr.success('Agregado  exitosamente!', 'Correcto!')
+                refresshGrid();
+                button.text('Agregado');
+            },
+            error: function (error) {
+                button.prop('disabled', false).text('Agregando...');
+                hideGlobalLoadingIndicator()
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!')
+            }
+        });
+    }
+
+    function searchStudent() {
+        var searchTerm = $('#input-search-Student').val();
+
+        // Realizar la solicitud AJAX solo si hay un término de búsqueda
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("FilterStudentRoom", "Student")',
+            method: 'GET',
+            data: { IdInstitu: idInstituSendRoom, nameLastNameStudent: searchTerm },
+            success: function (data) {
+                hideGlobalLoadingIndicator();
+                // Clear existing content
+                var container = $('.d-flex.flex-wrap.justify-content-center');
+                container.empty();
+
+                // Check if data is not empty
+                if (data.data.length > 0) {
+                    // Iterate over the data and create HTML elements
+                    data.data.forEach(function (student) {
+                        var studentCard = `
+                            <div class="mb-4 m-2" style="display: flex; justify-content: center; width: 100%; max-width: 400px;">
+                                <div class="card" style="width: 100%; height: 110px;">
+                                    <div class="card-body d-flex flex-wrap align-items-center">
+                                       <img src='/FileUser/User/defaultuser.png' alt="Student Image" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover; margin-right: 15px;">
+                                        <div>
+                                            <h5 class="card-title mb-0">${student.name} ${student.lastname}</h5>
+                                            <p class="card-text text-muted mb-0">${student.age} años</p>
+                                        </div>
+                                        <div class="ml-auto d-flex justify-content-end" style="width: 100%;">
+                                                <button class="btn btn-primary btn-add-student-room btn-sm"  data-student-id='${student.id}'>Agregar</button>
+                                                                                        <button id="btn-add-seen-room" class="btn btn-outline-secondary btn-add-seen-room btn-sm" data-student-id='${student.id}'>Ver</button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        container.append(studentCard);
+                    });
+                    setTimeout(function () {
+                        listeneBtnAdd();
+                    }, 1000);
+                   
+                } else {
+                    container.append('<h5>Estudiantes no encontrados.</h5>');
+                }
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator();
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!');
+            }
+        });
+    }
+
+
+</script>
+
+
+<style>
+    #radio-no{
+        margin-left: 30px;
+    }
+    .form-check {
+        padding-left: 1.6rem !important;
+    }
+    .container-btn{
+        margin-top:30px;
+        width:100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+    #btn-save-student{
+        margin-right:10px;
+    }
+
+    #btn-add-seen-room {
+        margin-left:10px;
+    }
+
+    .container-btn-seacrh{
+
+        margin-left:10px
+    }
+
+    .container-filter{
+        display:flex;
+        justify-content:end;
+        padding-right: 33px;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    /* .jconfirm-box {
+        max-width: 1000px !important; /* Establecer ancho máximo */
+    } */
+</style>
+

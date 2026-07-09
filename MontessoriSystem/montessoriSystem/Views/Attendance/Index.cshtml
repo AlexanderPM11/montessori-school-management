@@ -1,0 +1,135 @@
+﻿@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.Attendance
+@using MontessoriSystem.Core.Application.Enums
+
+@{
+    ViewData["Title"] = "Pase de lista";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-end align-items-center mb-4 p-3 pb-0 rounded">
+
+        @if (ViewBag.TypeRegisterSelect != TypeRegisterEnum.Inicial.ToString())
+        {
+            <div class="d-flex align-items-end">
+                <label for="selectSubject" class="form-label me-2">Asignatura:</label>
+                <select id="selectSubject" class="form-select col" aria-label="Default select example">
+                    @{
+                        foreach (var item in ViewBag.Sujects as List<ClassSelected<int>>)
+                        {
+                            <option value="@item.Id">@item.text</option>
+                        }
+                    }
+                </select>
+            </div>
+        }
+        
+        <div class="d-flex align-items-end container-day-select">
+            <label for="selectSubject" class="form-label me-2">Día:</label>
+            <select id="selectDay" class="form-select col">
+                @{
+                    foreach (var item in ViewBag.WeekDays as List<string>)
+                    {
+                            <option value="@item">@item</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <div id="container-attendance"></div>
+</div>
+
+<script>
+
+   
+
+    var selectSujectPaseList = 0;
+    var selectDayPaseList = '';
+    $(document).ready(function () {
+
+        selectDayPaseList = $('#selectDay').val();
+        selectSujectPaseList = $('#selectSubject').val();
+
+        // Llamamos a la función para obtener la información de asistencia inicialmente
+        getAttendanceInfo(selectSujectPaseList);
+
+        // Configuramos el evento de cambio para el select
+        $('#selectSubject').change(function () {
+            var newSelectedValue = $(this).val();
+            selectSujectPaseList = newSelectedValue;
+            getAttendanceInfo(newSelectedValue);
+        });
+        // Actualizar el valor seleccionado cuando cambie la selección
+        $('#selectDay').change(function () {
+            selectDayPaseList = $(this).val();
+            getAttendanceInfo(selectSujectPaseList);
+        });
+
+        function getAttendanceInfo(selectedSubjectId) {
+            showGlobalLoadingIndicator();
+            // Realizamos la llamada AJAX para obtener la información de asistencia
+            $.ajax({
+                url: '@Url.Action("AttendanceInfo", "Attendance")',
+                method: 'GET',
+                data: { IdInstitu: idInstituSendRoom, IdRoom: idRoomSelect, IdSuject: selectedSubjectId, DayWeek: selectDayPaseList, idRegisterSelect: IdTypeRegisterSelect },
+                success: function (data) {
+                    hideGlobalLoadingIndicator();
+                    // Actualizamos el contenido del contenedor con la nueva información
+                    $('#container-attendance').html(data);
+                },
+                error: function () {
+                    hideGlobalLoadingIndicator();
+                    // Manejo de errores si es necesario
+                    console.error('Error al obtener la información de asistencia.');
+                }
+            });
+        }
+    });
+</script>
+
+
+
+<style>
+   
+    #radio-no{
+        margin-left: 30px;
+    }
+    .form-check {
+        padding-left: 1.6rem !important;
+    }
+    .container-btn{
+        margin-top:30px;
+        width:100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+    #btn-save-student{
+        margin-right:10px;
+    }
+
+    #btn-add-seen-room {
+        margin-left:10px;
+    }
+
+    .container-btn-seacrh{
+
+        margin-left:10px
+    }
+
+    .container-filter{
+        display:flex;
+        justify-content:end;
+        padding-right: 33px;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    li{
+        cursor:pointer;
+    }
+
+    .container-day-select{
+        margin-left: 20px
+    }
+</style>
+

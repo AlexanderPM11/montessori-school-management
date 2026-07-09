@@ -1,0 +1,283 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.Section;
+@model List<SectionViewModel>
+
+
+@{
+    ViewData["Title"] = "Student";
+}
+
+<div class="text-center">
+    @*<h1 class="display-4">Secciones</h1>*@
+
+     <div class="btn-container">
+        <button type="button" id="editStudent" disabled class="btn btn-outline-warning">Editar</button>
+        <button type="button" id="nuevaSeccion" class="btn btn-outline-primary">Nuevo</button>
+        <button type="button" id="deleteSection" disabled class="btn btn-outline-danger">Eliminar</button>
+    </div>
+    <div id="gridContainerSections"></div>
+
+</div>
+
+<script>
+
+ var idSection=0;
+
+$(document).ready(function() {
+    deleteSelectOptionMenu()
+    let page = "General / Secciones"
+    setPageCurretn(page);
+    getSelectOptionMenu()
+    GetDatosSecciones();    
+});
+
+ function activeBtn(){
+        $('#editStudent').prop("disabled", false);
+        $('#deleteSection').prop("disabled", false);
+ }
+
+ function disableBtn(){
+        $('#editStudent').prop("disabled", true);
+        $('#deleteSection').prop("disabled", true);
+ }
+
+//Cargar table listado Secciones
+ function GetDatosSecciones(){  
+
+        $('#gridContainerSections').dxDataGrid({
+        dataSource: "Section/GetDatosSeccionesJson",
+        paging: {
+            pageSize: 10,
+        },
+        pager: {
+            showPageSizeSelector: true,
+            allowedPageSizes: [10, 25, 50, 100],
+        },
+        searchPanel: {
+            visible: true,
+            highlightCaseSensitive: true,
+        },
+        groupPanel: { visible: true },
+        grouping: {
+            autoExpandAll: false,
+        },
+        allowColumnReordering: true,
+        keyExpr: 'ID',
+    showColumnLines: true,
+    showRowLines: true,
+    rowAlternationEnabled: false,
+        showBorders: true,
+        hoverStateEnabled: true,
+        selection: {
+      mode: 'multiple',
+    },
+        width: '100%',
+           columns: [
+                {dataField: 'name',
+           caption: "Nombre"},
+           {dataField: 'description',
+           caption: "Descripcion"},{dataField: 'estado',
+           caption: "Estado"}
+          
+           ],
+           onRowDblClick: function (e) {
+               editStudent()
+        },onRowClick: function (e) {
+              idSection=e.data.id;
+              activeBtn()
+        },
+        onSelectionChanged(selectedItems) {             
+
+        },
+        onContentReady: function (e) {        
+
+        },export: {
+          enabled: true,
+          formats: ['pdf'],
+          allowExportSelectedData: true,
+        },
+        onExporting(e) {
+          const doc = new jsPDF();
+          
+
+          DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: e.component,
+            indent: 2,
+          }).then(() => {
+                    
+            doc.save('Sections.pdf');
+          });
+        },
+        });
+
+}
+
+ function cambiarColorFila(rowElement) {
+        // Restaurar el color de las filas previamente modificadas
+        $('#gridContainerSections').dxDataGrid('getVisibleRows').forEach(function (row) {
+            console.log(row)
+            var rowElement = $('#gridContainerSections').dxDataGrid('getRowElement', row.rowIndex);
+    $(rowElement).css('background-color', '');
+        });
+
+        // Cambiar el color de la fila actual
+        $(rowElement).css('background-color', 'lightblue');
+    }
+
+    //Create
+ $('#nuevaSeccion').on('click',function(){
+          $.ajax({
+          url: 'Section/CreateUpdate',
+          method: 'GET',
+          success: function (data) {        
+                $.confirm({
+                boxWidth: '70%',
+                useBootstrap: false,
+                closeIcon: true,
+                title: 'Crear Seccion',
+                content: data,
+                type: 'orange',
+                typeAnimated: true,
+                buttons: {
+                    Guardar: {
+                        btnClass: 'btn-blue',
+                        action: function(){
+                          if ($('#formCreateUpdateSection').valid()) {
+                            showGlobalLoadingIndicator()
+                            guardarDatos();
+                          }else{
+                              return false;
+                          }
+                        }
+                    },
+                    Cerrar: function () {
+                    }
+                }
+                });
+          }
+          });
+     })
+    
+
+ function editStudent(){
+
+          $.ajax({
+          url: 'Section/CreateUpdate',
+          method: 'GET',
+          data:{idSection},
+          success: function (data) {        
+                $.confirm({
+                boxWidth: '70%',
+                useBootstrap: false,
+                closeIcon: true,
+                title: 'Editar Seccion',
+                content: data,
+                type: 'orange',
+                typeAnimated: true,
+                buttons: {
+                    Guardar: {
+                        btnClass: 'btn-blue',
+                        action: function(){
+                          if ($('#formCreateUpdateSection').valid()) {
+                            showGlobalLoadingIndicator()
+                            guardarDatos();
+
+                          }else{
+                              return false;
+                          }
+                        }
+                    },
+                    Cerrar: function () {
+                    }
+                }
+                });
+          }
+          });
+
+
+     }
+
+ function deleteSection(){
+
+         $.confirm({ typeAnimated: true,
+               type: 'orange',
+        title: 'Confirmar',
+        content: 'Se va a Inactivar o Activar la Seccion. Desea continuar?',
+        buttons: {
+            Continuar: function () {
+                showGlobalLoadingIndicator()
+              $.ajax({
+              url: 'Section/ActiveInactiveSection',
+              method: 'POST',
+              data:{idSection},
+              success: function (data) {    
+                  toastr.success('Proceso realizado con exito!', 'Correcto!')
+                  hideGlobalLoadingIndicator();
+                  refresshGrid();
+              }
+              });
+            },
+            Cancelar: function () {
+
+            }
+        }
+        });
+     }
+
+
+ $('#editStudent').on('click',function(){
+         editStudent()
+     });
+ $('#deleteSection').on('click',function(){
+         deleteSection()
+     });
+
+
+ function refresshGrid(){
+         idSection=0; 
+         disableBtn()
+         var dataGrid = $("#gridContainerSections").dxDataGrid("instance");
+        dataGrid.refresh();
+  }
+
+
+</script>
+
+<style>
+    #employeeInfo .employeePhoto {
+  height: 100px;
+  float: left;
+  padding: 20px;
+}
+
+#employeeInfo .employeeNotes {
+  padding-top: 20px;
+  text-align: justify;
+}
+
+.dark #employeeInfo .employeeNotes {
+  color: rgb(181, 181, 181);
+}
+
+    #paginationTblStudnet {
+    display: flex;
+    justify-content: end;
+}
+.btn-container {
+    display: flex;
+    justify-content: end;
+    padding-right:0px;
+    padding-bottom:10px;
+}
+#btnActiveStudent{
+    width:100px !important;
+}
+#filtroStudent{
+     margin-right:15px;
+}
+#editStudent{
+     margin-right:15px;
+}#nuevaSeccion{
+     margin-right:15px;
+}
+</style>

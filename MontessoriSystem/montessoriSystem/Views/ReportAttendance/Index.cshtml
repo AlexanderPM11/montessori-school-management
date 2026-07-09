@@ -1,0 +1,138 @@
+﻿
+
+@{
+    ViewData["Title"] = "Reportes de asistencia";
+}
+
+<div class=" container-report">
+
+    <div class="d-flex justify-content-start align-items-center mb-4 p-3 pb-0 rounded">
+       
+
+        <div class="d-flex align-items-end">
+            <label for="selectSubject" class="form-label me-2">Mes:</label>
+            <select id="selectSubject" class="form-select col" aria-label="Default select example">
+                @{
+                    foreach (var item in ViewBag.Months as List<string>)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="d-flex align-items-end mx-2">
+            <button type="button" id="btngeneratedReportPdf" class="btn btn-aqua-green"><i class="fa-solid fa-print"></i> Generar</button>
+        </div>        
+
+    </div>
+    <div id="container-report-pdf">
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+<script>
+    var selectedMonth = $('#selectSubject').val();
+    $(document).ready(function () {
+
+        $('#selectSubject').change(function () {
+            selectedMonth = $(this).val();
+            getPdfRegister();
+        });
+        getPdfRegister();
+       
+    });
+
+    $('#btngeneratedReportPdf').on('click', function () {
+        getPdfRegister();       
+    });
+
+    function getPdfRegister(){
+
+        if (/Mobi|Android/i.test(navigator.userAgent)) {
+            GetpdfDowload();
+        } else {
+            generatedReportPdf();
+        }
+    }
+
+    // 
+    function generatedReportPdf() {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("ReportAttendance", "ReportAttendance")',
+            method: 'GET',
+            data: { IdInstitu: idInstituSendRoom, IdRoom: idRoomSelect, Moth: selectedMonth, idRegisterSelect: IdTypeRegisterSelect },
+            xhrFields: {
+                responseType: 'blob' // Espera una respuesta binaria
+            },
+            success: function (data) {
+
+                hideGlobalLoadingIndicator();
+
+                var blob = new Blob([data], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+
+                // Crear un elemento embed para mostrar el PDF
+                var embed = '<embed src="' + url + '" type="application/pdf" width="100%" height="600px"/>';
+
+                // Mostrar el PDF en el contenedor deseado
+                $('#container-report-pdf').empty();
+                $('#container-report-pdf').html(embed);               
+            },
+            error: function (error) {
+                toastr.error('Ocurrio un error. Intente nuevamente. Si el error persisste, contacte con administración!', 'Error!');
+            }
+        });
+    }
+
+    function GetpdfDowload() {
+        showGlobalLoadingIndicator();
+        $.ajax({
+            url: '@Url.Action("GetPdf", "ReportAttendance")',
+            method: 'GET',
+            data: { IdInstitu: idInstituSendRoom, IdRoom: idRoomSelect, Moth: selectedMonth, idRegisterSelect: IdTypeRegisterSelect },
+            xhrFields: {
+                responseType: 'blob' // Espera una respuesta binaria
+            },
+            success: function (data) {
+                toastr.success('Pdf generado con éxito', 'Correcto!');
+                hideGlobalLoadingIndicator();
+
+                var blob = new Blob([data], { type: 'application/pdf' });
+                var url = URL.createObjectURL(blob);
+
+                // Crear un enlace para descargar el PDF
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'ReporteAsistencia.pdf'; // Nombre del archivo
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a); // Remover el enlace después de la descarga
+
+                // Libera el objeto URL creado
+                URL.revokeObjectURL(url);
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator();
+                toastr.error('Ocurrió un error. Intente nuevamente. Si el error persiste, contacte con administración.', 'Error!');
+            }
+        });
+    }
+
+</script>
+
+
+<style>
+    .container-report {
+        /* padding:20px;
+        background-color: white;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        -webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.3);
+        border: 1px solid #ccd2d5; */
+    }
+</style>

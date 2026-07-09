@@ -1,0 +1,257 @@
+﻿@using MontessoriSystem.Core.Application.ViewModels.AchievementIndicators;
+@model AchievementIndicatorStatusViewModelResponse
+
+<div class="accordion" id="accordionExample" style="margin-top:10px; margin-bottom:10px;">
+
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                COMPETENCIAS FUNDAMENTALES Y ESPECÍFICAS DEL GRADO
+            </button>
+        </h2>
+
+        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="evaluation">
+
+                @foreach (var item in Model.vmPrinc)
+                {
+                    <div class="item" data-id="@item.Indicator.Id">
+                        <div class="container-description">
+                            <span class="description"> @Html.Raw(item.Indicator.Description)</span>
+                        </div>
+                        <div class="input-container">
+                            <label for="input-@item.Indicator.Id">Calificación:</label>
+                            <input type="text"
+                                   class="score-input"
+                                   id="input-@item.Indicator.Id"
+                                   data-id="@item.Indicator.Id"
+                                   value="@(@item.Calification == 0 ? "" : @item.Calification)" />
+                            <button type="button" class="btn btn-sm btn-danger btn-clear-score" data-id="@item.Indicator.Id"> <i class="fa-solid fa-trash"></i> </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <p class="custom-subtitle-form"> OBSERVACIONES:</p>
+
+    <div class="row mb-3 container-input">
+        <div class="col">
+            <textarea class="form-control" id="comment1" asp-for="Comment1" maxlength="800" rows="6" placeholder="Escriba su comentario aquí" title="Solo letras y espacios, máximo 200 caracteres"></textarea>
+        </div>
+    </div>
+
+    <div class="container-btn">
+        <button type="button" id="save-comments" class="btn btn-primary btn-save-comment"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Permitir solo dígitos en los campos de entrada con la clase "score-input"
+        $('.score-input').on('input', function () {
+            let value = $(this).val();
+            let previousValue = $(this).data('previousValue') || value; // Guarda el valor anterior
+
+            // Reemplaza cualquier carácter que no sea un dígito
+            value = value.replace(/[^0-9]/g, '');
+
+            // Verifica si el valor está dentro del rango permitido
+            if (value !== '') {
+                const numericValue = parseInt(value, 10);
+                if (numericValue < 1) {
+                    value = '0';
+                } else if (numericValue > 100) {
+                    value = previousValue; // Si el valor es mayor a 100, se vuelve al valor anterior
+                } else {
+                    previousValue = value; // Actualiza el valor anterior solo si está dentro del rango
+                }
+            }
+
+            // Actualiza el valor del input y guarda el valor anterior
+            $(this).val(value).data('previousValue', previousValue);
+        });
+
+        // Limpiar el valor de un solo input de puntuación
+        $('.btn-clear-score').click(function () {
+            const inputId = $(this).data('id');
+            const achievementId = $(this).data('id');
+            const score = $(this).val();
+            const period = $('#period-select').val();
+
+            // Mostrar confirmación antes de eliminar
+            $.confirm({
+                typeAnimated: true,
+                type: 'red',
+                icon: 'fa fa-exclamation-circle',
+                title: 'Confirmar',
+                content: '¿Está seguro de que desea limpiar esta calificación?',
+                buttons: {
+                    Continuar: function () {
+                        // Limpiar el campo de puntuación
+                        $('#input-' + inputId).val('');
+
+                        // Realizar la solicitud AJAX para eliminar la calificación
+                        $.ajax({
+                            url: '@Url.Action("DeleteCalification", "Reports")',
+                            type: 'POST',
+                            data: {
+                                achievementId: achievementId,
+                                idStudent: idStudent,
+                                period: period,
+                                selectedGradeId: selectedGradeId
+                            },
+                            success: function (response) {
+                                toastr.success('Campo de puntuación limpiado.');
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error al actualizar la puntuación:", error);
+                            }
+                        });
+                    },
+                    Cancelar: function () {
+                        // No hacer nada si el usuario cancela
+                    }
+                }
+            });
+        });
+
+
+        // Actualiza la puntuación automáticamente al escribir
+        let debounceTimer;
+
+        $('.score-input').on('input', function () {
+            const achievementId = $(this).data('id');
+            const score = $(this).val();
+            const period = $('#period-select').val();
+
+            clearTimeout(debounceTimer); // Reinicia el temporizador si el usuario sigue escribiendo
+
+            debounceTimer = setTimeout(function () {
+                if (score >= 0 && score <= 100) {
+                    $.ajax({
+                        url: '@Url.Action("UpdateCalification", "Reports")',
+                        type: 'POST',
+                        data: {
+                            achievementId: achievementId,
+                            score: score,
+                            idStudent: idStudent,
+                            period: period,
+                            selectedGradeId: selectedGradeId
+                        },
+                        success: function (response) {
+                            toastr.success('Puntuación actualizada correctamente.');
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error al actualizar la puntuación:", error);
+                        }
+                    });
+                }
+            }, 500); // 500 ms de espera después de que el usuario deje de escribir
+        });
+
+        // Llamada al guardar comentarios
+        $('#save-comments').click(function () {
+            const comment1 = $('#comment1').val();
+            const period = $('#period-select').val();
+
+            $.ajax({
+                url: '@Url.Action("SaveComments", "Reports")',
+                method: 'POST',
+                data: {
+                    IdStudent: idStudent,
+                    comment1,
+                    period: period
+                },
+                success: function (response) {
+                    toastr.success(response.message);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error al guardar los comentarios:", error);
+                }
+            });
+        });
+
+    });
+</script>
+
+<style>
+    textarea {
+        height: 140px;
+    }
+
+    .custom-subtitle-form {
+        margin-top: 20px !important;
+        margin-bottom: 10px !important;
+    }
+    .container-btn {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .evaluation {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 20px;
+        width: 100%;
+    }
+
+    .container-description {
+        width:80%;
+       max-width: 550px;
+        margin-right: 20px;
+    }
+
+    .item {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .description {
+        flex: 2;
+        width: 60%;
+    }
+
+    .score-input:focus {
+        outline: none;
+        /* border: none; /* Opcional, asegura que no tenga un borde adicional */ */
+    }
+
+    .input-container {
+        margin-top: 10px;
+        max-width: 50px;
+        display: flex;
+        align-items: center;
+    }
+
+    .score-input {
+        width: 100px;
+        padding: 5px;
+        font-size: 1em;
+    }
+
+    .btn-clear-score {
+        margin-left: 10px;
+    }
+
+    @@media (max-width: 968px) {
+        .item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .description {
+            width: 60%;
+            margin-bottom: 5px;
+        }
+
+
+    }
+</style>

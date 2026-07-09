@@ -1,0 +1,261 @@
+﻿@using MontessoriSystem.Core.Application.Common
+
+
+@{
+    ViewData["Title"] = "Agregar Teachers";
+}
+<div class="container mb-1">
+    @*<h1 class="display-4">Teachers</h1>*@
+
+
+    @*Test*@
+    @*Fin *@
+
+
+    <div class="btn-container">
+        <button type="button" disabled id="add-new-teacher-room" class="btn btn-primary"><i class="fa-solid fa-plus"></i>  Agregar</button>
+   </div>
+    <div id="gridContainerTeachersToAdd"></div>
+
+
+</div>
+
+<script>
+
+    var idTeachersToAddRoom = [];  
+
+    $(document).ready(function () {
+        GetDatosTeacherToAdd();
+        listeneBtnAdd();
+    });
+
+    //Functions
+    function GetDatosTeacherToAdd() {
+
+        $('#gridContainerTeachersToAdd').dxDataGrid({
+            dataSource: {
+                load: function () {
+                    return $.ajax({
+                        url: '@Url.Action("GetTeacherToAddRoom", "Teacher")',
+                        data: { IdRoom: IdRoomTeacher },
+                        dataType: "json"
+                    });
+                }
+            },
+            columnMinWidth: 160,
+            paging: {
+                pageSize: 10,
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard'
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'firstName',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'lastName',
+                    caption: "Apellidos"
+                },
+                {
+                    dataField: 'userName',
+                    caption: "Nombre de Usuario"
+                },
+                {
+                    dataField: 'sex',
+                    caption: "Sexo"
+                },
+                {
+                    dataField: 'dateBirth',
+                    caption: "Fecha de nacimiento",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = formatDateString(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+                {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = GetCurrentAge(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+                {
+                    dataField: 'identificationId',
+                    caption: "Cédula de identidad"
+                },
+                {
+                    dataField: 'civilStatusDesc',
+                    caption: "Estado Civil"
+                },
+                {
+                    dataField: 'nationalityDesc',
+                    caption: "Nacionalidad"
+                },
+                {
+                    dataField: 'email',
+                    caption: "Correo Eléctronico"
+                },
+                {
+                    dataField: 'tel',
+                    caption: "Número de Teléfono"
+                },
+                {
+                    dataField: 'phoneNumber',
+                    caption: "Número de Celular"
+                },
+                {
+                    dataField: 'addres',
+                    caption: "Dirección"
+                },
+                , {
+                    dataField: 'yearsServiceEducationalSystem',
+                    caption: "Años en serv. en el Sist. Educ"
+                },
+                {
+                    dataField: 'areaSpecializationDesc',
+                    caption: "Área de Especialización"
+                }, {
+                    dataField: 'titleAchievedDesc',
+                    caption: "Título alcanzado"
+                },
+                {
+                    dataField: 'studiesCurrentlyPursuingDesc',
+                    caption: "Estudios actuales"
+                }
+
+            ],
+            onRowDblClick: function (e) {
+            }, onRowClick: function (e) {
+            },
+            onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                idTeachersToAddRoom = selectedRowKeys.map(item => item.id);
+
+                if (selectedRowKeys.length > 0) {
+                    activeBtnToAddStuRoom()
+                } else {
+                    disableBtnToAddStuRoom();
+                }
+            },
+            onContentReady: function (e) {
+
+            }
+        });
+
+    }
+
+    function AddteacherToRoom(idteacher) {
+
+        showGlobalLoadingIndicator();
+        
+        $.ajax({
+            url: '@Url.Action("AddTeacherRoom", "teacher")',
+            method: 'POST',
+            data: { idsTeacher: idTeachersToAddRoom, IdRoom: IdRoomTeacher },
+            success: function (data) {
+
+                refresshGridteacherRoomsToAdd();
+                deselectAllRowsteacherRoomsToAdd();
+
+                hideGlobalLoadingIndicator()
+                toastr.success('Proceso realizado correctamente !!', 'Correcto!')
+                refresshGrid();
+            },
+            error: function (error) {
+                hideGlobalLoadingIndicator()
+                toastr.error('Ocurrio un error. Intente nuevamente!', 'Error!')
+            }
+        });
+    }
+
+    function activeBtnToAddStuRoom() {
+        $('#add-new-teacher-room').prop("disabled", false);
+    }
+
+    function disableBtnToAddStuRoom() {
+        $('#add-new-teacher-room').prop("disabled", true);
+    }
+
+    function listeneBtnAdd() {
+        $('#add-new-teacher-room').click(function () {           
+            AddteacherToRoom();
+        });
+    }
+
+    // Grid functions
+    function refresshGridteacherRoomsToAdd() {
+        var dataGrid = $("#gridContainerTeachersToAdd").dxDataGrid("instance");
+        dataGrid.refresh();
+    }
+
+    function deselectAllRowsteacherRoomsToAdd() {
+        var dataGrid = $('#gridContainerTeachersToAdd').dxDataGrid('instance');
+        dataGrid.clearSelection();
+    }
+
+</script>
+
+
+<style>
+    #radio-no{
+        margin-left: 30px;
+    }
+    .form-check {
+        padding-left: 1.6rem !important;
+    }
+    .container-btn{
+        margin-top:30px;
+        width:100%;
+        display: flex;
+        justify-content: end;
+        right: 215px;
+    }
+    #btn-save-teacher{
+        margin-right:10px;
+    }
+
+    #btn-add-seen-room {
+        margin-left:10px;
+    }
+
+    .container-btn-seacrh{
+
+        margin-left:10px
+    }
+
+    .container-filter{
+        display:flex;
+        justify-content:end;
+        padding-right: 33px;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    
+</style>
+

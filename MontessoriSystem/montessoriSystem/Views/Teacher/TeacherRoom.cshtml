@@ -1,0 +1,370 @@
+﻿@using MontessoriSystem.Core.Application.Enums;
+@using MontessoriSystem.Infrastructure.Identity.Entities
+@using RealtyApp.Core.Application.Helpers;
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http;
+@using MontessoriSystem.Core.Application.Common
+@using MontessoriSystem.Core.Application.ViewModels.EducationalInstitution;
+@inject UserManager<ApplicationUser> userManager
+@inject IHttpContextAccessor httpContextAccessor
+
+
+@{
+    var UserLogued = User.Identity.Name;
+
+    ApplicationUser? UserLogin = null;
+    IList<string> roles = new List<string>();
+
+    if (UserLogued != null)
+    {
+        UserLogin = await userManager.FindByNameAsync(UserLogued);
+
+
+        if (userManager != null)
+        {
+            roles = await userManager.GetRolesAsync(UserLogin);
+        }
+
+    }
+    ViewData["Title"] = "Teacher";
+
+}
+
+<div class="container mb-1">
+    
+    @if (roles.Contains(Roles.Admin.ToString()))
+    {
+        <div class="btn-container">
+            <button type="button" id="nuevoTeacher" class="btn btn-primary"><i class="fa-solid fa-plus"></i>  Agregar</button>
+            <button type="button" disabled id="quitTeacher" class="btn btn-danger"><i class="fa-solid fa-trash"></i>  Quitar</button>
+            @* <button type="button" id="filtroTeacher" class="btn btn-info"><i class="fa-solid fa-filter"></i> Filtros</button> *@
+        </div>
+    }
+    
+    <div id="gridContainerTeachers"></div>
+
+</div>
+   
+</div>
+
+<script>
+
+    var idsTeacher = [];
+    var TeachersData = []; 
+    var idTeacher;
+    var fullNameTeacher;
+    var confirmDailog=null;
+
+    $(document).ready(function() {
+        $('#reportTeacher').prop("disabled", true);
+        $('#evaluationtTeacher').prop("disabled", true);
+        
+        GetDatosTeacher();
+
+    });
+    var IdRoomTeacher = '@ViewBag.IdRoom'
+
+  
+         
+    // Actions
+
+    $('#nuevoTeacher').on('click',function(){
+         deselectAllTeacher();
+         $.ajax({
+
+            url: '@Url.Action("GetDatosTeacherToAddRoom", "Teacher")',
+            method: 'GET',
+            data: {  IdRoom: IdRoomTeacher },
+            success: function (data) {
+                var divCont = '<div id="container-data">' + data + '</div>';
+              confirmDailog=  $.confirm({
+                buttons: false,
+                boxWidth: '70%',
+                useBootstrap: false,
+                closeIcon: true,
+                title: 'Agregar Profesores',
+                    content: divCont,
+                type: 'green',
+                typeAnimated: true
+                });
+            }
+         });
+
+    })
+
+    $('#quitTeacher').on('click', function () {
+        quitTeacher()
+    });   
+
+  
+    // Functions
+
+    function activeBtn() {
+        $('#editTeacher').prop("disabled", false);
+        $('#quitTeacher').prop("disabled", false);
+
+    }
+
+    function disableBtn() {
+        $('#editTeacher').prop("disabled", true);
+        $('#quitTeacher').prop("disabled", true);
+
+    }
+
+    //Cargar table listado Teachers
+    function GetDatosTeacher() {
+
+        $('#gridContainerTeachers').dxDataGrid({
+            dataSource: {
+                load: function () {
+                    return $.ajax({
+                        url: '@Url.Action("GetDatosTeacherRoom", "Teacher")',
+                        data: { idRoom: IdRoomTeacher },
+                        dataType: "json"
+                    });
+                }
+            },
+            columnMinWidth: 160,
+            paging: {
+                pageSize: 10,
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 100],
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true,
+            }, scrolling: {
+                mode: 'standard'
+            },
+            groupPanel: { visible: true },
+            grouping: {
+                autoExpandAll: false,
+            },
+            allowColumnReordering: true,
+            keyExpr: 'ID',
+            showColumnLines: true,
+            showRowLines: true,
+            rowAlternationEnabled: false,
+            showBorders: true,
+            hoverStateEnabled: true,
+            selection: {
+                mode: 'multiple',
+            },
+            width: '100%',
+            columns: [
+                {
+                    dataField: 'UrlImg',
+                    caption: 'Imagen',
+                    cellTemplate: function (container, options) {
+                        // Estilos para centrar la imagen en el contenedor
+                        container.css({
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        });
+
+                        // Construye la URL completa para la imagen
+                        var imageUrl = options.data.urlImage ? '/FileUser/User/' + options.data.urlImage : '/FileUser/User/defaultuser.png';
+
+
+                        // Crea un elemento de imagen y configúralo con la URL construida
+                        $('<img>')
+                            .attr('src', imageUrl)
+                            .attr('alt', 'Imagen del Estudiante')
+                            .css({ width: '50px', height: '50px', borderRadius: '50%' }) // Ajusta el tamaño y el estilo de la imagen
+                            .appendTo(container);
+                    },
+                },
+                {
+                    dataField: 'firstName',
+                    caption: "Nombre"
+                },
+                {
+                    dataField: 'lastName',
+                    caption: "Apellidos"
+                },
+                {
+                    dataField: 'userName',
+                    caption: "Nombre de Usuario"
+                },
+                {
+                    dataField: 'sex',
+                    caption: "Sexo"
+                },
+                {
+                    dataField: 'dateBirth',
+                    caption: "Fecha de nacimiento",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = formatDateString(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+                {
+                    dataField: '',
+                    caption: "Edad",
+                    cellTemplate: function (container, options) {
+                        var formattedDate = GetCurrentAge(options.data.dateBirth);
+                        $('<div>').text(formattedDate).appendTo(container);
+                    }
+                },
+                {
+                    dataField: 'identificationId',
+                    caption: "Cédula de identidad"
+                },
+                {
+                    dataField: 'civilStatusDesc',
+                    caption: "Estado Civil"
+                },
+                {
+                    dataField: 'nationalityDesc',
+                    caption: "Nacionalidad"
+                },
+                {
+                    dataField: 'email',
+                    caption: "Correo Eléctronico"
+                },
+                {
+                    dataField: 'tel',
+                    caption: "Número de Teléfono"
+                },
+                {
+                    dataField: 'phoneNumber',
+                    caption: "Número de Celular"
+                },
+                {
+                    dataField: 'addres',
+                    caption: "Dirección"
+                },
+                , {
+                    dataField: 'yearsServiceEducationalSystem',
+                    caption: "Años en serv. en el Sist. Educ"
+                },
+                {
+                    dataField: 'areaSpecializationDesc',
+                    caption: "Área de Especialización"
+                }, {
+                    dataField: 'titleAchievedDesc',
+                    caption: "Título alcanzado"
+                },
+                {
+                    dataField: 'studiesCurrentlyPursuingDesc',
+                    caption: "Estudios actuales"
+                }
+
+            ],
+            onRowDblClick: function (e) {
+            }, onRowClick: function (e) {
+                idTeacher = e.data.id
+            },
+            onSelectionChanged(selectedItems) {
+
+                var selectedRowKeys = selectedItems.selectedRowKeys;
+                idsTeacher = selectedRowKeys.map(item => item.id);
+                
+                if (selectedRowKeys.length > 0) {
+                    activeBtn()
+                } else {
+                    disableBtn();
+                }
+            },
+            onContentReady: function (e) {
+
+            }
+        });
+
+    }
+   
+    function quitTeacher() {
+
+        $.confirm({
+            typeAnimated: true,
+            typeAnimated: true,
+            type: 'red',
+            icon: 'fa fa-exclamation-circle',
+            title: 'Confirmar',
+            content: 'Se va a quitar el Teacher de este salón. Desea continuar?',
+            buttons: {
+                Continuar: function () {
+                    showGlobalLoadingIndicator()
+                    $.ajax({
+                       
+                        url: '@Url.Action("QuitTeacherRoom", "Teacher")',
+                        method: 'POST',
+                        data: { idsTeacher: idsTeacher, IdRoom: IdRoomTeacher },
+                        success: function (data) {
+                            toastr.success('Proceso realizado correctamente !!', 'Correcto!')
+                            hideGlobalLoadingIndicator();
+                            refresshGrid();
+                        }
+                    });
+                },
+                Cancelar: function () {
+
+                }
+            }
+        });
+    }
+
+    function refresshGrid(){
+         idTeacher=0; 
+         disableBtn()
+         var dataGrid = $("#gridContainerTeachers").dxDataGrid("instance");
+        dataGrid.refresh();
+        
+     }
+
+    function deselectAllTeacher() {
+       var dataGrid = $('#gridContainerTeachers').dxDataGrid('instance');
+       dataGrid.clearSelection();
+    }
+
+</script>
+
+<style>
+    #employeeInfo .employeePhoto {
+  height: 100px;
+  float: left;
+  padding: 20px;
+}
+
+#employeeInfo .employeeNotes {
+  padding-top: 20px;
+  text-align: justify;
+}
+
+.dark #employeeInfo .employeeNotes {
+  color: rgb(181, 181, 181);
+}
+
+    #paginationTblStudnet {
+    display: flex;
+    justify-content: end;
+}
+.btn-container {
+    display: flex;
+    justify-content: end;
+    padding-right:0px;
+    padding-bottom:10px;
+}
+#btnActiveTeacher{
+    width:100px !important;
+}
+#filtroTeacher{
+     margin-left:15px;
+}
+#editTeacher{
+     margin-right:10px;
+}#nuevoTeacher{
+     margin-right:10px;
+}
+
+    #reportTeacher{
+        margin-right: 10px;
+    }
+
+    #evaluationtTeacher {
+        margin-right: 10px;
+    }
+</style>
