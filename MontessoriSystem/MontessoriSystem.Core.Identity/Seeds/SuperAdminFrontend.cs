@@ -18,7 +18,7 @@ namespace MontessoriSystem.Infrastructure.Identity.Seeds
             applicationUser.UserName = "FrontendAdmin";
             applicationUser.FirstName = "Frontend";
             applicationUser.LastName = "Demo Admin";
-            applicationUser.Email = "frontend@admin.com";
+            applicationUser.Email = "frontend@democampus.com";
             applicationUser.EmailConfirmed = true;
             applicationUser.PhoneNumberConfirmed = true;
             applicationUser.PhoneNumber = "000-000-0000";

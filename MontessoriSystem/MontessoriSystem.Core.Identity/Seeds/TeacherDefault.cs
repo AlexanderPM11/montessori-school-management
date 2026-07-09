@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using MontessoriSystem.Core.Application.Enums;
 using MontessoriSystem.Infrastructure.Identity.Entities;
 using System;
@@ -15,14 +15,14 @@ namespace MontessoriSystem.Infrastructure.Identity.Seeds
         {
             ApplicationUser applicationUser = new ApplicationUser();
             applicationUser.UserName = "TeacherDefaultUser";
-            applicationUser.FirstName = "Alexander";
-            applicationUser.LastName = "Polanco Moreno";
-            applicationUser.Email = "teacher@gmail.com";
+            applicationUser.FirstName = "José";
+            applicationUser.LastName = "Almonte Reyes";
+            applicationUser.Email = "teacher@democampus.com";
             applicationUser.EmailConfirmed = true;
             applicationUser.PhoneNumberConfirmed = true;
-            applicationUser.PhoneNumber = "809-778-7886";
+            applicationUser.PhoneNumber = "809-555-0105";
             applicationUser.EmailConfirmed = true;
-            applicationUser.Addres = "Monte Plata";
+            applicationUser.Addres = "Puerto Plata";
             applicationUser.Statu = true;
             applicationUser.Gender = 1;
             applicationUser.IdentificationId = "000-000000-0";
