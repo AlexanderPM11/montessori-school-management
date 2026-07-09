@@ -69,7 +69,7 @@ export const LoginFormik = () => {
             <button
               type="button"
               onClick={() => {
-                setFieldValue("email", "frontend@admin.com");
+                setFieldValue("email", "admin@democampus.com");
                 setFieldValue("password", "123Pass$$word!");
                 ToastifyCustom({
                   type: "info",
