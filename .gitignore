@@ -1,0 +1,35 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDEs and Editors
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+db.db
+desktop.ini
+.DS_Store
+
+# Build/output directories (covered in sub-folders, but added here for safety)
+bin/
+obj/
+node_modules/
+dist/
+build/
+out/
+publish/
+
+# Local database / data files
+*.db
+*.sqlite
+smartcampus-mysql-data/

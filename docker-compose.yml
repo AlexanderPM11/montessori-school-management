@@ -81,9 +81,6 @@ services:
     depends_on:
       - smartcampusapi
 
-    ports:
-      # Expone el puerto del frontend (puerto 80 por defecto, configurable mediante .env)
-      - "${FRONTEND_PORT:-80}:80"
 
     networks:
       - smartcampus-network
