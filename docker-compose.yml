@@ -3,7 +3,7 @@ version: "3.8"
 services:
 
   smartcampus-mysql:
-    image: mysql:8.4.8
+    image: mysql:8.4
     container_name: smartcampus-mysql
     restart: unless-stopped
 
